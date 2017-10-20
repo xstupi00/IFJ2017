@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////
 //      Vysoké Učení Technické, Fakulta Informačních Technologií        //
 //      Předmět Formální jazyky a překladače                            //
-//      Projekt  IFJ17												    //
+//      Projekt  IFJ17							//
 //      Lexikálna analýza                                               //
 //      Autoři: Kristián Liščinský  (xlisci01)                          //
-//              Matúš Liščinský (xlisci01)		                        //
-//				Šimon Stupinský											//
-//				Vladimír Marcin											//
+//              Matúš Liščinský     (xlisci02)		                //
+//		Šimon Stupinský	    (xstupi00)				//
+//		Vladimír Marcin	    (xmarci10)				//
 //////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
