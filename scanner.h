@@ -1,8 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifndef SCANNER_H
 #define SCANNER_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <ctype.h>
+#include "scanner.h"
+#include "error.h"
+#include "strlib.h"
+
 
 typedef enum{
 
@@ -75,13 +82,14 @@ typedef enum{
 #define BACKSLASH			49	// /
 #define END_OF_FILE			50	// EOF
 #define COMMA				51	// ,
-#define LEFT_C_BRACKET  	52  // {
-#define RIGHT_C_BRACKET 	53  // }
+//#define LEFT_C_BRACKET  	52  // {
+//#define RIGHT_C_BRACKET 	53  // }
 #define LEFT_R_BRACKET  	54  // (
 #define RIGHT_R_BRACKET 	55 	// )
-#define SEMICOLON 			56	// ;
+#define SEMICOLON 			56	// ;  
 #define ID 					57	// int x;
-
+#define EOL 				58  // EOL
+#define INT_DIV				59  // celociselne delenie 
 
 /*typedef enum{
 	LEX_OK,
@@ -90,18 +98,15 @@ typedef enum{
 }T_Err;
 */
 typedef struct T_Token{
-	char* str;
+	T_string * str;
 	int type;
-	int tk_type;
-	char value;
-	bool declaration;
 }T_Token;
 
 #define VARIABLE 	1
 #define FUNCTION	2
 #define FUN_CALL	3
 
-T_Token *GetToken(FILE *source);
-T_Token *SaveToken(int type, char *string);
+T_Token *getToken();
+T_Token *saveToken(T_Token * token, int type, T_string * string, bool full);
 
 #endif 
