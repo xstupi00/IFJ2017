@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define STR_INIT 2
+#define STR_INIT 128
 
 typedef struct {
 	char * string;
