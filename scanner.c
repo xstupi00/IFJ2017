@@ -15,39 +15,63 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include "scanner.h"
-#include "errorprint.c"
+#include "error.h"
+#include "strlib.h"
 
-#define STR_INIT 100
+
+T_Token * initToken(){
+    T_Token *token = (T_Token*) malloc(sizeof(struct T_Token));
+    if(!token){
+        print_err(99);
+        return NULL;
+    }   
+    
+    token->str = strInit(); // alokacia pamate pre string
+    //(T_string*) malloc(sizeof(T_string)*(STR_INIT + 1)); //alokácia stringu na uloženie hodnoty tokenu
+    if(!token->str){
+        print_err(99);
+        return NULL;
+    }   
+    return token;
+}
+
 
 //funkcia na uloženie načítaného tokena do tokenovej štruktúry
-T_Token *SaveToken(int type, char *string){
-    T_Token *token = malloc(sizeof(struct T_Token));    //alokacia štruktúry tokenu
-    if(token == NULL){
-        errorPrint(99);     //nepodarila sa alokácia
+T_Token *saveToken(T_Token * token, int type, T_string * t_str, bool full){
+    
+    if(!token){
+        print_err(99);
         return NULL;
-    }
-
-    token->type = type; //priradí typ
-
-    if(string != NULL){
-        int length = strlen(string);
-        token->str = malloc(sizeof(char)*(length + 1)); //alokácia stringu na uloženie hodnoty tokenu
-
-        if(token->str == NULL){
-        errorPrint(99); //nepodarila sa alokácia
-        return NULL;
+    }   
+    if(full){
+        if(!t_str){
+            print_err(99);
+            return NULL;
+        }   
+        unsigned length = strlen(t_str->string);
+        if(length > token->str->capacity)
+        {
+            if(!(extendStr(token->str,length)))
+            {
+                print_err(99);
+                return NULL;
+            }   
         }
+        strcpy(token->str->string, t_str->string); //priradí hodnotu tokenu do retazca
+        t_str->string[0]='\0';
 
-        strcpy(token->str, string); //priradí hodnotu tokenu do retazca
-        free(string);
     }
+    else 
+        token->str->string[0]='\0'; 
+    token->type = type; //priradí typ
 
     return token;
 }
 
-T_Token *GetToken(FILE *source){
+T_Token *getToken(T_Token * token, T_string * t_str){
 
-    int str_init = STR_INIT;    //velkost alokovania retazca
+    //T_string * t_str = strInit();
+
     int position = 0;           //index aktualneho charu
     char c;
     char hexa[4];
@@ -58,79 +82,97 @@ T_Token *GetToken(FILE *source){
     bool dot = false;
     T_States state = S_START;   //stav automatu
 
-    char *string = calloc(1, sizeof(char) * str_init);
-    if(string == NULL){
-        errorPrint(99);     //nepodarila sa alokácia
+    //char *t_str = (char *) calloc(1, sizeof(char) * STR_INIT+1);
+    if(t_str == NULL){
+        print_err(99);     //nepodarila sa alokácia
         return NULL;
     }
 
-    while((c = fgetc(source)) != EOF +1){
-        if(string[STR_INIT-1] == '\0'){
-            str_init += str_init;
-            string = realloc(string, sizeof(char) * str_init);
-            if(string == NULL){
-                errorPrint(99);     //nepodarila sa realokácia
+    while(((c = fgetc(stdin)) != EOF) /*&& end!=false ? alebo ?+1*/){
+        t_str->length=strlen(t_str->string);
+      //  printf("dlzka :%lu\n",t_str->length);
+       
+        if(t_str->length+1 > t_str->capacity){
+            if(!(extendStr(t_str, 2*t_str->capacity))) {
+                print_err(99);
                 return NULL;
             }
         }
+        c = tolower(c);
+        //printf("kapacita :%lu\n",t_str->capacity);
+        
+            //realloc(t_str->string, sizeof(char)*2*prev_size+1)
+            //realloc(t_str->string, sizeof(char) * str_init);
+            /*if(t_str->string == NULL){
+                print_err(99);     //nepodarila sa realokácia
+                return NULL;
+            }
+        }*/
 
         switch(state){
             case S_START:
-                if(isspace(c)){
+                if(c == '\n'){
+                    return saveToken(token, EOL, NULL, false);    //EOL
+                }
+                else if(isspace(c)){
                     state = S_START;    //biely znak == pokračuj ďalej
                 }
                 else if(isalpha(c) || c == '_'){
                     state = S_IDENTIFIER;   //identifikátor, kľúčové slovo
-                    string[position++] = c;
+                    t_str->string[position++] = c;
                 }
                 else if(isdigit(c)){
                     state = S_NUMBER;   //číslo
-                    string[position++] = c;
+                    t_str->string[position++] = c;
                 }
                 /*else if(c == '{'){
-                    return SaveToken(LEFT_C_BRACKET, NULL); //ľavá zložená zátvorka
+                    return saveToken(token, LEFT_C_BRACKET, NULL, false); //ľavá zložená zátvorka
                 }
                 else if(c == '}'){
-                    return SaveToken(RIGHT_C_BRACKET, NULL);    //pravá zložená zátvorka
+                    return saveToken(token, RIGHT_C_BRACKET, NULL, false);    //pravá zložená zátvorka
                 }
                 */
                 else if(c == '('){
-                    return SaveToken(LEFT_R_BRACKET, NULL);     //ľavá okrúhla zátvorka
+                    return saveToken(token, LEFT_R_BRACKET, NULL, false);     //ľavá okrúhla zátvorka
                 }
                 else if(c == ')'){
-                    return SaveToken(RIGHT_R_BRACKET, NULL);    //pravá okrúhla zátvorka
+                    return saveToken(token, RIGHT_R_BRACKET, NULL, false);    //pravá okrúhla zátvorka
                 }
-                /*else if(c == ','){
-                    return SaveToken(COMMA, NULL);  //čiarka
+                else if(c == ','){
+                    return saveToken(token, COMMA, NULL, false);  //čiarka
                 }
-                */
+                
                 else if(c == ';'){
-                    return SaveToken(SEMICOLON, NULL);  //bodkočiarka
+                    return saveToken(token, SEMICOLON, NULL, false);  //bodkočiarka
                 }
                 else if(c == '*'){
-                    return SaveToken(MUL, NULL);    //krát
+                    return saveToken(token, MUL, NULL, false);    //krát
                 }
                 else if(c == '-'){
-                    return SaveToken(SUB, NULL);    //minus
+                    return saveToken(token, SUB, NULL, false);    //minus
                 }
                 else if(c == '+'){
-                    return SaveToken(ADD, NULL);    // plus
+                    return saveToken(token, ADD, NULL, false);    // plus
                 }
                 else if(c == '='){
-                    return SaveToken(ASSIGNMENT_EQ, NULL);   //porovnanie alebo priradenie
+                    return saveToken(token, ASSIGNMENT_EQ, NULL, false);   //porovnanie alebo priradenie
                 }
-
+                else if(c == '\\'){
+                    return saveToken(token, INT_DIV, NULL, false);   //celociselne delenie
+                }
                 /*else if(c == '.'){
-                    return SaveToken(DOT, NULL);    //bodka
+                    return saveToken(token, DOT, NULL, false);    //bodka
                 }
                 */
 
                 else if(c == '\''){
-                    while (((c = fgetc(source)) != '\n') && (c != EOF));
+                    while (((c = fgetc(stdin)) != '\n') && (c != EOF));
                     if(c == EOF){
-                        return SaveToken(END_OF_FILE, NULL);
+                        return saveToken(token, END_OF_FILE, NULL, false);
                     }
-                    else{
+                    else if (c=='\n')
+                        return saveToken(token, EOL, NULL, false);    //EOL
+                    else{ 
                         state = 0;
                     }
                 }
@@ -139,12 +181,12 @@ T_Token *GetToken(FILE *source){
                 }
                 else if(c == '!'){
 
-                    c = fgetc(source);
+                    c = fgetc(stdin);
                     if(c != '"'){
-                    	errorPrint(1);
+                        print_err(1);
                     }
                     else{
-                    	state = S_STR;
+                        state = S_STR;
                     }
 
                 }
@@ -161,146 +203,146 @@ T_Token *GetToken(FILE *source){
                 }*/
 
                 else if(c == EOF){
-                    return  SaveToken(END_OF_FILE, NULL);   //koniec suboru
+                    return  saveToken(token, END_OF_FILE, NULL, false);   //koniec suboru
                 }
                 else{
-                    errorPrint(1);  //LEX_ERR
+                    print_err(1);  //LEX_ERR
                     return NULL;
                 }
             break;
 
 
-           	//jedna sa o retazec
-           	case S_STR:
-					//ked sa znak nerovna uvodzovkam, backslashu ani newline
-					if(((c!='"') && (escapovanie == 0) && (c!='\x0A') && (c!='\x5C'))){
+            //jedna sa o retazec
+            case S_STR:
+                    //ked sa znak nerovna uvodzovkam, backslashu ani newline
+                    if(((c!='"') && (escapovanie == 0) && (c!='\x0A') && (c!='\x5C'))){
 
-			        	string[position++] = c;
-			        	state = S_STR;
-			        }
-			        //backslash znamená, že je zapnute escapovanie
-			        else if(((c=='\x5C') && (escapovanie == 0))){
+                        t_str->string[position++] = c;
+                        state = S_STR;
+                    }
+                    //backslash znamená, že je zapnute escapovanie
+                    else if(((c=='\x5C') && (escapovanie == 0))){
 
-			        	escapovanie = 1;
-			        	state = S_STR;
-					}
-					//ak je zapnute escapovanie, zapiseme do retazca backslash
-					else if (((c == '\x5C') && (escapovanie == 1))){	//odescapeovaný backslash
+                        escapovanie = 1;
+                        state = S_STR;
+                    }
+                    //ak je zapnute escapovanie, zapiseme do retazca backslash
+                    else if (((c == '\x5C') && (escapovanie == 1))){    //odescapeovaný backslash
 
-						string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+                        t_str->string[position++] = c;
+                        escapovanie = 0;
+                        state = S_STR;
 
-			        }
-			        //ak je zapnute escapovanie, zapíšeme do reťazca úvodzovky
-			        else if(((c == '\x22') && (escapovanie == 1))){	//odescapeované úvodzovky  '\"'
+                    }
+                    //ak je zapnute escapovanie, zapíšeme do reťazca úvodzovky
+                    else if(((c == '\x22') && (escapovanie == 1))){ //odescapeované úvodzovky  '\"'
 
-			        	string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+                        t_str->string[position++] = c;
+                        escapovanie = 0;
+                        state = S_STR;
 
-			        }
-			        //ak je zapnute escapovanie, zapíšeme do reťazca new line
-			        else if (c == 'n' && escapovanie == 1){		//odescapeovaný
+                    }
+                    //ak je zapnute escapovanie, zapíšeme do reťazca new line
+                    else if (c == 'n' && escapovanie == 1){     //odescapeovaný
 
-						c = '\x0A';
-						string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
-					}
-					//ak je zapnute escapovanie, zapíšeme do reťazca tabulátor
-			        else if(((c == 't') && (escapovanie == 1))){
+                        c = '\x0A';
+                        t_str->string[position++] = c;
+                        escapovanie = 0;
+                        state = S_STR;
+                    }
+                    //ak je zapnute escapovanie, zapíšeme do reťazca tabulátor
+                    else if(((c == 't') && (escapovanie == 1))){
 
-						c = '\x09';
-						string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+                        c = '\x09';
+                        t_str->string[position++] = c;
+                        escapovanie = 0;
+                        state = S_STR;
 
-			        }
-			        //ak je zapnuté escapovanie, znak môže byť zadaný pomocou oktalovej escape sekvencii, to riešime v stave S_STRING_NUMBERS
-			        else if (((isdigit(c)) && (escapovanie == 1))){
+                    }
+                    //ak je zapnuté escapovanie, znak môže byť zadaný pomocou oktalovej escape sekvencii, to riešime v stave S_STRING_NUMBERS
+                    else if (((isdigit(c)) && (escapovanie == 1))){
 
-						hexa[0] = c;
-						//printf("------ %c\n", hexa[0]);
-						pocet_cisel = 1;
-						escapovanie = 0;
-						state = S_STRING_NUMBERS;
+                        hexa[0] = c;
+                        //printf("------ %c\n", hexa[0]);
+                        pocet_cisel = 1;
+                        escapovanie = 0;
+                        state = S_STRING_NUMBERS;
 
-					}
-			        //reťezec musí byť zapísaný na jednom riadku v programe
-					else if (((c == '\n') && (escapovanie == 0))){
+                    }
+                    //reťezec musí byť zapísaný na jednom riadku v programe
+                    else if (((c == '\n') && (escapovanie == 0))){
 
-			         	errorPrint(1);
-						return NULL;
-			        }
+                        print_err(1);
+                        return NULL;
+                    }
 
-			        //ak prídu uvodzvky a niesu odescapeovane, znaci to koniec retazca
-			        else if (((c == '"') && (escapovanie == 0))){ // sme na konci retezce
+                    //ak prídu uvodzvky a niesu odescapeovane, znaci to koniec retazca
+                    else if (((c == '"') && (escapovanie == 0))){ // sme na konci retezce
 
-			        	string[position] = '\0';
-						return SaveToken(TEXT, string);
-			        }
-			        //všetko iné považujeme za lexikálnu chybu
-			        else{
+                        t_str->string[position] = '\0';
+                        return saveToken(token, TEXT, t_str, true);
+                    }
+                    //všetko iné považujeme za lexikálnu chybu
+                    else{
 
-			        	errorPrint(1);
-						return NULL;
+                        print_err(1);
+                        return NULL;
 
-			        }
+                    }
 
-			        break;
+                    break;
 
-			//oktalova escape sekvencia
-			case S_STRING_NUMBERS:
+            //oktalova escape sekvencia
+            case S_STRING_NUMBERS:
 
-				//ak sa jedná o druhé číslo, zapíšeme ho na druhú pozíciu
-			    if(((isdigit(c)) && (pocet_cisel == 1))){
-					hexa[1] = c;
-					//printf("------ %c\n", hexa[1]);
-				 	pocet_cisel = 2;
-					state = S_STRING_NUMBERS;
-			      }
-			     //ak sa jedná o tretie číslo, zapíšeme ho na tretiu pozíciu
-			    else if(((isdigit(c)) && (pocet_cisel == 2))){
-					hexa[2] = c;
-					//printf("------ %c\n", hexa[2]);
-			    	pocet_cisel = 3;
-					int number = atoi(hexa);
-					//printf("______ %s\n", hexa);
-					//printf("_-_-_- %d\n", number);
-					//char a;
-					/*a = hexa[0] - '0';
-					a = a + hexa[1] - '0';
-					a = a + hexa[2] - '0';*/
-					//printf("aaaaaaaaaaaaa %d\n", number);
+                //ak sa jedná o druhé číslo, zapíšeme ho na druhú pozíciu
+                if(((isdigit(c)) && (pocet_cisel == 1))){
+                    hexa[1] = c;
+                    //printf("------ %c\n", hexa[1]);
+                    pocet_cisel = 2;
+                    state = S_STRING_NUMBERS;
+                  }
+                 //ak sa jedná o tretie číslo, zapíšeme ho na tretiu pozíciu
+                else if(((isdigit(c)) && (pocet_cisel == 2))){
+                    hexa[2] = c;
+                    //printf("------ %c\n", hexa[2]);
+                    pocet_cisel = 3;
+                    int number = atoi(hexa);
+                    //printf("______ %s\n", hexa);
+                    //printf("_-_-_- %d\n", number);
+                    //char a;
+                    /*a = hexa[0] - '0';
+                    a = a + hexa[1] - '0';
+                    a = a + hexa[2] - '0';*/
+                    //printf("aaaaaaaaaaaaa %d\n", number);
 
-					//číslo musí byť z intervalu <0,255>, ak nie je, tak to značí lexikálnu chybu
-				    if(((number < 001) || (number > 255))){
-				    	errorPrint(1);
-						return NULL;
-				    }
+                    //číslo musí byť z intervalu <0,255>, ak nie je, tak to značí lexikálnu chybu
+                    if(((number < 001) || (number > 255))){
+                        print_err(1);
+                        return NULL;
+                    }
 
-				    else{
-						string[position++] = number;
-						pocet_cisel = 0;
-						state = S_STR;
-					}
-				}
+                    else{
+                        t_str->string[position++] = number;
+                        pocet_cisel = 0;
+                        state = S_STR;
+                    }
+                }
 
-				else{
-					errorPrint(1);
-					return NULL;
-				}
+                else{
+                    print_err(1);
+                    return NULL;
+                }
 
-			break;
+            break;
 
             //not equal or lex error
             case S_NOT_EQ:
                 if(c == '='){
-                    return  SaveToken(NEQ, NULL);   // !=
+                    return  saveToken(token, NEQ, NULL, false);   // !=
                 }
                 else{
-                    errorPrint(1);  //lexikálna chyba
+                    print_err(1);  //lexikálna chyba
                     return NULL;
                 }
             break;
@@ -308,37 +350,37 @@ T_Token *GetToken(FILE *source){
             //greater, equal
             case S_GR_EQ:
                 if(c == '='){
-                    return  SaveToken(GREATER_EQ, NULL);    // >=
+                    return  saveToken(token, GREATER_EQ, NULL, false);    // >=
                 }
                 else{
-                    ungetc(c, source);
-                    return  SaveToken(GREATER, NULL);   //>
+                    ungetc(c, stdin);
+                    return  saveToken(token, GREATER, NULL, false);   //>
                 }
             break;
 
             //less, equal
             case S_LESS_EQ:
                 if(c == '='){
-                    return  SaveToken(LESS_EQ, NULL);   //<=
+                    return  saveToken(token, LESS_EQ, NULL, false);   //<=
                 }
                 else if (c == '>')
                 {
-                    return SaveToken(NEQ, NULL);     //<>
+                    return saveToken(token, NEQ, NULL, false);     //<>
                 }
                 else{
-                    ungetc(c, source);
-                    return  SaveToken(LESS, NULL);  //<
+                    ungetc(c, stdin);
+                    return  saveToken(token, LESS, NULL, false);  //<
                 }
             break;
 
-            case S_DIV_COM:
+           case S_DIV_COM:
                 //jedná sa o blokový komentár
-                if(c == '/'){
+                if(c == '\''){
                     //načítavame do konca súboru
-                    while((c  = fgetc(source)) != EOF){
+                    while((c  = fgetc(stdin)) != EOF){
                         //keď príde / vyskakujeme z blokového komentára a ideme na počiatočný stav
-                        if(c == '/'){
-                            c = fgetc(source);
+                        if(c == '\''){
+                            c = fgetc(stdin);
                             if(c == '/'){
                                 state = S_START;
                                 break;
@@ -347,55 +389,55 @@ T_Token *GetToken(FILE *source){
                     }
                     //koemntár do konca súboru
                     if(c == EOF){
-                        return SaveToken(END_OF_FILE, NULL);
+                        return saveToken(token, END_OF_FILE, NULL, false);
                     }
                     state = S_START;
                 }
                 else if(c == EOF){
-                    return SaveToken(DIV, NULL);    //delenie, ako posledný znak, očakáva sa syntaktická chyba
+                    return saveToken(token, DIV, NULL, false);    //delenie, ako posledný znak, očakáva sa syntaktická chyba
                 }
                 else{
-                    ungetc(c, source);
-                    return SaveToken(DIV, NULL);    //delenie
+                    ungetc(c, stdin);
+                    return saveToken(token, DIV, NULL, false);    //delenie
                 }
             break;
 
             case S_NUMBER:
                 if(isdigit(c)){
-                    string[position++] = c;
+                    t_str->string[position++] = c;
                 }
                 //ak pride exponent
                 else if((c == 'e') || (c == 'E')){
                     if( exponent == true){
-                        errorPrint(1);  //2 exponenty v číslu vedú k lexikálnej chybe
+                        print_err(1);  //2 exponenty v číslu vedú k lexikálnej chybe
                         return NULL;
                     }
 
                     exponent = true;
-                    string[position++] = c;
-                    c = fgetc(source);
+                    t_str->string[position++] = c;
+                    c = fgetc(stdin);
 
                     if(isdigit(c)){
-                        string[position++] = c;
+                        t_str->string[position++] = c;
                     }
 
                     // + alebo -
                     else if((c == '+') || (c == '-')){
-                        string[position++] = c;
-                        c = fgetc(source);
+                        t_str->string[position++] = c;
+                        c = fgetc(stdin);
 
                         //za + alebo - musi nasledovat cislo, inak lexikálna chyba
                         if(isdigit(c)){
-                            string[position++] = c;
+                            t_str->string[position++] = c;
                         }
                         else{
-                            errorPrint(1);
+                            print_err(1);
                             return NULL;
                         }
                     }
 
                     else{
-                        errorPrint(1);
+                        print_err(1);
                         return NULL;
                     }
                 }
@@ -403,46 +445,46 @@ T_Token *GetToken(FILE *source){
                 //desatinné číslo
                 else if(c == '.'){
                     if( dot == true){
-                        errorPrint(1);  //číslo nemôže obsahovať 2 desatinné čiarky
+                        print_err(1);  //číslo nemôže obsahovať 2 desatinné čiarky
                         return NULL;
                     }
 
                     dot = true;
-                    string[position++] = c;
-                    c = fgetc(source);
+                    t_str->string[position++] = c;
+                    c = fgetc(stdin);
 
                     if(isdigit(c)){
-                        string[position++] = c;
+                        t_str->string[position++] = c;
                     }
 
                     else{
-                        errorPrint(1);
+                        print_err(1);
                         return NULL;
                     }
                 }
 
                 //znaky, ktoré nemôže číslo obsahovať
                 else if ((c == '_') ||isalpha(c)){
-                    errorPrint(1);
+                    print_err(1);
                     return NULL;
                 }
 
                 else{
-                    ungetc(c, source);
-                    string[position] = '\0';
+                    ungetc(c, stdin);
+                    t_str->string[position] = '\0';
                     bool integer = true;
                     for(int i = 0; i < position; i++){
-                        if(!(isdigit(string[i]))){
+                        if(!(isdigit(t_str->string[i]))){
                             integer = false;
                         }
                     }
 
                     if(integer){
-                        return SaveToken(NUMBER, string);   //číslo typu integer
+                        return saveToken(token, NUMBER, t_str, true);   //číslo typu integer
                     }
 
                     else{
-                        return SaveToken(DOUBL, string);    //číslo typu double
+                        return saveToken(token, DOUBL, t_str, true);    //číslo typu double
                     }
                 }
 
@@ -450,137 +492,154 @@ T_Token *GetToken(FILE *source){
 
             case S_IDENTIFIER:
                 if(isalpha(c) || (c == '_') || isdigit(c)){
-                    string[position++] = c;
+                    t_str->string[position++] = c;
                 }
 
                 else{
-                    ungetc(c, source);
-                    string[position] = '\0';
+                    ungetc(c, stdin);
+                    t_str->string[position] = '\0';
 
                     //porovnávame, či sa nejedná o kľúčové slová
-                    if ((strcmp(string, "as")) == 0){
-                        return SaveToken(AS, NULL);
+                    if ((strcmp(t_str->string, "as")) == 0){
+                        return saveToken(token, AS, NULL, false);
                     }
-                    else if ((strcmp(string, "asc")) == 0){
-                        return SaveToken(ASC, NULL);
+                    else if ((strcmp(t_str->string, "asc")) == 0){
+                        return saveToken(token, ASC, NULL, false);
                     }
-                    else if ((strcmp(string, "declare")) == 0){
-                        return SaveToken(DECLARE, NULL);
+                    else if ((strcmp(t_str->string, "declare")) == 0){
+                        return saveToken(token, DECLARE, NULL, false);
                     }
-                    else if ((strcmp(string, "dim")) == 0){
-                        return SaveToken(DIM, NULL);
+                    else if ((strcmp(t_str->string, "dim")) == 0){
+                        return saveToken(token, DIM, NULL, false);
                     }
-                    else if ((strcmp(string, "do")) == 0){
-                        return SaveToken(DO, NULL);
+                    else if ((strcmp(t_str->string, "do")) == 0){
+                        return saveToken(token, DO, NULL, false);
                     }
-                    else if ((strcmp(string, "double")) == 0){
-                        return SaveToken(DOUBLE, NULL);
+                    else if ((strcmp(t_str->string, "double")) == 0){
+                        return saveToken(token, DOUBLE, NULL, false);
                     }
-                    else if ((strcmp(string, "else")) == 0){
-                        return SaveToken(ELSE, NULL);
+                    else if ((strcmp(t_str->string, "else")) == 0){
+                        return saveToken(token, ELSE, NULL, false);
                     }
-                    else if ((strcmp(string, "end")) == 0){
-                        return SaveToken(END, NULL);
+                    else if ((strcmp(t_str->string, "end")) == 0){
+                        return saveToken(token, END, NULL, false);
                     }
-                    else if ((strcmp(string, "chr")) == 0){
-                        return SaveToken(CHR, NULL);
+                    else if ((strcmp(t_str->string, "chr")) == 0){
+                        return saveToken(token, CHR, NULL, false);
                     }
-                    else if ((strcmp(string, "function")) == 0){
-                        return SaveToken(T_FUNCTION, NULL);
+                    else if ((strcmp(t_str->string, "function")) == 0){
+                        return saveToken(token, T_FUNCTION, NULL, false);
                     }
-                    else if ((strcmp(string, "if")) == 0){
-                        return SaveToken(IF, NULL);
+                    else if ((strcmp(t_str->string, "if")) == 0){
+                        return saveToken(token, IF, NULL, false);
                     }
-                    else if ((strcmp(string, "input")) == 0){
-                        return SaveToken(INPUT, NULL);
+                    else if ((strcmp(t_str->string, "input")) == 0){
+                        return saveToken(token, INPUT, NULL, false);
                     }
-                    else if ((strcmp(string, "integer")) == 0){
-                        return SaveToken(INTEGER, NULL);
+                    else if ((strcmp(t_str->string, "integer")) == 0){
+                        return saveToken(token, INTEGER, NULL, false);
                     }
-                    else if ((strcmp(string, "length")) == 0){
-                        return SaveToken(LENGTH, NULL);
+                    else if ((strcmp(t_str->string, "length")) == 0){
+                        return saveToken(token, LENGTH, NULL, false);
                     }
-                    else if ((strcmp(string, "loop")) == 0){
-                        return SaveToken(LOOP, NULL);
+                    else if ((strcmp(t_str->string, "loop")) == 0){
+                        return saveToken(token, LOOP, NULL, false);
                     }
-                    else if ((strcmp(string, "print")) == 0){
-                        return SaveToken(PRINT, NULL);
+                    else if ((strcmp(t_str->string, "print")) == 0){
+                        return saveToken(token, PRINT, NULL, false);
                     }
-                    else if ((strcmp(string, "return")) == 0){
-                        return SaveToken(RETURN, NULL);
+                    else if ((strcmp(t_str->string, "return")) == 0){
+                        return saveToken(token, RETURN, NULL, false);
                     }
-                    else if ((strcmp(string, "scope")) == 0){
-                        return SaveToken(SCOPE, NULL);
+                    else if ((strcmp(t_str->string, "scope")) == 0){
+                        return saveToken(token, SCOPE, NULL, false);
                     }
-                    else if ((strcmp(string, "string")) == 0){
-                        return SaveToken(STRING, NULL);
+                    else if ((strcmp(t_str->string, "string")) == 0){
+                        return saveToken(token, STRING, NULL, false);
                     }
-                    else if ((strcmp(string, "substr")) == 0){
-                        return SaveToken(SUBSTR, NULL);
+                    else if ((strcmp(t_str->string, "substr")) == 0){
+                        return saveToken(token, SUBSTR, NULL, false);
                     }
-                    else if ((strcmp(string, "then")) == 0){
-                        return SaveToken(THEN, NULL);
+                    else if ((strcmp(t_str->string, "then")) == 0){
+                        return saveToken(token, THEN, NULL, false);
                     }
-                    else if ((strcmp(string, "while")) == 0){
-                        return SaveToken(WHILE, NULL);
+                    else if ((strcmp(t_str->string, "while")) == 0){
+                        return saveToken(token, WHILE, NULL, false);
                     }
 
-                    else if ((strcmp(string, "and")) == 0){
-                        return SaveToken(AND, NULL);
+                    else if ((strcmp(t_str->string, "and")) == 0){
+                        return saveToken(token, AND, NULL, false);
                     }
-                    else if ((strcmp(string, "boolean")) == 0){
-                        return SaveToken(BOOLEAN, NULL);
+                    else if ((strcmp(t_str->string, "boolean")) == 0){
+                        return saveToken(token, BOOLEAN, NULL, false);
                     }
-                    else if ((strcmp(string, "continue")) == 0){
-                        return SaveToken(CONTINUE, NULL);
+                    else if ((strcmp(t_str->string, "continue")) == 0){
+                        return saveToken(token, CONTINUE, NULL, false);
                     }
-                    else if ((strcmp(string, "elseif")) == 0){
-                        return SaveToken(ELSEIF, NULL);
+                    else if ((strcmp(t_str->string, "elseif")) == 0){
+                        return saveToken(token, ELSEIF, NULL, false);
                     }
-                    else if ((strcmp(string, "exit")) == 0){
-                        return SaveToken(EXIT, NULL);
+                    else if ((strcmp(t_str->string, "exit")) == 0){
+                        return saveToken(token, EXIT, NULL, false);
                     }
-                    else if ((strcmp(string, "false")) == 0){
-                        return SaveToken(T_FALSE, NULL);
+                    else if ((strcmp(t_str->string, "false")) == 0){
+                        return saveToken(token, T_FALSE, NULL, false);
                     }
-                    else if ((strcmp(string, "for")) == 0){
-                        return SaveToken(FOR, NULL);
+                    else if ((strcmp(t_str->string, "for")) == 0){
+                        return saveToken(token, FOR, NULL, false);
                     }
-                    else if ((strcmp(string, "next")) == 0){
-                        return SaveToken(NEXT, NULL);
+                    else if ((strcmp(t_str->string, "next")) == 0){
+                        return saveToken(token, NEXT, NULL, false);
                     }
-                    else if ((strcmp(string, "not")) == 0){
-                        return SaveToken(NOT, NULL);
+                    else if ((strcmp(t_str->string, "not")) == 0){
+                        return saveToken(token, NOT, NULL, false);
                     }
-                    else if ((strcmp(string, "or")) == 0){
-                        return SaveToken(OR, NULL);
+                    else if ((strcmp(t_str->string, "or")) == 0){
+                        return saveToken(token, OR, NULL, false);
                     }
-                    else if ((strcmp(string, "shared")) == 0){
-                        return SaveToken(SHARED, NULL);
+                    else if ((strcmp(t_str->string, "shared")) == 0){
+                        return saveToken(token, SHARED, NULL, false);
                     }
-                    else if ((strcmp(string, "static")) == 0){
-                        return SaveToken(STATIC, NULL);
+                    else if ((strcmp(t_str->string, "static")) == 0){
+                        return saveToken(token, STATIC, NULL, false);
                     }
-                    else if ((strcmp(string, "true")) == 0){
-                        return SaveToken(T_TRUE, NULL);
+                    else if ((strcmp(t_str->string, "true")) == 0){
+                        return saveToken(token, T_TRUE, NULL, false);
                     }
                     else{
-                        return SaveToken(ID, string);
+                        return saveToken(token, ID, t_str, true);
                     }
                 }
             break;
 
         }
     }
-    return SaveToken(END_OF_FILE, NULL);
+    return saveToken(token, END_OF_FILE, NULL, false);
 }
 
 int main(){
-    FILE *fp = fopen("S.TXT","r");
-    for(int i = 0; i < 5; i++){
-        T_Token *tok = GetToken(fp);
-        printf("%d\n", tok->type);
-        printf("%s\n", tok->str);
-       // printf("%s\n", tok->str);
+    //FILE *fp = fopen("S.TXT","r");
+    
+    T_string * t_str = strInit();
+    T_Token * new_t  = initToken();
+
+    int i=0;
+    for(i=0; i<80; i++){
+        getToken(new_t, t_str);
+        printf("%d\t", new_t->type);
+        printf("%s\n", new_t->str->string);
     }
+
+    free(t_str->string);
+    free(t_str);
+    free(new_t->str->string);
+    free(new_t->str);
+    free(new_t);
+    
+    /*for(int i = 0; i < 5; i++){
+        T_Token *tok = getToken();
+        printf("%d\t", tok->type);
+        printf("%s\n", tok->str);
+    }*/
+
 }
