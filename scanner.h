@@ -106,7 +106,7 @@ typedef struct T_Token{
 #define FUNCTION	2
 #define FUN_CALL	3
 
-T_Token *getToken();
+T_Token *getToken(T_Token * token, T_string * t_str);
 T_Token *saveToken(T_Token * token, int type, T_string * string, bool full);
 
 #endif 
