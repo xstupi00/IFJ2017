@@ -20,19 +20,19 @@
 
 T_Token * token;
 
-T_Token * initToken(){
+void initToken(){
     token = (T_Token*) malloc(sizeof(struct T_Token));
     if(!token){
         print_err(99);
-        return NULL;
+        //return NULL;
     }       
     token->str = strInit(); // alokacia pamate pre string
     //(T_string*) malloc(sizeof(T_string)*(STR_INIT + 1)); //alokácia stringu na uloženie hodnoty tokenu
     if(!token->str){
         print_err(99);
-        return NULL;
+        //return NULL;
     }   
-    return token;
+    
 }
 
 
@@ -53,7 +53,7 @@ T_Token *saveToken(int type, bool string)
 
 T_Token *getToken(){
 
-     int position = 0;           //index aktualneho charu
+    int position = 0;           //index aktualneho charu
     char c;
     char hexa[4];
     hexa[3] = '\0';
@@ -582,7 +582,7 @@ T_Token *getToken(){
     return saveToken(END_OF_FILE, false);
 }
 
-
+/*
 int main(){
     //FILE *fp = fopen("S.TXT","r");
     
@@ -599,10 +599,11 @@ int main(){
     free(token->str);
     free(token);
     
-    /*for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 5; i++){
         T_Token *tok = getToken();
         printf("%d\t", tok->type);
         printf("%s\n", tok->str);
-    }*/
+    }
 
 }
+*/
