@@ -98,15 +98,15 @@ typedef enum{
 }T_Err;
 */
 typedef struct T_Token{
-	T_string * str;
 	int type;
+	T_string * str;
 }T_Token;
 
 #define VARIABLE 	1
 #define FUNCTION	2
 #define FUN_CALL	3
 
-T_Token *getToken(T_Token * token, T_string * t_str);
-T_Token *saveToken(T_Token * token, int type, T_string * string, bool full);
+T_Token *getToken();
+T_Token *saveToken(int type, bool string);
 
 #endif 
