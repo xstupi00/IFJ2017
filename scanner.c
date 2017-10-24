@@ -19,6 +19,7 @@
 #include "strlib.h"
 
 T_Token * token;
+bool unget;
 
 void initToken(){
     token = (T_Token*) malloc(sizeof(struct T_Token));
@@ -35,11 +36,11 @@ void initToken(){
     
 }
 
-
+void ungetToken(){
+    unget=true;
+}
 //funkcia na uloženie načítaného tokena do tokenovej štruktúry
-T_Token *saveToken(int type, bool string)
-{
-    
+T_Token *saveToken(int type, bool string){
     if(!token){
         print_err(99);
         return NULL;
@@ -53,6 +54,11 @@ T_Token *saveToken(int type, bool string)
 
 T_Token *getToken(){
 
+    if(unget){
+        unget=false;
+        return token;
+    }
+    
     int position = 0;           //index aktualneho charu
     char c;
     char hexa[4];
