@@ -54,28 +54,3 @@ void S_Print (T_Stack *s) {
     }
     s->top_ptr = tmp;
 }
-
-int main() {
-    
-    T_Stack *s = (T_Stack *) malloc(sizeof(T_Stack));
-    S_Init(s);
-
-    for ( int i = 0; i < 20; i++) {
-        int *x = malloc(sizeof(int));
-        *x = i;
-        S_Push(s, x);
-    }
-
-    S_Print(s);
-    int j = 0;
-    while ( !S_Empty(s) ) {
-        S_Pop(s);
-        printf("%d\n",j++);
-    }
-
-    S_Push(s,&j);
-    int *f = (int *)S_Top(s);
-    printf("%d\n",*f);
-
-    return 0;
-}
