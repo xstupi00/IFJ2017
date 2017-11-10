@@ -84,12 +84,12 @@ typedef enum{
 #define COMMA				51	// ,
 //#define LEFT_C_BRACKET  	52  // {
 //#define RIGHT_C_BRACKET 	53  // }
-#define LEFT_R_BRACKET  	54  // (
-#define RIGHT_R_BRACKET 	55 	// )
-#define SEMICOLON 			56	// ;  
-#define ID 					57	// int x;
-#define EOL 				58  // EOL
-#define INT_DIV				59  // celociselne delenie 
+#define LEFT_R_BRACKET  	52  // (
+#define RIGHT_R_BRACKET 	53 	// )
+#define SEMICOLON 			54	// ;  
+#define ID 					55	// int x;
+#define EOL 				56  // EOL
+#define INT_DIV				57  // celociselne delenie 
 
 /*typedef enum{
 	LEX_OK,
@@ -110,7 +110,5 @@ void ungetToken();
 void initToken();
 T_Token *getToken();
 T_Token *saveToken(int type, bool string);
-
-
 
 #endif 

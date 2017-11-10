@@ -537,7 +537,6 @@ T_Token *getToken(){
                     else if ((strcmp(token->str->string, "while")) == 0){
                         return saveToken(WHILE, false);
                     }
-
                     else if ((strcmp(token->str->string, "and")) == 0){
                         return saveToken(AND, false);
                     }
@@ -587,29 +586,3 @@ T_Token *getToken(){
     }
     return saveToken(END_OF_FILE, false);
 }
-
-/*
-int main(){
-    //FILE *fp = fopen("S.TXT","r");
-    
-    token = initToken();
-
-    int i=0;
-    for(i=0; i<80; i++){
-        getToken();
-        printf("%d\t", token->type);
-        printf("%s\n", token->str->string);
-    }
-
-    free(token->str->string);
-    free(token->str);
-    free(token);
-    
-    for(int i = 0; i < 5; i++){
-        T_Token *tok = getToken();
-        printf("%d\t", tok->type);
-        printf("%s\n", tok->str);
-    }
-
-}
-*/

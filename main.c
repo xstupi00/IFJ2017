@@ -3,6 +3,7 @@
 #include "strlib.h"
 #include "error.h"
 #include "stack.h"
+#include "parser.h"
 
 int main(){
     //FILE *fp = fopen("S.TXT","r");

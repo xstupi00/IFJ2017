@@ -1,0 +1,51 @@
+<prog> -> <declare-function> EOL <prog> 
+<prog> -> <define-function> EOL <prog>
+<prog> -> <main-function>
+<prog> -> EOL <prog>
+<prog> -> epsilon
+
+<declare-function> -> Declare Function id (<param-list>) As <data-type>
+<define-function> -> Function id (<param-list>) As <data-type> EOL <function-element> End Function 
+<main-function> -> Scope EOL <function-element> End Scope
+
+<function-element> -> epsilon
+<function-element> -> Dim id As <data-type> <value> EOL <function-element>
+<function-element> -> <element-list>
+<element-list> -> <statement> <function-element>
+<statement> -> EOL
+<statement> -> id = <call-assign> EOL
+<statement> -> Print <E> ; <expression> EOL
+<statement> -> Input id EOL
+<statement> -> Return <E> EOL
+<statement> -> Do While <E> EOL <stat-list> Loop EOL
+<statement> -> If <E> Then EOL <stat-list> <else> End If EOL
+
+<value> -> epsilon
+<value> -> = <E>  
+
+<else> -> epsilon
+<else> -> Else EOL <stat-list>
+
+<stat-list> -> <statement> <stat-list>
+<stat-list> -> epsilon
+
+<expression> -> <E> ; <expression>
+<expression> -> epsilon
+
+<call-assign> -> <E>
+<call-assign> -> id (<param-value>)
+
+<param-value> -> epsilon
+<param-value> -> <E> <next-param-value>
+<next-param-value> -> , <E> <next-param-value>
+<next-param-value> -> epsilon
+
+<param-list> -> <param> <next-param>
+<next-param> -> , <param> <next-param>
+<param-list> -> epsilon
+<next-param> -> epsilon
+<param> -> id As <data-type>
+
+<data-type> -> Integer
+<data-type> -> String
+<data-type> -> Double
