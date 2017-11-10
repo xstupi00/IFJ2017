@@ -56,4 +56,5 @@ int main(){
     S_Push(s,&j);
     int *f = (int *)S_Top(s);
     printf("%d\n",*f); */
+    //parse();
 }
