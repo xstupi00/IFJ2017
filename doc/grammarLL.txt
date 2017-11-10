@@ -37,7 +37,7 @@ ________________________________________________________________________________
 10. <function-element> -> <element-list>																															| EOL,id,Print,Input,Return,Do,If
 11. <element-list> -> <statement> <function-element>																									| EOL,id,Print,Input,Return,Do,If
 12. <statement> -> EOL																																								| EOL
-13. <statement> -> id <call-assign> EOL																																| id
+13. <statement> -> id = <call-assign> EOL																																| id
 14. <statement> -> Print <E> ; <expression> EOL																												| Print
 15. <statement> -> Input id EOL																																				| Input
 16. <statement> -> Return <E> EOL																																			| Return
