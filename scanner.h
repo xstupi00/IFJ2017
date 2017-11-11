@@ -9,6 +9,7 @@
 #include "scanner.h"
 #include "error.h"
 #include "strlib.h"
+#include "stack.h"
 
 
 typedef enum{
@@ -71,14 +72,14 @@ typedef enum{
 #define MUL					40	// *
 
 #define DIV					41	// /
-#define ASSIGNMENT_EQ		42	// =
+#define INT_DIV				42	// celociselne deleie 
 
 #define NEQ 				43	// <>
 #define GREATER				44	// >
 #define GREATER_EQ	 		45	// >=
 #define LESS 				46	// <
 #define LESS_EQ 			47	// <=
-#define INT_DIV 			48	// celociselne delenie
+#define ASSIGNMENT_EQ 		48	// =
 #define BACKSLASH			49	// /
 #define END_OF_FILE			50	// EOF
 #define COMMA				51	// ,
