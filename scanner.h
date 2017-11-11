@@ -60,7 +60,7 @@ typedef enum{
 #define OR 					31
 #define	SHARED				32
 #define	STATIC				33
-#define T_TRUE				34
+#define ID					34 // int x;
 
 #define NUMBER				35	// 4
 #define DOUBL 				36	// 3,14
@@ -78,7 +78,7 @@ typedef enum{
 #define GREATER_EQ	 		45	// >=
 #define LESS 				46	// <
 #define LESS_EQ 			47	// <=
-#define DOT 				48	// .
+#define INT_DIV 			48	// celociselne delenie
 #define BACKSLASH			49	// /
 #define END_OF_FILE			50	// EOF
 #define COMMA				51	// ,
@@ -87,9 +87,9 @@ typedef enum{
 #define LEFT_R_BRACKET  	52  // (
 #define RIGHT_R_BRACKET 	53 	// )
 #define SEMICOLON 			54	// ;  
-#define ID 					55	// int x;
+#define T_TRUE 				55	// 
 #define EOL 				56  // EOL
-#define INT_DIV				57  // celociselne delenie 
+#define DOT					57  // dot 
 
 /*typedef enum{
 	LEX_OK,
