@@ -4,32 +4,35 @@
 #include "error.h"
 #include "stack.h"
 #include "parser.h"
+#include "expr.h"
 
 int main(){
     //FILE *fp = fopen("S.TXT","r");
-    
+    //T_Token *token;
     initToken();
-    T_Token * token;
-   // int i=0;
-    /*for(i=0; i<80; i++){
-        token = getToken();
-        printf("%d\t", token->type);
-        printf("%s\n", token->str->string);
-    }*/
+    //int i=0;
+    //for(i=0; i<5; i++){
+    //    token = getToken();
+    //    printf("%d\t", token->type);
+    //    printf("%s\n", token->str->string);
+    //}
+    //token = getToken();
+    expression();
+       /* printf("%d\t", token->type);
+       // printf("%s\n", token->str->string);
+        printf("%d\n", token_is_operator(token));
+    //ungetToken();   
     token = getToken();
         printf("%d\t", token->type);
-        printf("%s\n", token->str->string);
-    ungetToken();    
+        //printf("%s\n", token->str->string);
+        printf("%d\n", token_is_operator(token));
     token = getToken();
         printf("%d\t", token->type);
-        printf("%s\n", token->str->string);
-    token = getToken();
-        printf("%d\t", token->type);
-        printf("%s\n", token->str->string);
-
+        //printf("%s\n", token->str->string);
+        printf("%d\n", token_is_operator(token));
     free(token->str->string);
     free(token->str);
-    free(token);
+    free(token);*/
     
     /*for(int i = 0; i < 5; i++){
         T_Token *tok = getToken();
@@ -57,4 +60,5 @@ int main(){
     int *f = (int *)S_Top(s);
     printf("%d\n",*f); */
     //parse();
+
 }

@@ -9,6 +9,7 @@
 #include "scanner.h"
 #include "error.h"
 #include "strlib.h"
+#include "stack.h"
 
 
 typedef enum{
@@ -60,36 +61,36 @@ typedef enum{
 #define OR 					31
 #define	SHARED				32
 #define	STATIC				33
-#define T_TRUE				34
+#define ADD					34 // +
 
-#define NUMBER				35	// 4
-#define DOUBL 				36	// 3,14
-#define TEXT 				37	// abc
+#define SUB 				35	// -
+#define MUL 				36	// *
+#define DIV 				37	// /
 
-#define ADD					38	// +
-#define SUB 				39	// -
-#define MUL					40	// *
+#define INT_DIV				40	// celociselne delenie
+#define LESS 				41	// <
+#define GREATER				42	// >
 
-#define DIV					41	// /
-#define ASSIGNMENT_EQ		42	// =
+#define LESS_EQ				43	// <=
+#define GREATER_EQ			44	// >=
 
-#define NEQ 				43	// <>
-#define GREATER				44	// >
-#define GREATER_EQ	 		45	// >=
-#define LESS 				46	// <
-#define LESS_EQ 			47	// <=
-#define DOT 				48	// .
-#define BACKSLASH			49	// /
-#define END_OF_FILE			50	// EOF
-#define COMMA				51	// ,
-//#define LEFT_C_BRACKET  	52  // {
-//#define RIGHT_C_BRACKET 	53  // }
-#define LEFT_R_BRACKET  	52  // (
-#define RIGHT_R_BRACKET 	53 	// )
-#define SEMICOLON 			54	// ;  
-#define ID 					55	// int x;
-#define EOL 				56  // EOL
-#define INT_DIV				57  // celociselne delenie 
+#define ASSIGNMENT_EQ 		45	// =
+#define NEQ					46	// <>
+#define ID 	 				47	// int x;
+#define NUMBER  			48	// int
+#define DOUBL 	 			49	// double
+#define TEXT 				50	// string
+#define BACKSLASH			51	// /
+#define END_OF_FILE			52	// EOF
+#define COMMA				53	// ,
+//#define LEFT_C_BRACKET  	54  // {
+//#define RIGHT_C_BRACKET 	55  // }
+#define LEFT_R_BRACKET  	56  // (
+#define RIGHT_R_BRACKET 	57 	// )
+#define SEMICOLON 			58	// ;  
+#define T_TRUE 				59	// 
+#define EOL 				60  // EOL
+#define DOT					61  // dot 
 
 /*typedef enum{
 	LEX_OK,

@@ -12,5 +12,5 @@ void print_err(int id)
 		case 99: fprintf(stderr,"Interná chyba prekladača\n");break;
 		default: fprintf(stderr,"ERR: volas funkciu so zlym parametrom\n"); // debug
 	}
-
+	exit(id);
 }

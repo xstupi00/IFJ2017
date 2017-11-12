@@ -1,0 +1,40 @@
+<E> -> <E> + <E>
+<E> -> <E> - <E>
+<E> -> <E> * <E>
+<E> -> <E> / <E>
+<E> -> <E> \ <E>
+<E> -> <E> < <E>
+<E> -> <E> > <E>
+<E> -> <E> <= <E>
+<E> -> <E> >= <E>
+<E> -> <E> = <E>
+<E> -> <E> <> <E>
+<E> -> (<E>)
+<E> -> ID
+<E> -> INT_LITERAL
+<E> -> DOUBLE_LITERAL
+<E> -> STRING_LITERAL
+
+
+-----------------------------------------------------------------
+
+<E> -> <EXPRESSION_ITEM>
+<E> -> <STRING_ITEM>
+<EXPRESSION_ITEM> -> <EXPRESSION_ITEM> <OPERAND> <EXPRESSION_ITEM>
+<EXPRESSION_ITEM> -> (<EXPRESSION_ITEM>)
+<EXPRESSION_ITEM> -> INT_LITERAL
+<EXPRESSION_ITEM> -> DOUBLE_LITERAL
+<E> -> ID
+<OPERAND> -> +
+<OPERAND> -> -
+<OPERAND> -> *
+<OPERAND> -> /
+<OPERAND> -> \
+<OPERAND> -> <
+<OPERAND> -> >
+<OPERAND> -> <=
+<OPERAND> -> >=
+<OPERAND> -> =
+<OPERAND> -> <>
+<STRING_ITEM> -> <STRING_ITEM> + <STRING_ITEM>
+<STRING_ITEM> -> STRING_LITERAL

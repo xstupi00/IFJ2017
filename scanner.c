@@ -79,7 +79,7 @@ T_Token *getToken(){
             }
         }
         c = tolower(c);
-   
+       
         switch(state){
             case S_START:
                 if(c == '\n'){
@@ -180,6 +180,7 @@ T_Token *getToken(){
                     print_err(1);  //LEX_ERR
                     return NULL;
                 }
+            
             break;
 
 
@@ -435,7 +436,7 @@ T_Token *getToken(){
                 }
 
                 //znaky, ktoré nemôže číslo obsahovať
-                else if ((c == '_') ||isalpha(c)){
+                else if ((c == '_') /*||isalpha(c)*/){
                     print_err(1);
                     return NULL;
                 }
