@@ -1,4 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "scanner.h"
+#include "error.h"
 #include "expr.h"
+#include "stack.h"
 
 char precedence_table [SIZE_TABLE][SIZE_TABLE] = {
 /*            +    -    *    /    (    )    \    <    >   <=   >=    =   <>   id   lit   $ */

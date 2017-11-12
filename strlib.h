@@ -1,9 +1,6 @@
 #ifndef STR_LIB_H
 #define STR_LIB_H
 
-#include <stdlib.h>
-#include <stdbool.h>
-
 #define STR_INIT 128
 
 typedef struct {

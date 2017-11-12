@@ -1,8 +1,6 @@
 #ifndef EXPR_H
 #define EXPR_H
 
-#include "scanner.h"
-
 #define SIZE_TABLE 16
 #define FIRST_TOKEN 99
 

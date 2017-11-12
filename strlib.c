@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <stdbool.h>
 #include "strlib.h"
 
 bool extendStr(T_string * str, size_t new_size){

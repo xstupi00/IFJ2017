@@ -1,9 +1,6 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
 typedef struct S_Elem {
     void **data;
     struct S_Elem *next_ptr;

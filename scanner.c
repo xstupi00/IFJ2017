@@ -48,7 +48,7 @@ T_Token *saveToken(int type, bool string){
     if(!string)
         token->str->string[0]='\0'; 
     token->type = type; //priradí typ
-
+    //printf("token : %s %d\n",token->str->string,token->type);
     return token;
 }
 
