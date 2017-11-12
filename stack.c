@@ -6,6 +6,15 @@ void S_Init (T_Stack *s) {
     s->top_ptr = NULL;
 }
 
+void S_Destroy (T_Stack *s) {
+
+    while ( s->top_ptr != NULL ) {
+        S_Elem *tmp_element = s->top_ptr;
+        s->top_ptr = s->top_ptr->next_ptr;
+        free(tmp_element);
+    }
+}
+
 int S_Push (T_Stack *s, void* d) {
 
     S_Elem *new_element = NULL;

@@ -18,5 +18,7 @@ int S_Push (T_Stack *s, void* data);
 void S_Pop (T_Stack *s);
 void* S_Top (T_Stack *s);
 int S_Empty (T_Stack *s);
+void S_Print (T_Stack *s);
+void S_Destroy (T_Stack *s);
 
 #endif // STACK_H
