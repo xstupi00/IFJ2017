@@ -17,7 +17,7 @@ int main(){
     //    printf("%s\n", token->str->string);
     //}
     //token = getToken();
-    expression();
+    //expression();
        /* printf("%d\t", token->type);
        // printf("%s\n", token->str->string);
         printf("%d\n", token_is_operator(token));
@@ -59,6 +59,6 @@ int main(){
     S_Push(s,&j);
     int *f = (int *)S_Top(s);
     printf("%d\n",*f); */
-    //parse();
+    parse();
 
 }

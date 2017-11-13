@@ -180,7 +180,7 @@ void infix_to_postfix () {
         print_err(2);
     ungetToken();
 
-    S_Print(output_stack);
+//    S_Print(output_stack);
 }
 
 void expression () {
