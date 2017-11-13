@@ -8,6 +8,7 @@
 #include "expr.h"
 
 T_Token *token;
+bool is_scope;
 
 //Declaration of state functions
 bool PROG();	// :)
@@ -16,14 +17,11 @@ bool DEFINE_FUNCTION();		// :)
 bool MAIN_FUNCTION();		// :)
 bool FUNCTION_ELEMENT();	// :)
 bool ELEMENT_LIST();		// :)
-bool STATEMENT();		//TODO
-bool VALUE();		//TODO
-bool ELSE_STATEMENT();	//TODO
-bool STAT_LIST();		//TODO
-bool EXPRESSION();		//TODO
-bool CALL_ASSIGN();		//TODO
-bool PARAM_VALUE();		//TODO
-bool NEXT_PARAM_VALUE();	//TODO
+bool STATEMENT();		// :|
+bool VALUE();		// :)
+bool ELSE_STATEMENT();	// :|
+bool STAT_LIST();		// :|
+bool EXPRESSION();		// :)
 bool PARAM_LIST();	// :)
 bool NEXT_PARAM();	// :)
 bool PARAM();	// :)
@@ -55,7 +53,8 @@ bool PROG(){
 		}
 	}
 	else if(token->type == SCOPE){
-		if(MAIN_FUNCTION()){
+		is_scope = true;
+		if(MAIN_FUNCTION()){	
 			while(token->type != END_OF_FILE){
 				if(token->type != EOL)
 					return false;
@@ -196,17 +195,29 @@ bool STATEMENT(){
 	else if(token->type == ID){
 		token = getToken();
 		if(token->type == ASSIGNMENT_EQ){
+			expression();
 			token = getToken();
-			if(CALL_ASSIGN()){
-				if(token->type == EOL){
-					token = getToken();
-					return true;
-				}
+			if(token->type == EOL){
+				token = getToken();
+				return true;
 			}
 		}
 	}
 	else if(token->type == PRINT){
-		//TODO
+		//if PRINT command doesn't contain any expression
+		token = getToken();
+		if(token->type == SEMICOLON){
+			return false;
+		}
+		ungetToken();
+
+		expression();
+		token = getToken();
+		if(token->type == SEMICOLON){
+			token = getToken();
+			return EXPRESSION();
+		}
+
 	}
 	else if(token->type == INPUT){
 		token = getToken();
@@ -219,27 +230,72 @@ bool STATEMENT(){
 		}
 	}
 	else if(token->type == RETURN){
-		//TODO
+		if(is_scope) return false;
+		expression();
+		token = getToken();
+		if(token->type == EOL){
+			token = getToken();
+			return true;
+		}
 	}
 	else if(token->type == DO){
-		//TODO
+		token = getToken();
+		if(token->type == WHILE){
+			expression();
+			token = getToken();
+			if(token->type == EOL){
+				token = getToken();
+				if(STAT_LIST()){
+					token = getToken();
+					if(token->type == EOL){
+						token = getToken();
+						return true;
+					}
+				}
+			}
+		}
 	}
 	else if(token->type == IF){
-		//TODO
+		expression();
+		token = getToken();
+		if(token->type == THEN){
+			token = getToken();
+			if(token->type == EOL){
+				token = getToken();
+				if(STAT_LIST() && ELSE_STATEMENT()){
+					token = getToken();
+					if(token->type == IF){
+						token = getToken();
+						if(token->type == EOL){
+							token = getToken();
+							return true;
+						}
+					}	
+				}
+			}
+		}	
 	}
 	return false;
 }
 
-bool VALUE(){
-	debug_p("enter VALUE");
-	//TODO
-	return true;
+bool STAT_LIST(){
+	debug_p("enter STAT_LIST");
+
+	if(	token->type == EOL	 ||	token->type == ID     || token->type == PRINT || 
+		token->type == INPUT || token->type == RETURN || token->type == DO	  ||
+		token->type == IF){
+		return STATEMENT() && STAT_LIST();
+	}
+	else if(token->type == LOOP || token->type == ELSE || token->type == END){
+		return true;
+	}
+	return false;
 }
 
 bool ELSE_STATEMENT(){
 	debug_p("enter ELSE_STATEMENT");
+	
 	if(token->type == END){
-		token = getToken();
 		return true;
 	}
 	else if(token->type == ELSE){
@@ -251,16 +307,13 @@ bool ELSE_STATEMENT(){
 	return false;
 }
 
-bool STAT_LIST(){
-	debug_p("enter STAT_LIST");
-
-	if(	token->type == EOL	 ||	token->type == ID     || token->type == PRINT || 
-		token->type == INPUT || token->type == RETURN || token->type == DO	  ||
-		token->type == IF){
-		token = getToken();
-		return STATEMENT() && STAT_LIST();
+bool VALUE(){
+	debug_p("enter VALUE");
+	if(token->type == EOL){
+		return true;
 	}
-	else if(token->type == LOOP || token->type == ELSE || token->type == END){
+	else if(token->type == ASSIGNMENT_EQ){
+		expression();
 		token = getToken();
 		return true;
 	}
@@ -269,25 +322,20 @@ bool STAT_LIST(){
 
 bool EXPRESSION(){
 	debug_p("enter EXPRESSION");
-	//TODO
-	return false;
-}
-
-bool CALL_ASSIGN(){
-	debug_p("enter CALL_ASSIGN");
-	//TODO
-	return false;
-}
-
-bool PARAM_VALUE(){
-	debug_p("enter PARAM_VALUE");
-	//TODO
-	return false;
-}
-
-bool NEXT_PARAM_VALUE(){
-	debug_p("enter NEXT_PARAM_VALUE");
-	//TODO
+	
+	if(token->type == EOL){
+		token = getToken();
+		return true;
+	}
+	else{
+		ungetToken();
+		expression();
+		token = getToken();
+		if(token->type == SEMICOLON){
+			token = getToken();
+			return EXPRESSION();
+		}
+	}
 	return false;
 }
 
