@@ -37,7 +37,7 @@ void S_Pop (T_Stack *s) {
     if ( s->top_ptr != NULL ) {
         tmp_element = s->top_ptr;
         s->top_ptr = s->top_ptr->next_ptr;
-        free(tmp_element->data);
+        //free(tmp_element->data);
         free(tmp_element);
     }
 }
@@ -53,6 +53,14 @@ void* S_Top (T_Stack *s) {
 int S_Empty (T_Stack *s) {
 
     return ( s->top_ptr != NULL ? 0 : -1 );
+}
+
+void S_Copy (T_Stack *dst_stack, T_Stack *src_stack) {
+
+    while ( !S_Empty(src_stack) ) {
+        S_Push(dst_stack, S_Top(src_stack));
+        S_Pop(src_stack);    
+    }
 }
 
 // debug functions
