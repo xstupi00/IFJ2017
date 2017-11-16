@@ -35,7 +35,11 @@ void initToken(){
     }   
     
 }
-
+void freeToken(){
+    free(token->str->string);
+    free(token->str);
+    free(token);
+}
 void ungetToken(){
     unget=true;
 }
