@@ -25,72 +25,69 @@ typedef enum{
 	S_STR
 
 }T_States;
+ 
+typedef enum {
 
-#define AS					0
-#define ASC					1
-#define DECLARE				2
-#define DIM					3
-#define	DO 					4
-#define DOUBLE 				5
-#define ELSE 				6
-#define END					7
-#define CHR					8
-#define T_FUNCTION			9
-#define IF					10
-#define INPUT 				11
-#define INTEGER 			12
-#define LENGTH				13
-#define LOOP 				14
-#define PRINT 				15
-#define RETURN 				16
-#define	SCOPE				17
-#define	STRING 				18
-#define SUBSTR				19
-#define THEN				20
-#define WHILE				21
+	AS,
+	DECLARE,
+	DIM,
+	DO,
+	DOUBLE,
+	ELSE,
+	END,
+	T_FUNCTION,
+	IF,
+	INPUT,	
+	INTEGER,
+	LENGTH,
+	SUBSTR,
+	ASC,
+	CHR,
+	LOOP,
+	PRINT,
+	RETURN,
+	SCOPE,
+	STRING,	
+	THEN,
+	WHILE,
+	AND,
+	BOOLEAN,
+	CONTINUE,
+	ELSEIF,
+	EXIT,
+	T_FALSE,
+	FOR,
+	NEXT,
+	NOT,
+	OR,
+	SHARED,	
+	STATIC,
+	ADD,
+	SUB,
+	MUL,
+	DIV,
+	INT_DIV = 40,
+	LESS,
+	GREATER,
+	LESS_EQ,
+	GREATER_EQ,
+	ASSIGNMENT_EQ,
+	NEQ,
+	ID,
+	INT_NUMBER,
+	DOUBLE_NUMBER,
+	TEXT,
+	BACKSLASH,
+	END_OF_FILE,
+	COMMA,
+	LEFT_R_BRACKET,
+	RIGHT_R_BRACKET,
+	SEMICOLON,
+	T_TRUE,
+	EOL,
+	DOT
 
-#define	AND					22
-#define	BOOLEAN				23
-#define	CONTINUE			24
-#define	ELSEIF				25
-#define	EXIT				26
-#define T_FALSE				27
-#define	FOR					28
-#define	NEXT				29
-#define NOT 				30
-#define OR 					31
-#define	SHARED				32
-#define	STATIC				33
-#define ADD					34 // +
-
-#define SUB 				35	// -
-#define MUL 				36	// *
-#define DIV 				37	// /
-
-#define INT_DIV				40	// celociselne delenie
-#define LESS 				41	// <
-#define GREATER				42	// >
-
-#define LESS_EQ				43	// <=
-#define GREATER_EQ			44	// >=
-
-#define ASSIGNMENT_EQ 		45	// =
-#define NEQ					46	// <>
-#define ID 	 				47	// int x;
-#define NUMBER  			48	// int
-#define DOUBL 	 			49	// double
-#define TEXT 				50	// string
-#define BACKSLASH			51	// /
-#define END_OF_FILE			52	// EOF
-#define COMMA				53	// ,
-//#define LEFT_C_BRACKET  	54  // {
-//#define RIGHT_C_BRACKET 	55  // }
-#define LEFT_R_BRACKET  	56  // (
-#define RIGHT_R_BRACKET 	57 	// )
-#define SEMICOLON 			58	// ;  
-#define T_TRUE 				59	// 
-#define EOL 				60  // EOL
-#define DOT					61  // dot 
+} T_Tokens;
 
 /*typedef enum{
 	LEX_OK,
@@ -98,6 +95,7 @@ typedef enum{
 	ALLOC_ERR
 }T_Err;
 */
+
 typedef struct T_Token{
 	int type;
 	T_string * str;

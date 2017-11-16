@@ -456,11 +456,11 @@ T_Token *getToken(){
                     }
 
                     if(integer){
-                        return saveToken(NUMBER, true);   //číslo typu integer
+                        return saveToken(INT_NUMBER, true);   //číslo typu integer
                     }
 
                     else{
-                        return saveToken(DOUBL, true);    //číslo typu double
+                        return saveToken(DOUBLE_NUMBER, true);    //číslo typu double
                     }
                 }
 
