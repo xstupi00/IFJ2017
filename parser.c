@@ -6,6 +6,8 @@
 #include "scanner.h"
 #include "error.h"
 #include "expr.h"
+#include "symtable.h"
+#include "semantic_control.h"
 
 token_t *token;
 bool is_scope;
