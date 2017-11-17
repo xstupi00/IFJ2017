@@ -5,6 +5,8 @@
 #include "error.h"
 #include "expr.h"
 #include "stack.h"
+#include "symtable.h"
+#include "semantic_control.h"
 
 bool is_arithmetic_opr (int token_type);
 bool is_logic_opr (int token_type);
@@ -14,7 +16,9 @@ bool shift_to_stack (token_t *entry_token, token_t *stack_token);
 void correct_expr (token_t *act_token, int *prev_token, bool *set_logic);
 void do_until_left_bracket (stack_t *operators_stack, stack_t *output_stack);
 void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act_token, token_t *stack_token);
-void builtin_function ();
+void builtin_function (token_t *function, function_t *act_function, variable_t *l_value);
+variable_t *find_var (token_t *find_token, function_t *act_function);
+int types_control (int expect_type, int real_type);
 void infix_to_postfix ();
 token_t *copy_token (token_t *act_token);
 
@@ -67,9 +71,22 @@ bool is_builtin_function (int token_type) {
     if ( token_type >= LENGTH && token_type <= CHR )
         return true;
     else {
-        ungetToken(); 
+        //ungetToken(); 
         return false;
     }
+}
+
+bool is_users_function (token_t *act_token, function_t *act_function) {
+
+    htab_item_t *search_function = htab_find(global_symtable, act_token->str->string);
+
+    if ( !search_function ) {
+        find_var(act_token, act_function);
+        ungetToken();
+        return false;
+    }
+
+    return true;
 }
 
 token_t* copy_token(token_t *act_token) {
@@ -123,14 +140,14 @@ void correct_expr (token_t *act_token, int *prev_token, bool *set_logic) {
         *set_logic = true;
 }
 
-void do_until_left_bracket (stack_t *operators_stack, stack_t *outpustack_t) {
+void do_until_left_bracket (stack_t *operators_stack, stack_t *output_stack) {
 
     token_t *stack_token;
 
     while ( !S_Empty(operators_stack) ) {
         stack_token = copy_token(S_Top(operators_stack));
         if ( stack_token->type != LEFT_R_BRACKET ) {
-            S_Push(outpustack_t, stack_token);
+            S_Push(output_stack, stack_token);
             S_Pop(operators_stack);    
         }
         else {
@@ -223,17 +240,17 @@ void infix_to_postfix () {
 
 void control_token (int type_token) {
 
-    token_t *token = getToken();
+    token_t *act_token = getToken();
 
-    if ( token->type != type_token ) {
-        if ( type_token == LEFT_R_BRACKET && token->type == RIGHT_R_BRACKET )           // i want "(" but token is ")" -> length)
+    if ( act_token->type != type_token ) {
+        if ( type_token == LEFT_R_BRACKET && act_token->type == RIGHT_R_BRACKET )           // i want "(" but token is ")" -> length)
             print_err(2);
-        else if ( (type_token != RIGHT_R_BRACKET && token->type == RIGHT_R_BRACKET) ||  // token is ")" but i dont want some ")"
-                  (type_token != COMMA && token->type == COMMA) ) {                     // token is "," but i dont want ","
-                token = getToken();
-                if ( token->type == RIGHT_R_BRACKET )                                   // case for (param,)
+        else if ( (type_token != RIGHT_R_BRACKET && act_token->type == RIGHT_R_BRACKET) ||  // token is ")" but i dont want some ")"
+                  (type_token != COMMA && act_token->type == COMMA) ) {                     // token is "," but i dont want ","
+                act_token = getToken();
+                if ( act_token->type == RIGHT_R_BRACKET )                                   // case for (param,)
                     print_err(2);
-                else if ( is_operand(token->type) )                                     // case for (param,param) instead of (param)
+                else if ( is_operand(act_token->type) )                                     // case for (param,param) instead of (param)
                     print_err(4);
                 ungetToken();
         }
@@ -241,7 +258,57 @@ void control_token (int type_token) {
     }
 }
 
-void next_params () {
+variable_t *store_constant (token_t *const_token) {
+
+    htab_item_t *is_find = htab_find(const_symtable, const_token->str->string);
+
+    if ( !is_find ) {
+        variable_t *new_constant = (variable_t *) malloc(sizeof(variable_t));    
+        new_constant->data_type = const_token->type;
+        if ( new_constant->data_type == INT_NUMBER )
+            new_constant->data.i = strtol(const_token->str->string, NULL, 10);
+        else if ( new_constant->data_type == DOUBLE_NUMBER )
+            new_constant->data.d = strtod(const_token->str->string, NULL);
+        else if ( new_constant->data_type == TEXT )
+            new_constant->data.str = const_token->str->string;
+        is_find = htab_insert(const_symtable, const_token->str->string); 
+        is_find->is_function = 0;
+        is_find->data.var = new_constant;
+    }
+    else 
+        free(const_token->str);   
+
+    printf("type is(from store_const): %d\n", is_find->data.var->data_type);
+
+    return is_find->data.var;
+}
+
+variable_t *find_var (token_t *find_token, function_t *act_function) {
+
+    if ( find_token->type == ID ) {
+        htab_item_t *is_found = htab_find(act_function->local_symtable, find_token->str->string);
+        if ( !is_found ) {
+            print_err(3);
+        }
+        return is_found->data.var;
+    }
+    else if ( find_token->type >= INT_NUMBER && find_token->type <= TEXT )
+        return store_constant(find_token); 
+
+    return NULL;
+}
+
+int types_control (int expect_type, int real_type) {
+
+    if ( ((expect_type == INT_NUMBER || expect_type == DOUBLE_NUMBER) && real_type == TEXT) ||
+         ((real_type == INT_NUMBER || real_type == DOUBLE_NUMBER) && expect_type == TEXT) )
+        
+        print_err(4);
+
+    return 1;
+}
+
+variable_t *next_params (function_t *act_function, int expect_type) {
 
     token_t *act_token = getToken();
 
@@ -250,42 +317,86 @@ void next_params () {
             print_err(4);
         print_err(2);
     }
+    variable_t *act_param = find_var(act_token, act_function);
+    types_control(expect_type, act_param->data_type);
+
+    return act_param;
 }
 
-void builtin_function (token_t *function) {
+void builtin_function (token_t *function, function_t *act_function, variable_t *l_value) {
 
     int function_name = function->type;
 
     control_token(LEFT_R_BRACKET);
 
     if ( function_name == LENGTH ) {
-        next_params(STRING);
+        variable_t *param = next_params(act_function, TEXT);
+        printf("obsah: %s\n",param->data.str);
     }
     else if ( function_name == SUBSTR ) {
-        next_params();
+        variable_t *param_1 = next_params(act_function, TEXT);
+        printf("obsah: %s\n",param_1->data.str);
         control_token(COMMA);
-        next_params();
+        variable_t *param_2 = next_params(act_function, INT_NUMBER);
+        printf("obsah: %d\n",param_2->data.i);
         control_token(COMMA);
-        next_params();
+        variable_t *param_3 = next_params(act_function, TEXT);
+        printf("obsah: %s\n",param_3->data.str);
     }
     else if ( function_name == ASC ) {
-        next_params();
+        variable_t *param_1  = next_params(act_function, TEXT);
+        printf("obsah: %s\n",param_1->data.str);
         control_token(COMMA);
-        next_params();
+        variable_t *param_2 = next_params(act_function, INT_NUMBER);
+        printf("obsah: %d\n",param_2->data.i);
     }
     else {
-        next_params();
+        variable_t *param = next_params(act_function, INT_NUMBER);
+        printf("obsah: %d\n",param->data.i);
     }
 
     control_token(RIGHT_R_BRACKET);
+    types_control(act_function->return_type, l_value->data_type);
 }
 
-void expression () {
+int decode_type (char type) {
+
+    if ( type == 'i' )
+        return INT_NUMBER;
+    else if ( type == 'd' )
+        return DOUBLE_NUMBER;
+    else // !!!
+        return TEXT;
+}
+
+void users_function (token_t *act_token, function_t *act_function, variable_t *l_value) {
+
+    htab_item_t *search_function = htab_find(global_symtable, act_token->str->string);
+    function_t *users_function = search_function->data.fun;
+
+    control_token(LEFT_R_BRACKET);
+    
+    int count_of_params = users_function->params->length;
+    for( int i = 0; i <= count_of_params; i++ ) {
+        int type_param = decode_type(users_function->params->string[i]);
+        variable_t *param = next_params(act_function, type_param);
+        if ( i != count_of_params )
+            control_token(COMMA);
+        printf("obsah: %s\n",param->data.str);   
+    }
+
+    control_token(RIGHT_R_BRACKET);
+    types_control(act_function->return_type, l_value->data_type);
+}
+
+void expression (function_t *act_function, variable_t *l_value) {
 
     token_t *act_token = getToken();
 
     if ( is_builtin_function(act_token->type) ) 
-        builtin_function(act_token);
+        builtin_function(act_token, act_function, l_value);
+    else if ( is_users_function(act_token, act_function) )
+        users_function(act_token, act_function, l_value);
     else
         infix_to_postfix();
 }
