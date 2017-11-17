@@ -28,7 +28,7 @@ htab_t* htab_init(unsigned size){
 
 htab_item_t* htab_find(htab_t *table, const char *key){
     if(table == NULL || key == NULL)
-        return;
+        return NULL;
     unsigned index = hash_function(key) % table->arr_size;
     htab_item_t *tmp = NULL;
 
@@ -42,7 +42,7 @@ htab_item_t* htab_find(htab_t *table, const char *key){
 
 htab_item_t* htab_insert(htab_t *table, const char *key){
     if(table == NULL || key == NULL)
-        return;
+        return NULL;
     
     unsigned index = hash_function(key) % table->arr_size;
     htab_item_t *tmp = NULL; 

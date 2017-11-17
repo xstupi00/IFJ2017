@@ -2,7 +2,7 @@
 #define SYMTABLE_H
 
 #include <stdbool.h>
-#include <semantic_control.h>
+#include "semantic_control.h"
 
 #define SIZE_HTABLE 97
 
@@ -10,8 +10,8 @@ typedef struct htab_listitem{
     char *key;
     bool is_function;
     union{
-        variable_t *var;
-        function_t *fun;
+        struct variable_t *var;
+        struct function_t *fun;
     }data;
     struct htab_listitem *next;
 }htab_item_t;

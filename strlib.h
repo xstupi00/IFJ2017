@@ -3,6 +3,8 @@
 
 #define STR_INIT 128
 
+#include <stdlib.h>
+
 typedef struct {
 	char * string;
 	size_t capacity; 
