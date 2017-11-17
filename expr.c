@@ -9,12 +9,14 @@
 bool is_arithmetic_opr (int token_type);
 bool is_logic_opr (int token_type);
 bool is_operand (int token_type);
-bool shift_to_stack (T_Token *entry_token, T_Token *stack_token);
-void correct_expr (T_Token *act_token, int *prev_token, bool *set_logic);
-void do_until_left_bracket (T_Stack *operators_stack, T_Stack *output_stack);
-void do_operation (T_Stack *operators_stack, T_Stack *output_stack, T_Token *act_token, T_Token *stack_token);
+bool is_builtin_function (int token_type);
+bool shift_to_stack (token_t *entry_token, token_t *stack_token);
+void correct_expr (token_t *act_token, int *prev_token, bool *set_logic);
+void do_until_left_bracket (stack_t *operators_stack, stack_t *output_stack);
+void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act_token, token_t *stack_token);
+void builtin_function ();
 void infix_to_postfix ();
-T_Token *copy_token (T_Token *act_token);
+token_t *copy_token (token_t *act_token);
 
 char precedence_table [SIZE_TABLE][SIZE_TABLE] = {
 /*            +    -    *    /    (    )    \    <    >   <=   >=    =   <>   id   lit   $ */
@@ -60,10 +62,20 @@ bool is_operand (int token_type) {
         return false;
 }
 
-T_Token* copy_token(T_Token *act_token) {
+bool is_builtin_function (int token_type) {
 
-    T_Token *new_token = NULL;
-    if ( (new_token = malloc(sizeof(T_Token))) == NULL )
+    if ( token_type >= LENGTH && token_type <= CHR )
+        return true;
+    else {
+        ungetToken(); 
+        return false;
+    }
+}
+
+token_t* copy_token(token_t *act_token) {
+
+    token_t *new_token = NULL;
+    if ( (new_token = malloc(sizeof(token_t))) == NULL )
         print_err(99);
 
     new_token->str = act_token->str;
@@ -72,7 +84,7 @@ T_Token* copy_token(T_Token *act_token) {
     return new_token;
 }
 
-bool shift_to_stack (T_Token *entry_token, T_Token *stack_token) {
+bool shift_to_stack (token_t *entry_token, token_t *stack_token) {
 
     unsigned index_y = entry_token->type - ADD;
     unsigned index_x = stack_token->type - ADD;
@@ -88,7 +100,7 @@ bool shift_to_stack (T_Token *entry_token, T_Token *stack_token) {
         return false;
 }
 
-void correct_expr (T_Token *act_token, int *prev_token, bool *set_logic) {
+void correct_expr (token_t *act_token, int *prev_token, bool *set_logic) {
 
     if ( is_arithmetic_opr(*prev_token) || *prev_token == LEFT_R_BRACKET 
         || *prev_token == FIRST_TOKEN || is_logic_opr(*prev_token) ) 
@@ -111,14 +123,14 @@ void correct_expr (T_Token *act_token, int *prev_token, bool *set_logic) {
         *set_logic = true;
 }
 
-void do_until_left_bracket (T_Stack *operators_stack, T_Stack *output_stack) {
+void do_until_left_bracket (stack_t *operators_stack, stack_t *outpustack_t) {
 
-    T_Token *stack_token;
+    token_t *stack_token;
 
     while ( !S_Empty(operators_stack) ) {
         stack_token = copy_token(S_Top(operators_stack));
         if ( stack_token->type != LEFT_R_BRACKET ) {
-            S_Push(output_stack, stack_token);
+            S_Push(outpustack_t, stack_token);
             S_Pop(operators_stack);    
         }
         else {
@@ -128,7 +140,7 @@ void do_until_left_bracket (T_Stack *operators_stack, T_Stack *output_stack) {
     }
 }
 
-void do_operation (T_Stack *operators_stack, T_Stack *output_stack, T_Token *act_token, T_Token *stack_token) {
+void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act_token, token_t *stack_token) {
 
     if ( S_Empty(operators_stack) || shift_to_stack(act_token, stack_token) || stack_token->type == LEFT_R_BRACKET ) {
         stack_token = copy_token(act_token);
@@ -148,24 +160,23 @@ void do_operation (T_Stack *operators_stack, T_Stack *output_stack, T_Token *act
 
 void infix_to_postfix () {
 
-    T_Token *act_token;
-    T_Token *stack_token;
+    token_t *act_token;
+    token_t *stack_token;
     unsigned count_of_bracket = 0;
     int sum_count = 1;
     bool logic_on = false;
  
-    T_Stack *output_stack;
-    if ( (output_stack = (T_Stack *) malloc(sizeof(T_Stack))) == NULL )
+    stack_t *output_stack;
+    if ( (output_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
         print_err(99);
     S_Init(output_stack);
 
-    T_Stack *infix_stack;
-    if ( (infix_stack = (T_Stack *) malloc(sizeof(T_Stack))) == NULL )
+    stack_t *infix_stack;
+    if ( (infix_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
         print_err(99);
     S_Init(infix_stack);
 
     act_token = getToken();
-    //printf("First token is: %d\n", act_token->type);
     int prev_token = FIRST_TOKEN;
 
     while ( act_token->type != SEMICOLON && act_token->type != EOL && 
@@ -210,7 +221,71 @@ void infix_to_postfix () {
     //S_Print(infix_stack);
 }
 
+void control_token (int type_token) {
+
+    token_t *token = getToken();
+
+    if ( token->type != type_token ) {
+        if ( type_token == LEFT_R_BRACKET && token->type == RIGHT_R_BRACKET )           // i want "(" but token is ")" -> length)
+            print_err(2);
+        else if ( (type_token != RIGHT_R_BRACKET && token->type == RIGHT_R_BRACKET) ||  // token is ")" but i dont want some ")"
+                  (type_token != COMMA && token->type == COMMA) ) {                     // token is "," but i dont want ","
+                token = getToken();
+                if ( token->type == RIGHT_R_BRACKET )                                   // case for (param,)
+                    print_err(2);
+                else if ( is_operand(token->type) )                                     // case for (param,param) instead of (param)
+                    print_err(4);
+                ungetToken();
+        }
+        print_err(2);
+    }
+}
+
+void next_params () {
+
+    token_t *act_token = getToken();
+
+    if ( !is_operand(act_token->type) ) {
+        if ( act_token->type == RIGHT_R_BRACKET )
+            print_err(4);
+        print_err(2);
+    }
+}
+
+void builtin_function (token_t *function) {
+
+    int function_name = function->type;
+
+    control_token(LEFT_R_BRACKET);
+
+    if ( function_name == LENGTH ) {
+        next_params(STRING);
+    }
+    else if ( function_name == SUBSTR ) {
+        next_params();
+        control_token(COMMA);
+        next_params();
+        control_token(COMMA);
+        next_params();
+    }
+    else if ( function_name == ASC ) {
+        next_params();
+        control_token(COMMA);
+        next_params();
+    }
+    else {
+        next_params();
+    }
+
+    control_token(RIGHT_R_BRACKET);
+}
+
 void expression () {
 
-    infix_to_postfix();
+    token_t *act_token = getToken();
+
+    if ( is_builtin_function(act_token->type) ) 
+        builtin_function(act_token);
+    else
+        infix_to_postfix();
 }
