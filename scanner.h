@@ -24,7 +24,7 @@ typedef enum{
 	S_LESS_EQ,
 	S_STR
 
-}T_States;
+}states_t;
  
 typedef enum {
 
@@ -87,7 +87,7 @@ typedef enum {
 	EOL,
 	DOT
 
-} T_Tokens;
+} tokens_t;
 
 typedef struct token_t{
 	int type;

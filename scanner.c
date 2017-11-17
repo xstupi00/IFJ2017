@@ -68,7 +68,7 @@ token_t *getToken(){
     int pocet_cisel = 0;
     bool exponent = false;
     bool dot = false;
-    T_States state = S_START;   //stav automatu
+    states_t state = S_START;   //stav automatu
 
     while(((c = fgetc(stdin)) != EOF)){
         token->str->length=strlen(token->str->string);
