@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "symtable.h"
 #include "error.h"
+#include "scanner.h"
 
 unsigned hash_function(const char *key){
     unsigned int h = 0;
@@ -116,4 +117,45 @@ void htab_free(htab_t *table){
         return;
     htab_clear(table);
     free(table);
+}
+
+//debug
+
+void htab_foreach(htab_t *table, void(*func)(char*,bool,void*)){
+    for(unsigned i = 0; i < table->arr_size; i++){
+        for(htab_item_t *tmp = table->ptr[i]; tmp != NULL; tmp = tmp->next){
+            printf("index: %u\n",i);
+            if(tmp->is_function)
+                func(tmp->key, tmp->is_function, tmp->data.fun);
+            else    
+                func(tmp->key, tmp->is_function, tmp->data.var);
+        }
+    }
+}
+
+void htab_print(char *key, bool f, void *data){
+    printf("id:\t\t%s\n",key);
+    if(!f){
+        printf("VARIABLE\n");
+        printf("data type:\t%d\n",((variable_t*)data)->data_type);
+        switch(((variable_t*)data)->data_type){
+            case INTEGER:
+                printf("data:\t\t%d\n",((variable_t*)data)->data.i);
+                break;
+            case DOUBLE:
+                printf("data:\t\t%f\n",((variable_t*)data)->data.d);
+                break;
+            case STRING:
+                printf("data:\t\t%s\n",((variable_t*)data)->data.str);
+                break;
+        }
+    }
+    else{
+        printf("FUNCTION\n");
+        printf("return type:\t%d\n",((function_t*)data)->return_type);
+        printf("is defined:\t%d\n",((function_t*)data)->defined);
+        printf("params count:\t%lu\n",((function_t*)data)->params->length);
+        printf("locals count:\t%u\n",((function_t*)data)->locals_count);
+        printf("params:\t\t%s\n",((function_t*)data)->params->string);
+    }
 }

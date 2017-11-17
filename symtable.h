@@ -36,4 +36,10 @@ void htab_clear(htab_t *table);
 
 void htab_free(htab_t *table);
 
+//debug
+
+void htab_foreach(htab_t *table,void(*func)(char*,bool,void*));
+
+void htab_print(char *key,bool f, void* data);
+
 #endif
