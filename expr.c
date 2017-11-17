@@ -19,7 +19,7 @@ void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act
 void builtin_function (token_t *function, function_t *act_function, variable_t *l_value);
 variable_t *find_var (token_t *find_token, function_t *act_function);
 int types_control (int expect_type, int real_type);
-void infix_to_postfix ();
+void infix_to_postfix (function_t *act_function);
 token_t *copy_token (token_t *act_token);
 
 char precedence_table [SIZE_TABLE][SIZE_TABLE] = {
@@ -95,8 +95,13 @@ token_t* copy_token(token_t *act_token) {
     if ( (new_token = malloc(sizeof(token_t))) == NULL )
         print_err(99);
 
-    new_token->str = act_token->str;
+    new_token->str = malloc(sizeof(act_token->str));
+    new_token->str->string = malloc(act_token->str->capacity);
+
     new_token->type = act_token->type;
+    strcpy(new_token->str->string, act_token->str->string);
+    new_token->str->capacity = act_token->str->capacity;
+    new_token->str->length = act_token->str->length;
 
     return new_token;
 }
@@ -175,7 +180,57 @@ void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act
     }
 }
 
-void infix_to_postfix () {
+int check_return_type(int *operator, variable_t *operand_1, variable_t *operand_2) {
+
+    if ( *operator == ADD && operand_1->data_type == TEXT && operand_2->data_type == TEXT ) 
+        return TEXT;
+    else if ( (operand_1->data_type == DOUBLE_NUMBER || operand_2->data_type == DOUBLE_NUMBER) &&
+                types_control(operand_1->data_type, operand_2->data_type) )
+        return DOUBLE_NUMBER;
+    else if ( (operand_1->data_type == INT_NUMBER && operand_2->data_type == INT_NUMBER) )
+        return INT_NUMBER;
+    else   
+        print_err(3);
+
+    return 0;
+}
+
+void control_postfix (stack_t *postfix_stack, function_t *act_function) {
+
+    stack_t *output_stack;
+    if ( (output_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
+        print_err(99);
+    S_Init(output_stack);
+
+    token_t *act_token;
+    variable_t *operand_1;
+    variable_t *operand_2;
+    variable_t *operator;
+    int ret_type;
+
+    while ( !S_Empty(postfix_stack) ) {
+        printf("starting\n");
+        act_token = S_Top(postfix_stack);
+        S_Pop(postfix_stack);
+        if ( is_operand(act_token->type) ) {
+            operator = find_var(act_token, act_function);
+            //free(act_token);
+            S_Push(output_stack, operator);
+        }
+        else {
+            operand_1 = S_Top(output_stack);
+            S_Pop(output_stack);
+            operand_2 = S_Top(output_stack);
+            S_Pop(output_stack);
+            ret_type = check_return_type(&act_token->type, operand_1, operand_2);
+            printf("types is: %d\n", ret_type);
+            //free(act_token->str);
+            //free(act_token);
+        }
+    }
+}
+
+void infix_to_postfix (function_t *act_function) {
 
     token_t *act_token;
     token_t *stack_token;
@@ -224,10 +279,10 @@ void infix_to_postfix () {
     }
 
     while ( !S_Empty(infix_stack) ) {
-        stack_token = copy_token(S_Top(infix_stack));
-		S_Push(output_stack, stack_token);
+		S_Push(output_stack, copy_token(S_Top(infix_stack)));
 		S_Pop(infix_stack);
     }
+
     S_Copy(infix_stack, output_stack);
     S_Destroy(output_stack);
 
@@ -235,6 +290,7 @@ void infix_to_postfix () {
         print_err(2);
     ungetToken();
 
+    control_postfix(infix_stack, act_function);
     //S_Print(infix_stack);
 }
 
@@ -275,10 +331,8 @@ variable_t *store_constant (token_t *const_token) {
         is_find->is_function = 0;
         is_find->data.var = new_constant;
     }
-    else 
+    else  
         free(const_token->str);   
-
-    printf("type is(from store_const): %d\n", is_find->data.var->data_type);
 
     return is_find->data.var;
 }
@@ -290,6 +344,7 @@ variable_t *find_var (token_t *find_token, function_t *act_function) {
         if ( !is_found ) {
             print_err(3);
         }
+        free(find_token->str);
         return is_found->data.var;
     }
     else if ( find_token->type >= INT_NUMBER && find_token->type <= TEXT )
@@ -398,5 +453,5 @@ void expression (function_t *act_function, variable_t *l_value) {
     else if ( is_users_function(act_token, act_function) )
         users_function(act_token, act_function, l_value);
     else
-        infix_to_postfix();
+        infix_to_postfix(act_function);
 }
