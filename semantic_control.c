@@ -27,7 +27,6 @@ function_t *init_function(){
 
     new_fun->return_type = 0;
     new_fun->defined = false;
-    new_fun->params_count = 0;
     new_fun->locals_count = 0;
     new_fun->local_symtable = htab_init(SIZE_HTABLE);
     new_fun->params = strInit(PARAM_COUNT);
@@ -46,31 +45,40 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
     else{
         function_t *found_function = f->data.fun;
         unsigned long i;
-        
-        //redefinition
         if(found_function->defined)
             print_err(3);
-
         for(i = 0; i<fun->params->length; i++){
-            if( found_function->params->string[i] !=
-                fun->params->string[i]){
+            if( found_function->params->string[i] != fun->params->string[i])
                 break;
-                }
-            }
-        //count or types of parameters mismatch
-        if(i != found_function->params_count)
+        }
+        if(i != found_function->params->length || i != fun->params->length)
             print_err(3);
-        
-        //incompatible types in definition and declaration
         if(found_function->return_type != fun->return_type)
             print_err(3);
-
+        //check it
         fun->return_var = found_function->return_var;
-        
-        
+        f->data.fun = fun;
     }
 }
 
-void store_var_in_symtable(function_t *fun, variable_t *var){
+void store_var_in_symtable(function_t *fun, variable_t *var, const char *var_name){
+    if(htab_find(fun->local_symtable, var_name) || htab_find(global_symtable, var_name))
+        print_err(3);
+    
+    htab_item_t *new_var = htab_insert(fun->local_symtable,var_name);
+    new_var->data.var = var;
+    new_var->is_function = false;
+}
 
+void check_function_definitions(){
+    function_t *f;
+    for(unsigned i = 0; i < global_symtable->arr_size; i++){
+        if(global_symtable->ptr[i] == NULL)
+            continue;
+        for(htab_item_t *tmp = global_symtable->ptr[i]; tmp != NULL; tmp = tmp->next){
+            f = tmp->data.fun;
+            if(!f->defined)
+                print_err(3);
+        }
+    }    
 }

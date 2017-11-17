@@ -21,7 +21,6 @@ typedef struct variable_t{
 typedef struct function_t{
     int return_type;
     bool defined;
-    unsigned params_count;
     unsigned locals_count;
     struct htab_t *local_symtable;
     //add instruction tape
@@ -30,5 +29,15 @@ typedef struct function_t{
 }function_t;
 
 void init_global_symtable();
+
+variable_t *init_variable();
+
+function_t *init_function();
+
+void store_fun_in_symtable(function_t *f,const char *f_name);
+
+void store_var_in_symtable(function_t *f,variable_t *v,const char *v_name);
+
+void check_function_definitions();
 
 #endif
