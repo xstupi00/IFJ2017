@@ -8,6 +8,7 @@
 #define PARAM_COUNT 10
 
 extern struct htab_t *global_symtable;
+extern struct htab_t *const_symtable;
 
 typedef struct variable_t{
     int data_type;
@@ -28,7 +29,7 @@ typedef struct function_t{
     variable_t *return_var;        
 }function_t;
 
-void init_global_symtable();
+void init_global_symtables();
 
 variable_t *init_variable();
 

@@ -5,9 +5,11 @@
 #include "error.h"
 
 htab_t *global_symtable;
+htab_t *const_symtable;
 
-void init_global_symtable(){
+void init_global_symtables(){
     global_symtable = htab_init(SIZE_HTABLE);
+    const_symtable = htab_init(SIZE_HTABLE);
 }
 
 variable_t *init_variable(){
