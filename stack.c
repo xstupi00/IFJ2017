@@ -3,24 +3,24 @@
 #include "stack.h"
 #include "error.h"
 
-void S_Init (T_Stack *s) {
+void S_Init (stack_t *s) {
 
     s->top_ptr = NULL;
 }
 
-void S_Destroy (T_Stack *s) {
+void S_Destroy (stack_t *s) {
 
     while ( s->top_ptr != NULL ) {
-        S_Elem *tmp_element = s->top_ptr;
+        elem_t *tmp_element = s->top_ptr;
         s->top_ptr = s->top_ptr->next_ptr;
         free(tmp_element);
     }
 }
 
-int S_Push (T_Stack *s, void* d) {
+int S_Push (stack_t *s, void* d) {
 
-    S_Elem *new_element = NULL;
-    if ( (new_element = (S_Elem *) malloc(sizeof(void *))) == NULL ) 
+    elem_t *new_element = NULL;
+    if ( (new_element = (elem_t *) malloc(sizeof(void *))) == NULL ) 
         print_err(99);
 
     new_element->data = d;
@@ -30,9 +30,9 @@ int S_Push (T_Stack *s, void* d) {
     return 0;
 }
 
-void S_Pop (T_Stack *s) {
+void S_Pop (stack_t *s) {
     
-    S_Elem *tmp_element;
+    elem_t *tmp_element;
 
     if ( s->top_ptr != NULL ) {
         tmp_element = s->top_ptr;
@@ -42,7 +42,7 @@ void S_Pop (T_Stack *s) {
     }
 }
 
-void* S_Top (T_Stack *s) {
+void* S_Top (stack_t *s) {
 
     if ( s->top_ptr != NULL )
         return s->top_ptr->data;
@@ -50,12 +50,12 @@ void* S_Top (T_Stack *s) {
         return NULL;
 }
 
-int S_Empty (T_Stack *s) {
+int S_Empty (stack_t *s) {
 
     return ( s->top_ptr != NULL ? 0 : -1 );
 }
 
-void S_Copy (T_Stack *dst_stack, T_Stack *src_stack) {
+void S_Copy (stack_t *dst_stack, stack_t *src_stack) {
 
     while ( !S_Empty(src_stack) ) {
         S_Push(dst_stack, S_Top(src_stack));
@@ -64,9 +64,9 @@ void S_Copy (T_Stack *dst_stack, T_Stack *src_stack) {
 }
 
 // debug functions
-void S_Print (T_Stack *s) {
+void S_Print (stack_t *s) {
 
-    S_Elem *tmp = s->top_ptr;
+    elem_t *tmp = s->top_ptr;
     while ( s->top_ptr != NULL ) {
         printf ("%d\n", *((int*)s->top_ptr->data));
         s->top_ptr = s->top_ptr->next_ptr;
