@@ -7,10 +7,10 @@ typedef struct {
 	char * string;
 	size_t capacity; 
 	size_t length;
-}T_string;
+}string_t;
 
-T_string * strInit();
-bool extendStr(T_string * str, size_t new_size);
+string_t * strInit(size_t size);
+bool extendStr(string_t * str, size_t new_size);
 
 
 #endif

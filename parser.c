@@ -7,7 +7,7 @@
 #include "error.h"
 #include "expr.h"
 
-T_Token *token;
+token_t *token;
 bool is_scope;
 
 //Declaration of state functions

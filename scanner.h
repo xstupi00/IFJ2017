@@ -89,25 +89,16 @@ typedef enum {
 
 } T_Tokens;
 
-/*typedef enum{
-	LEX_OK,
-	LEX_ERR,
-	ALLOC_ERR
-}T_Err;
-*/
-
-typedef struct T_Token{
+typedef struct token_t{
 	int type;
-	T_string * str;
-}T_Token;
+	string_t * str;
+}token_t;
 
-#define VARIABLE 	1
-#define FUNCTION	2
-#define FUN_CALL	3
+
 
 void ungetToken();
 void initToken();
-T_Token *getToken();
-T_Token *saveToken(int type, bool string);
+token_t *getToken();
+token_t *saveToken(int type, bool string);
 
 #endif 

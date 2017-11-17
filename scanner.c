@@ -18,20 +18,17 @@
 #include "error.h"
 #include "strlib.h"
 
-T_Token * token;
+token_t * token;
 bool unget;
 
 void initToken(){
-    token = (T_Token*) malloc(sizeof(struct T_Token));
+    token = (token_t*) malloc(sizeof(struct token_t));
     if(!token){
         print_err(99);
-        //return NULL;
     }       
-    token->str = strInit(); // alokacia pamate pre string
-    //(T_string*) malloc(sizeof(T_string)*(STR_INIT + 1)); //alokácia stringu na uloženie hodnoty tokenu
+    token->str = strInit(STR_INIT); // alokacia pamate pre string
     if(!token->str){
         print_err(99);
-        //return NULL;
     }   
     
 }
@@ -44,7 +41,7 @@ void ungetToken(){
     unget=true;
 }
 //funkcia na uloženie načítaného tokena do tokenovej štruktúry
-T_Token *saveToken(int type, bool string){
+token_t *saveToken(int type, bool string){
     if(!token){
         print_err(99);
         return NULL;
@@ -56,7 +53,7 @@ T_Token *saveToken(int type, bool string){
     return token;
 }
 
-T_Token *getToken(){
+token_t *getToken(){
 
     if(unget){
         unget=false;
@@ -73,7 +70,7 @@ T_Token *getToken(){
     bool dot = false;
     T_States state = S_START;   //stav automatu
 
-    while(((c = fgetc(stdin)) != EOF) /*&& end!=false ? alebo ?+1*/){
+    while(((c = fgetc(stdin)) != EOF)){
         token->str->length=strlen(token->str->string);
   
         if(token->str->length+1 > token->str->capacity){
@@ -100,13 +97,6 @@ T_Token *getToken(){
                     state = S_NUMBER;   //číslo
                     token->str->string[position++] = c;
                 }
-                /*else if(c == '{'){
-                    return saveToken(LEFT_C_BRACKET, false); //ľavá zložená zátvorka
-                }
-                else if(c == '}'){
-                    return saveToken(RIGHT_C_BRACKET, false);    //pravá zložená zátvorka
-                }
-                */
                 else if(c == '('){
                     return saveToken(LEFT_R_BRACKET, false);     //ľavá okrúhla zátvorka
                 }
@@ -135,10 +125,6 @@ T_Token *getToken(){
                 else if(c == '\\'){
                     return saveToken(INT_DIV, false);   //celociselne delenie
                 }
-                /*else if(c == '.'){
-                    return saveToken(DOT, false);    //bodka
-                }
-                */
 
                 else if(c == '\''){
                     while (((c = fgetc(stdin)) != '\n') && (c != EOF));
@@ -165,18 +151,12 @@ T_Token *getToken(){
                     }
 
                 }
-
                 else if(c == '>'){
                     state = S_GR_EQ;    //väčší/väčší alebo rovný
                 }
                 else if(c == '<'){
                     state = S_LESS_EQ;  //menší/menší alebo rovný
                 }
-                
-                /*else if(c == '"'){
-                    state = S_STR;  //začiatok reťazca
-                }*/
-
                 else if(c == EOF){
                     return  saveToken(END_OF_FILE, false);   //koniec suboru
                 }
@@ -239,7 +219,6 @@ T_Token *getToken(){
 			        else if (((isdigit(c)) && (escapovanie == 1))){
 
 						hexa[0] = c;
-						//printf("------ %c\n", hexa[0]);
 						pocet_cisel = 1;
 						escapovanie = 0;
 						state = S_STRING_NUMBERS;
@@ -274,23 +253,14 @@ T_Token *getToken(){
 				//ak sa jedná o druhé číslo, zapíšeme ho na druhú pozíciu
 			    if(((isdigit(c)) && (pocet_cisel == 1))){
 					hexa[1] = c;
-					//printf("------ %c\n", hexa[1]);
 				 	pocet_cisel = 2;
 					state = S_STRING_NUMBERS;
 			      }
 			     //ak sa jedná o tretie číslo, zapíšeme ho na tretiu pozíciu
 			    else if(((isdigit(c)) && (pocet_cisel == 2))){
 					hexa[2] = c;
-					//printf("------ %c\n", hexa[2]);
 			    	pocet_cisel = 3;
 					int number = atoi(hexa);
-					//printf("______ %s\n", hexa);
-					//printf("_-_-_- %d\n", number);
-					//char a;
-					/*a = hexa[0] - '0';
-					a = a + hexa[1] - '0';
-					a = a + hexa[2] - '0';*/
-					//printf("aaaaaaaaaaaaa %d\n", number);
 
 					//číslo musí byť z intervalu <0,255>, ak nie je, tak to značí lexikálnu chybu
 				    if(((number < 001) || (number > 255))){
@@ -365,7 +335,8 @@ T_Token *getToken(){
                     }
                     //koemntár do konca súboru
                     if(c == EOF){
-                        return saveToken(END_OF_FILE, false);
+                        //return saveToken(END_OF_FILE, false);
+                        print_err(1);
                     }
                     state = S_START;
                 }
@@ -440,7 +411,7 @@ T_Token *getToken(){
                 }
 
                 //znaky, ktoré nemôže číslo obsahovať
-                else if ((c == '_') /*||isalpha(c)*/){
+                else if ((c == '_') || isalpha(c)){
                     print_err(1);
                     return NULL;
                 }
