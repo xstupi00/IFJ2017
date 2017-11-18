@@ -1,6 +1,6 @@
 										| 	Empty			|										First											|								Follow																	
 ____________________|_____________|_____________________________________________|__________________________________________________________
-<prog>							| 	epsilon		|	Declare, Function, Scope, EOL								|	- 																											
+<prog>							| 	  {}			|	Declare, Function, Scope, EOL								|	- 																											
 <declare-function>	| 		{}			| Declare																			| EOL  																									
 <define-function>		| 		{}  		| Function																		| EOL																								
 <main-function>			| 		{}			| Scope																				| -																											
@@ -28,7 +28,7 @@ ________________________________________________________________________________
 01. <prog> -> <declare-function> EOL <prog>																														| Declare 
 02. <prog> -> <define-function> EOL <prog>																														| Function
 03. <prog> -> <main-function>																																					| Scope
-04. <prog> -> epsilon																																									| -
+04. <prog> -> EOL <prog>																																							| EOL
 05. <declare-function> -> Declare Function id (<param-list>) As <data-type>														|	Declare
 06. <define-function> -> Function id (<param-list>) As <data-type> EOL <function-element> End Function| Function
 07. <main-function> -> Scope EOL <function-element> End Scope																					| Scope
@@ -65,5 +65,4 @@ ________________________________________________________________________________
 38. <data-type> -> Integer																																						| Integer
 39. <data-type> -> String																																							|	String
 40. <data-type> -> Double																																							| Double
-41. <prog> -> EOL <prog>																																							| EOL
 ______________________________________________________________________________________________________|____________________________________																																																				
