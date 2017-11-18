@@ -99,7 +99,8 @@ token_t* copy_token(token_t *act_token) {
     new_token->str->string = malloc(act_token->str->capacity);
 
     new_token->type = act_token->type;
-    strcpy(new_token->str->string, act_token->str->string);
+    if ( act_token->str->string )
+        strcpy(new_token->str->string, act_token->str->string);
     new_token->str->capacity = act_token->str->capacity;
     new_token->str->length = act_token->str->length;
 
@@ -184,13 +185,15 @@ int check_return_type(int *operator, variable_t *operand_1, variable_t *operand_
 
     if ( *operator == ADD && operand_1->data_type == TEXT && operand_2->data_type == TEXT ) 
         return TEXT;
-    else if ( (operand_1->data_type == DOUBLE_NUMBER || operand_2->data_type == DOUBLE_NUMBER) &&
-                types_control(operand_1->data_type, operand_2->data_type) )
+    else if ( ((operand_1->data_type == DOUBLE_NUMBER || operand_2->data_type == DOUBLE_NUMBER) &&
+                types_control(operand_1->data_type, operand_2->data_type) && *operator != INT_DIV) ||
+                (types_control(operand_1->data_type, operand_2->data_type) && *operator == DIV) )
         return DOUBLE_NUMBER;
-    else if ( (operand_1->data_type == INT_NUMBER && operand_2->data_type == INT_NUMBER) )
+    else if ( (operand_1->data_type == INT_NUMBER && operand_2->data_type == INT_NUMBER) ||
+                ( (types_control(operand_1->data_type, operand_2->data_type) && (*operator == INT_DIV)) ) ) 
         return INT_NUMBER;
     else   
-        print_err(3);
+        print_err(4);
 
     return 0;
 }
@@ -205,17 +208,17 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function) {
     token_t *act_token;
     variable_t *operand_1;
     variable_t *operand_2;
-    variable_t *operator;
+    variable_t *operand;
     int ret_type;
 
+    variable_t *new_var = (variable_t *) malloc(sizeof(variable_t));    
+
     while ( !S_Empty(postfix_stack) ) {
-        printf("starting\n");
         act_token = S_Top(postfix_stack);
         S_Pop(postfix_stack);
         if ( is_operand(act_token->type) ) {
-            operator = find_var(act_token, act_function);
-            //free(act_token);
-            S_Push(output_stack, operator);
+            operand = find_var(act_token, act_function);
+            S_Push(output_stack, operand);
         }
         else {
             operand_1 = S_Top(output_stack);
@@ -223,11 +226,11 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function) {
             operand_2 = S_Top(output_stack);
             S_Pop(output_stack);
             ret_type = check_return_type(&act_token->type, operand_1, operand_2);
-            printf("types is: %d\n", ret_type);
-            //free(act_token->str);
-            //free(act_token);
+            new_var->data_type = ret_type;
+            S_Push(output_stack, new_var);
         }
     }
+    printf("types is: %d\n", ret_type);
 }
 
 void infix_to_postfix (function_t *act_function) {
@@ -344,7 +347,7 @@ variable_t *find_var (token_t *find_token, function_t *act_function) {
         if ( !is_found ) {
             print_err(3);
         }
-        free(find_token->str);
+        //free(find_token->str);
         return is_found->data.var;
     }
     else if ( find_token->type >= INT_NUMBER && find_token->type <= TEXT )
