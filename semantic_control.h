@@ -4,11 +4,14 @@
 #include <stdbool.h>
 #include "symtable.h"
 #include "strlib.h"
+#include "scanner.h"
 
 #define PARAM_COUNT 10
 
 extern struct htab_t *global_symtable;
 extern struct htab_t *const_symtable;
+extern struct string_t *current_function_name;
+extern struct string_t *current_variable_name;
 
 typedef struct variable_t{
     int data_type;
@@ -22,9 +25,7 @@ typedef struct variable_t{
 typedef struct function_t{
     int return_type;
     bool defined;
-    unsigned locals_count;
     struct htab_t *local_symtable;
-    //add instruction tape
     string_t *params;
     variable_t *return_var;        
 }function_t;
@@ -40,5 +41,13 @@ void store_fun_in_symtable(function_t *f,const char *f_name);
 void store_var_in_symtable(function_t *f,variable_t *v,const char *v_name);
 
 void check_function_definitions();
+
+variable_t *find_variable(struct htab_t* symtable, const char *key);
+
+char code_param_type(int type);
+
+void store_current_variable_name(struct token_t *token);
+
+void store_current_function_name(struct token_t *token);
 
 #endif
