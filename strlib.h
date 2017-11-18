@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 
-typedef struct {
+typedef struct string_t{
 	char * string;
 	size_t capacity; 
 	size_t length;

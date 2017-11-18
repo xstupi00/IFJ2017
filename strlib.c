@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "strlib.h"
+#include "error.h"
 
 bool extendStr(string_t * str, size_t new_size){
-    if( (str->string = (char *)(realloc(str->string, sizeof(char)*new_size+1))) == NULL) 
-    	return false;
+    if( !(str->string = (char *)(realloc(str->string, sizeof(char)*new_size+1))) ) 
+		print_err(99);
     str->capacity=new_size;
     return true;
 }
@@ -13,10 +14,10 @@ bool extendStr(string_t * str, size_t new_size){
 string_t * strInit(size_t size){
 	string_t * str = (string_t *) malloc(sizeof(string_t));
 	if(!str)
-		return NULL;
+		print_err(99);
 	str->string = (char *) malloc(sizeof(char) * size + 1);
 	if(!(str->string))
-		return NULL;
+		print_err(99);
 	str->capacity = size;
 	str->length = 0;
 	return str;

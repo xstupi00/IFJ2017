@@ -27,9 +27,6 @@ void initToken(){
         print_err(99);
     }       
     token->str = strInit(STR_INIT); // alokacia pamate pre string
-    if(!token->str){
-        print_err(99);
-    }   
     
 }
 void freeToken(){
@@ -49,6 +46,7 @@ token_t *saveToken(int type, bool string){
     if(!string)
         token->str->string[0]='\0'; 
     token->type = type; //priradí typ
+    token->str->length = strlen(token->str->string);
     //printf("token : %s %d\n",token->str->string,token->type);
     return token;
 }
@@ -74,10 +72,7 @@ token_t *getToken(){
         token->str->length=strlen(token->str->string);
   
         if(token->str->length+1 > token->str->capacity){
-            if(!(extendStr(token->str, 2*token->str->capacity))) {
-                print_err(99);
-                return NULL;
-            }
+            extendStr(token->str, 2*token->str->capacity);
         }
         c = tolower(c);
        
