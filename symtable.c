@@ -155,7 +155,9 @@ void htab_print(char *key, bool f, void *data){
         printf("return type:\t%d\n",((function_t*)data)->return_type);
         printf("is defined:\t%d\n",((function_t*)data)->defined);
         printf("params count:\t%lu\n",((function_t*)data)->params->length);
-        printf("locals count:\t%u\n",((function_t*)data)->locals_count);
         printf("params:\t\t%s\n",((function_t*)data)->params->string);
+        if(((function_t*)data)->local_symtable->n){
+            htab_foreach(((function_t*)data)->local_symtable,htab_print);
+        }
     }
 }
