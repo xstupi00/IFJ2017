@@ -103,11 +103,11 @@ char code_param_type(int type){
 
 variable_t *find_variable(htab_t *symtable, const char *key){
     htab_item_t *item = htab_find(symtable,key);
-    if(item->is_function)
+    if(item == NULL)
         return NULL;
-    else
-        return item->data.var;
-    return NULL;
+    if(item != NULL && item->is_function)
+        return NULL;
+    return item->data.var;
 }
 
 void store_current_variable_name(token_t *token){
