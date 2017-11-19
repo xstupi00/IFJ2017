@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "symtable.h"
 #include "semantic_control.h"
+#include "generate.h"
 
 bool is_arithmetic_opr (int token_type);
 bool is_logic_opr (int token_type);
@@ -136,7 +137,7 @@ void correct_expr (token_t *act_token, int *prev_token, bool *set_logic) {
     if ( is_arithmetic_opr(*prev_token) || *prev_token == LEFT_R_BRACKET 
         || *prev_token == FIRST_TOKEN || is_logic_opr(*prev_token) )
     {
-        if ( !is_operand(act_token->type) && act_token->type != LEFT_R_BRACKET ) 
+        if ( !is_operand(act_token->type) && act_token->type != LEFT_R_BRACKET )
             print_err(2);
     }
     else if ( is_operand(*prev_token) || *prev_token == RIGHT_R_BRACKET ) {
@@ -201,7 +202,7 @@ int check_return_type(int *operator, variable_t *operand_1, variable_t *operand_
                 ( (types_control(operand_1->data_type, operand_2->data_type) && (*operator == INT_DIV)) ) ) 
         return INT_NUMBER; */
     
-    if ( !is_number(operand_1->data_type) && !is_number(operand_2->data_type) && *operator == ADD )
+    if ( !is_number(operand_1->data_type) && !is_number(operand_2->data_type) && (*operator == ADD || is_logic_opr(*operator)) )
         return STRING;
     else if ( (is_number(operand_1->data_type) || is_number(operand_2->data_type)) && types_control(operand_1->data_type, operand_2->data_type) ) {
         if ( (((operand_1->data_type != INT_NUMBER && operand_1->data_type != INTEGER) || 
@@ -210,6 +211,8 @@ int check_return_type(int *operator, variable_t *operand_1, variable_t *operand_
              return DOUBLE;
         return INTEGER;
     }
+    //else if ( !is_number(operand_1->data_type) && !is_number(operand_2->data_type) && is_logic_opr(*operator) )
+    //    return INTEGER;
     else
         print_err(4);
 
@@ -235,6 +238,7 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
     while ( !S_Empty(postfix_stack) ) {
         act_token = S_Top(postfix_stack);
         S_Pop(postfix_stack);
+        //printf("i have token %d\n", act_token->type);
         if ( is_operand(act_token->type) ) {
             operand = find_var(act_token, act_function);
             S_Push(output_stack, operand);
@@ -246,20 +250,47 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             operand_2 = S_Top(output_stack);
             S_Pop(output_stack);
             ret_type = check_return_type(&act_token->type, operand_1, operand_2);
-                        if ( operand_1->data_type != ret_type )
-                            printf("RETYPE operand_1\n");
-                        if ( operand_1->data.i != -1 )
-                        printf("PUSH: type is %d\n", operand_1->data_type);
-                        if ( operand_2->data_type != ret_type )
-                            printf("RETYPE operand_2\n");
-                        if ( operand_2->data.i != -1 )
-                            printf("PUSH: type is %d\n", operand_2->data_type);
-                        printf("EXECUTE: %d\n",act_token->type);
+                        if ( operand_1->data.i != -1 ) {
+                            list_insert("PUSHS ", operand_1, NULL, NULL);
+
+                            if ( operand_1->data_type != ret_type ) {   
+                                //printf("RETYPE operand_1\n");
+                                retype(operand_1);
+                            }
+                        }
+                        if ( operand_2->data.i != -1 ) {
+                            list_insert("PUSHS ", operand_2, NULL, NULL);
+
+                            if ( operand_2->data_type != ret_type ) {   
+                                //printf("RETYPE operand_2\n");
+                                retype(operand_2);
+                            }
+                        if ( is_logic_opr(act_token->type) )  
+                            ret_type = INTEGER;
+                        }
+                        //printf("EXECUTE: %d\n",act_token->type);
+                        switch(act_token->type) {
+                            case ADD: if ( operand_1->data_type == STRING && operand_2->data_type == STRING ) {concat(operand_2, operand_1);break;}
+                                      list_insert("ADDS ", NULL, NULL, NULL);break;
+                            case SUB: list_insert("SUBS ", NULL, NULL, NULL);break;
+                            case MUL: list_insert("MULS ", NULL, NULL, NULL);break;
+                            case DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
+                            case INT_DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
+                            case LESS: list_insert("GTS ", NULL, NULL, NULL);break;
+                            case GREATER: list_insert("LTS ", NULL, NULL, NULL);break;
+                            case ASSIGNMENT_EQ: list_insert("EQS ", NULL, NULL, NULL);break;
+                            case LESS_EQ: list_insert("LTS ", NULL, NULL, NULL);
+                                          list_insert("NOTS ", NULL, NULL, NULL);break;
+                            case GREATER_EQ: list_insert("GTS ", NULL, NULL, NULL);
+                                             list_insert("NOTS ", NULL, NULL, NULL);break;
+                            case NEQ:list_insert("EQS ", NULL, NULL, NULL);
+                                    list_insert("NOTS ", NULL, NULL, NULL);break;
+                        }
             new_var->data_type = ret_type;
             S_Push(output_stack, new_var);
         }
     }
-    printf("types is: %d\n", ret_type);
+    //printf("types is: %d\n", ret_type);
     if ( l_value != NULL)
         types_control(ret_type, l_value->data_type); 
 }
@@ -293,6 +324,7 @@ void infix_to_postfix (function_t *act_function, variable_t *l_value) {
         if ( is_operand(act_token->type) ) {
             sum_count--;
             stack_token = copy_token(act_token);
+                //printf("in postfix: %d\n", stack_token->type);
             S_Push(output_stack, stack_token);
         }
         else if ( act_token->type == LEFT_R_BRACKET ) {
@@ -332,13 +364,15 @@ void control_token (int type_token) {
 
     token_t *act_token = getToken();
 
+    //printf("first type is: %d\tsecond type is: %d\n", type_token, act_token->type);
+
     if ( act_token->type != type_token ) {
         if ( type_token == LEFT_R_BRACKET && act_token->type == RIGHT_R_BRACKET )           // i want "(" but token is ")" -> length)
             print_err(2);
         else if ( (type_token != RIGHT_R_BRACKET && act_token->type == RIGHT_R_BRACKET) ||  // token is ")" but i dont want some ")"
                   (type_token != COMMA && act_token->type == COMMA) ) {                     // token is "," but i dont want ","
                 act_token = getToken();
-                if ( act_token->type == RIGHT_R_BRACKET )                                   // case for (param,)
+                if ( act_token->type == RIGHT_R_BRACKET )                                  // case for (param,)
                     print_err(2);
                 else if ( is_operand(act_token->type) )                                     // case for (param,param) instead of (param)
                     print_err(4);
@@ -372,8 +406,8 @@ variable_t *store_constant (token_t *const_token) {
         is_find->is_function = 0;
         is_find->data.var = new_constant;
     }
-    else  
-        free(const_token->str);   
+    //else  
+        //free(const_token->str);   
 
     return is_find->data.var;
 }
@@ -381,6 +415,7 @@ variable_t *store_constant (token_t *const_token) {
 variable_t *find_var (token_t *find_token, function_t *act_function) {
 
     if ( find_token->type == ID ) {
+        //printf("%s\n", find_token->str->string);
         htab_item_t *is_found = htab_find(act_function->local_symtable, find_token->str->string);
         if ( !is_found ) {
             print_err(3);
@@ -410,6 +445,7 @@ int types_control (int expect_type, int real_type) {
 variable_t *next_params (function_t *act_function, int expect_type) {
 
     token_t *act_token = getToken();
+    //printf("token %d\n", act_token->type);
 
     if ( !is_operand(act_token->type) ) {
         if ( act_token->type == RIGHT_R_BRACKET )
@@ -430,32 +466,40 @@ void builtin_function (token_t *function, function_t *act_function, variable_t *
 
     if ( function_name == LENGTH ) {
         variable_t *param = next_params(act_function, STRING);
-        printf("obsah: %s\n",param->data.str);
+        control_token(RIGHT_R_BRACKET);
+        types_control(INTEGER, l_value->data_type);
+        printf("obsah: %d\n",param->data_type);
     }
     else if ( function_name == SUBSTR ) {
         variable_t *param_1 = next_params(act_function, STRING);
-        printf("obsah: %s\n",param_1->data.str);
+        printf("obsah: %d\n",param_1->data_type);
         control_token(COMMA);
         variable_t *param_2 = next_params(act_function, INTEGER);
-        printf("obsah: %d\n",param_2->data.i);
+        printf("obsah: %d\n",param_2->data_type);
         control_token(COMMA);
-        variable_t *param_3 = next_params(act_function, STRING);
-        printf("obsah: %s\n",param_3->data.str);
+        variable_t *param_3 = next_params(act_function, INTEGER);
+        printf("obsah: %d\n",param_3->data_type);
+        control_token(RIGHT_R_BRACKET);
+        types_control(STRING, l_value->data_type);
     }
     else if ( function_name == ASC ) {
         variable_t *param_1  = next_params(act_function, STRING);
-        printf("obsah: %s\n",param_1->data.str);
+        printf("obsah: %d\n",param_1->data_type);
         control_token(COMMA);
         variable_t *param_2 = next_params(act_function, INTEGER);
-        printf("obsah: %d\n",param_2->data.i);
+        printf("obsah: %d\n",param_2->data_type);
+        control_token(RIGHT_R_BRACKET);
+        types_control(INTEGER, l_value->data_type);
     }
     else {
         variable_t *param = next_params(act_function, INTEGER);
-        printf("obsah: %d\n",param->data.i);
+        printf("obsah: %d\n",param->data_type);
+        control_token(RIGHT_R_BRACKET);
+        types_control(STRING, l_value->data_type);
     }
 
-    control_token(RIGHT_R_BRACKET);
-    types_control(act_function->return_type, l_value->data_type);
+    //control_token(RIGHT_R_BRACKET);
+    //types_control(act_function->return_type, l_value->data_type);
 }
 
 int decode_type (char type) {
@@ -479,21 +523,24 @@ void users_function (token_t *act_token, function_t *act_function, variable_t *l
     control_token(LEFT_R_BRACKET);
     
     int count_of_params = users_function->params->length;
-    for( int i = 0; i <= count_of_params; i++ ) {
+    printf("params: %d\n", count_of_params);
+    for( int i = 0; i < count_of_params; i++ ) {
         int type_param = decode_type(users_function->params->string[i]);
         param = next_params(act_function, type_param);
-        if ( i != count_of_params )
+        if ( i != count_of_params-1 )
             control_token(COMMA);
-        printf("obsah: %s\n",param->data.str);   
+        printf("obsah: %d\n",param->data_type);   
     }
 
     control_token(RIGHT_R_BRACKET);
-    types_control(act_function->return_type, l_value->data_type);
+    //printf("%d\t%d\n", search_function->data.fun->return_type, l_value->data_type);
+    types_control(search_function->data.fun->return_type, l_value->data_type);
 }
 
 void expression (function_t *act_function, variable_t *l_value) {
 
     token_t *act_token = getToken();
+    printf("som tu\n");
 
     if ( is_builtin_function(act_token->type) ) 
         builtin_function(act_token, act_function, l_value);
