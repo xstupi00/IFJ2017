@@ -80,6 +80,7 @@ bool is_builtin_function (int token_type) {
 bool is_users_function (token_t *act_token, function_t *act_function) {
 
     htab_item_t *search_function = htab_find(global_symtable, act_token->str->string);
+    //printf("is_users_foo %s\n", search_function->key);
 
     if ( !search_function ) {
         find_var(act_token, act_function);
@@ -231,6 +232,8 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
     variable_t *operand_2 = init_variable();
     variable_t *operand = init_variable();
     int ret_type;
+    int prev_type = -1;
+    bool is_string = false;
 
     variable_t *new_var = init_variable();   
     new_var->data.i = -1;
@@ -238,8 +241,8 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
     while ( !S_Empty(postfix_stack) ) {
         act_token = S_Top(postfix_stack);
         S_Pop(postfix_stack);
-        //printf("i have token %d\n", act_token->type);
         if ( is_operand(act_token->type) ) {
+            //printf("i have token %d\t%s\n", act_token->type, act_token->str->string);          
             operand = find_var(act_token, act_function);
             S_Push(output_stack, operand);
             ret_type = operand->data_type;
@@ -250,49 +253,87 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             operand_2 = S_Top(output_stack);
             S_Pop(output_stack);
             ret_type = check_return_type(&act_token->type, operand_1, operand_2);
-                        if ( operand_1->data.i != -1 ) {
-                            list_insert("PUSHS ", operand_1, NULL, NULL);
+            //printf("types is: %d\n", ret_type);
+            if ( prev_type != ret_type && prev_type != -1 ) {
+                if ( operand_2->data.i != -1 )
+                    retype(operand_2);
+                else
+                    retype(operand_1);
+                }
 
-                            if ( operand_1->data_type != ret_type ) {   
-                                //printf("RETYPE operand_1\n");
-                                retype(operand_1);
-                            }
-                        }
-                        if ( operand_2->data.i != -1 ) {
-                            list_insert("PUSHS ", operand_2, NULL, NULL);
-
-                            if ( operand_2->data_type != ret_type ) {   
-                                //printf("RETYPE operand_2\n");
-                                retype(operand_2);
-                            }
-                        if ( is_logic_opr(act_token->type) )  
-                            ret_type = INTEGER;
-                        }
-                        //printf("EXECUTE: %d\n",act_token->type);
-                        switch(act_token->type) {
-                            case ADD: if ( operand_1->data_type == STRING && operand_2->data_type == STRING ) {concat(operand_2, operand_1);break;}
-                                      list_insert("ADDS ", NULL, NULL, NULL);break;
-                            case SUB: list_insert("SUBS ", NULL, NULL, NULL);break;
-                            case MUL: list_insert("MULS ", NULL, NULL, NULL);break;
-                            case DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
-                            case INT_DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
-                            case LESS: list_insert("GTS ", NULL, NULL, NULL);break;
-                            case GREATER: list_insert("LTS ", NULL, NULL, NULL);break;
-                            case ASSIGNMENT_EQ: list_insert("EQS ", NULL, NULL, NULL);break;
-                            case LESS_EQ: list_insert("LTS ", NULL, NULL, NULL);
-                                          list_insert("NOTS ", NULL, NULL, NULL);break;
-                            case GREATER_EQ: list_insert("GTS ", NULL, NULL, NULL);
-                                             list_insert("NOTS ", NULL, NULL, NULL);break;
-                            case NEQ:list_insert("EQS ", NULL, NULL, NULL);
-                                    list_insert("NOTS ", NULL, NULL, NULL);break;
-                        }
+            if ( operand_2->data.i != -1 ) {
+                if ( !is_number(operand_2->data_type) && operand_2->data.str == NULL ) {
+                    operand_2->data.str = (char *)malloc(1);
+                    strcpy(operand_2->data.str,"");
+                }
+                if ( operand_2->data_type == STRING )
+                    is_string = true;
+                if ( !operand_2->constant )
+                    operand_2 = create_var(operand_2->data.str, "LF@");
+                list_insert("PUSHS ", operand_2, NULL, NULL);
+                if ( operand_2 != NULL && operand_2->data_type != ret_type)  
+                    retype(operand_2);
+            }
+            if ( operand_1->data.i != -1 ) {
+                if ( !is_number(operand_1->data_type) && operand_1->data.str == NULL ) {
+                    operand_1->data.str = (char *)malloc(1);
+                    strcpy(operand_1->data.str,"");
+                }
+                if ( operand_1->data_type == STRING )
+                    is_string &= 1;
+                if ( !operand_1->constant )
+                    operand_1 = create_var(operand_1->data.str, "LF@");
+                list_insert("PUSHS ", operand_1, NULL, NULL);
+                if ( operand_1 != NULL && operand_1->data_type != ret_type)
+                    retype(operand_1);
+            }
+            if ( is_logic_opr(act_token->type) )  
+                ret_type = INTEGER;
+            //printf("EXECUTE: %d\n",act_token->type);
+            switch(act_token->type) {
+                case ADD: if ( is_string ) {concat();break;}
+                        list_insert("ADDS ", NULL, NULL, NULL);break;
+                case SUB: list_insert("SUBS ", NULL, NULL, NULL);break;
+                case MUL: list_insert("MULS ", NULL, NULL, NULL);break;
+                case DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
+                case INT_DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
+                case LESS: list_insert("LTS ", NULL, NULL, NULL);break;
+                case GREATER: list_insert("GTS ", NULL, NULL, NULL);break;
+                case ASSIGNMENT_EQ: list_insert("EQS ", NULL, NULL, NULL);break;
+                case LESS_EQ: list_insert("GTS ", NULL, NULL, NULL);
+                        list_insert("NOTS ", NULL, NULL, NULL);break;
+                case GREATER_EQ: list_insert("LTS ", NULL, NULL, NULL);
+                        list_insert("NOTS ", NULL, NULL, NULL);break;
+                case NEQ:list_insert("EQS ", NULL, NULL, NULL);
+                        list_insert("NOTS ", NULL, NULL, NULL);break;
+            }
+            prev_type = ret_type;
             new_var->data_type = ret_type;
             S_Push(output_stack, new_var);
         }
     }
+    if ( !S_Empty(output_stack) ) {
+        operand_1 = S_Top(output_stack);
+        new_var->data_type = operand_1->data_type;
+        if ( operand_1->data.i != -1) {
+            if ( !is_number(operand_1->data_type) && operand_1->data.str == NULL ){
+                operand_1->data.str = (char *)malloc(1);
+                strcpy(operand_1->data.str,"");
+            }
+            if ( !operand_1->constant )
+                operand_1 = create_var(operand_1->data.str, "LF@");
+            list_insert("PUSHS ", operand_1, NULL, NULL);
+        }
+    }
     //printf("types is: %d\n", ret_type);
-    if ( l_value != NULL)
+    if ( l_value != NULL) {
+        //printf("return type is: %d\nl_value type is: %d\n", ret_type, l_value->data_type);
         types_control(ret_type, l_value->data_type); 
+        if ( ret_type != l_value->data_type ) {
+            //printf("iam here---%d\n", new_var->data_type);
+            retype(new_var);
+        }
+    }
 }
 
 void infix_to_postfix (function_t *act_function, variable_t *l_value) {
@@ -324,7 +365,7 @@ void infix_to_postfix (function_t *act_function, variable_t *l_value) {
         if ( is_operand(act_token->type) ) {
             sum_count--;
             stack_token = copy_token(act_token);
-                //printf("in postfix: %d\n", stack_token->type);
+            //printf("in postfix: %d\n", stack_token->type);
             S_Push(output_stack, stack_token);
         }
         else if ( act_token->type == LEFT_R_BRACKET ) {
@@ -402,6 +443,7 @@ variable_t *store_constant (token_t *const_token) {
             strcpy(new_constant->data.str, const_token->str->string);
             //new_constant->data.str = const_token->str->string;
         }
+        new_constant->constant = true;
         is_find = htab_insert(const_symtable, const_token->str->string); 
         is_find->is_function = 0;
         is_find->data.var = new_constant;
@@ -415,12 +457,12 @@ variable_t *store_constant (token_t *const_token) {
 variable_t *find_var (token_t *find_token, function_t *act_function) {
 
     if ( find_token->type == ID ) {
-        //printf("%s\n", find_token->str->string);
         htab_item_t *is_found = htab_find(act_function->local_symtable, find_token->str->string);
         if ( !is_found ) {
             print_err(3);
         }
         //free(find_token->str);
+        is_found->data.var->data.str = find_token->str->string;
         return is_found->data.var;
     }
     else if ( find_token->type >= INT_NUMBER && find_token->type <= TEXT )
@@ -515,6 +557,8 @@ int decode_type (char type) {
 void users_function (token_t *act_token, function_t *act_function, variable_t *l_value) {
 
     htab_item_t *search_function = htab_find(global_symtable, act_token->str->string);
+    //printf("%s\n", act_token->str->string);
+
     function_t *users_function = init_function();
     variable_t *param = init_variable();
 
@@ -523,7 +567,7 @@ void users_function (token_t *act_token, function_t *act_function, variable_t *l
     control_token(LEFT_R_BRACKET);
     
     int count_of_params = users_function->params->length;
-    printf("params: %d\n", count_of_params);
+    //printf("params: %d\n", count_of_params);
     for( int i = 0; i < count_of_params; i++ ) {
         int type_param = decode_type(users_function->params->string[i]);
         param = next_params(act_function, type_param);
@@ -540,8 +584,6 @@ void users_function (token_t *act_token, function_t *act_function, variable_t *l
 void expression (function_t *act_function, variable_t *l_value) {
 
     token_t *act_token = getToken();
-    printf("som tu\n");
-
     if ( is_builtin_function(act_token->type) ) 
         builtin_function(act_token, act_function, l_value);
     else if ( is_users_function(act_token, act_function) )

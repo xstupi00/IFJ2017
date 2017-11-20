@@ -21,6 +21,7 @@ variable_t *init_variable(){
         print_err(99);
     
     new_var->data_type = 0;
+    new_var->constant = false;
     
     return new_var;
 }
@@ -62,7 +63,7 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
         //check it
         //fun->return_var = found_function->return_var;
         //i am not sure if free is valid here
-        free(f->data.fun);
+        //free(f->data.fun);
         f->data.fun = fun;
     }
 }
@@ -70,7 +71,8 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
 void store_var_in_symtable(function_t *fun, variable_t *var, const char *var_name){
     if(htab_find(fun->local_symtable, var_name) || htab_find(global_symtable, var_name))
         print_err(3);
-    
+    if(!strcmp(current_function_name->string, var_name))
+        print_err(3);
     htab_item_t *new_var = htab_insert(fun->local_symtable,var_name);
     new_var->data.var = var;
     new_var->is_function = false;

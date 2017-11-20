@@ -20,6 +20,7 @@ typedef struct variable_t{
         double d;
         char *str;
     }data;
+    bool constant;
 }variable_t;
 
 typedef struct function_t{

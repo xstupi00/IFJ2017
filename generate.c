@@ -21,35 +21,45 @@ void list_init()
 	list->Last=NULL;
 }
 
-variable_t * create_var(int i){
-	char dig [4];
-	for(int x = 2; x >= 0 ; x--) {
-		dig[x]=(i%10)+'0';
-		i/=10;
-	}
+
+variable_t * create_var(char *str1, char * str2){
 	variable_t * tmp = init_variable();
-	tmp->data.str = (char*)malloc(sizeof(char)*10);
+	unsigned length_of_instr = (str2)? strlen(str2):0;
+	tmp->data.str = (char*)malloc(sizeof(char)*(length_of_instr+strlen(str1)+1));
  		if(!tmp->data.str)
  		 	print_err(99);
-	strcpy(tmp->data.str, "LF@VAR");
-	strcat(tmp->data.str, dig);
+ 	strcpy(tmp->data.str, (str2)? str2:"");
+	strcat(tmp->data.str, str1);
+	strcat(tmp->data.str, " ");
+	//tmp->constant = true;
 	return tmp;
 }
 
-void concat(variable_t * op1, variable_t * op2)
-{
+/*variable_t * create_var(char *string){
 	variable_t * tmp = init_variable();
-	tmp->data.str = (char *) malloc(8);
+	tmp->data.str = (char*)malloc(sizeof(char)*(4+strlen(string)));
  		if(!tmp->data.str)
  		 	print_err(99);
-	strcpy(tmp->data.str,"LF@CON ");
-	//tmp->data_type=STRING;
-	list_insert("DEFVAR ",tmp, NULL, NULL);
+	strcpy(tmp->data.str, "LF@");
+	strcat(tmp->data.str, string);
+	return tmp;
+}
+*/
+void concat()
+{
+	variable_t * tmp1 = create_var("NEXT ", "LF@");
+	variable_t * tmp2 = create_var("SUBSTR ", "LF@");
+	variable_t * tmp3 = create_var("ASC ", "LF@");
+	
+	list_insert("POPS ", tmp1, NULL, NULL);
+	list_insert("POPS ", tmp2, NULL, NULL);
 
-	list_insert("CONCAT ",tmp, op1, op2);
-	free(tmp->data.str);
+	list_insert("CONCAT ",tmp3, tmp2, tmp1);
+	list_insert("PUSHS ",tmp3, NULL, NULL);
+
+	/*free(tmp->data.str);
 	free(tmp);
-
+*/
 
 }
 instruction_t * instr_init (){
@@ -78,6 +88,7 @@ variable_t * copy_variable(variable_t * src){
  					 	print_err(99);
  					 strcpy(new->data.str, src->data.str);break;
 	}
+	//new->constant = src->constant;
 	return new;
 }
 
@@ -88,18 +99,23 @@ void list_insert(char * instr, variable_t * par1, variable_t * par2, variable_t 
 	if(par1)
 		new->op1 = copy_variable(par1);
 	else new->op1 = NULL;
+
 	if(par2)
 		new->op2 = copy_variable(par2);
 	else new->op2 = NULL;
+
 	if(par3)
 		new->op3 = copy_variable(par3);
 	else new->op3 = NULL;
-	if(list->Last){
-		list->Last->next=new;
-		list->Last=new;
-	}
-	else list->First=list->Last=new;
 
+	if(list){
+		if(list->First == NULL)
+			list->First=list->Last=new;
+		else {
+			list->Last->next=new;
+			list->Last=new;
+		}
+	}
 }
 
 void process_string (char * orig_string){
@@ -121,111 +137,24 @@ void length_of_str(variable_t * var){
 
 	list_insert("CREATEFRAME ",NULL, NULL, NULL);
 	list_insert("PUSHFRAME ",NULL, NULL, NULL);
+	variable_t * tmp = create_var("RETURN ", "LF@");
+	/*
 	variable_t * tmp = init_variable();
 	tmp->data.str = (char *) malloc(8);
  		if(!tmp->data.str)
  		 	print_err(99);
-	strcpy(tmp->data.str,"LF@RET ");
+	strcpy(tmp->data.str,"LF@RETURN ");*/
+
 	//tmp->data_type=STRING;
 	list_insert("DEFVAR ",tmp, NULL, NULL);
 
 	list_insert("STRLEN ",tmp, var, NULL);
+	list_insert("PUSHS ",tmp, NULL, NULL);
 	free(tmp->data.str);
 	free(tmp);
 }
 
-/*void push_param(list_t * list, int type, char * str)
-{
-	if(type == 48){	
-		char in[strlen(str)+11];
-		strcpy(in,"\nPUSHS int@");
-		strcat(in,str);
-		list_insert(list, in);
-	}
-	else if(type == 49){
-		char db[strlen(str)+13];
-		strcpy(db, "\nPUSHS float@");
-		strcat(db,str);
-		list_insert(list, db);
-	}
-	else {
-		str_t * tmp = process_string(str);
-		char st[strlen(tmp->string)+14];
-		strcpy(st,"\nPUSHS string@");
-		strcat(st,tmp->string);
-		list_insert(list, st);
-		free(tmp);			
-	}
-}
 
-void pop_param(list_t * list, char * var_name){
-
-	char intsr[strlen(var_name)+6];
-	strcat(intsr,"POPS ");
-	strcat(intsr,var_name);
-	list_insert(list, intsr);
-}
-
-void create_symb(str_t * constant, int type){
-	char * new_str = (char *)malloc(sizeof(char)*(strlen(constant->string)));
-	if(!new_str)
-		print_err(99);
-	strcpy(new_str, constant->string);
-
-	if(type == 48){	
-		if(constant->capacity < (strlen(constant->string)+4))
-			ext_str(constant,(strlen(constant->string)+4));
-		memset(constant->string, '\0', sizeof(constant));
-		strcpy(constant->string, "int@");
-		
-	}
-	else if(type == 49){
-		if(constant->capacity < (strlen(constant->string)+5))
-			ext_str(constant,(strlen(constant->string)+5));
-		memset(constant->string, '\0', sizeof(constant));
-		strcpy(constant->string, "float@");
-	}
-	else {
-		if(constant->capacity < (strlen(constant->string)+6))
-			ext_str(constant,(strlen(constant->string)+6));
-		memset(constant->string, '\0', sizeof(constant));
-		strcpy(constant->string, "string@");
-	}
-	strcat(constant->string, new_str);
-	free(new_str);
-}
-
-
-void substr(list_t * list, char *orig_string, int i, int n){
-	list_insert(list, "CREATEFRAME\nPUSHFRAME\nDEFVAR LF@RET\nDEFVAR LF@STR\nDEFVAR LF@TMP\nDEFVAR LF@COUNTER\nDEFVAR LF@POS\nMOVE LF@RET STRING@\n");
-	unsigned param_count = 3;
-	char params[4]={'s','i','i'};
-	char * par1 = orig_string;
-	char * par2 = "4";
-	char * par3 = "2"; 
-	
-	push_param(list, 50, par1);
-	push_param(list, 48, par2);
-	push_param(list, 48, par3);
-
-	list_insert(list, "MOVE LF@RET STRING@\n");
-	
-
-	char stat1 [29] = "GETCHAR LF@TMP LF@STR INT@4\n";
-	
-	char stat2 [29] = "CONCAT LF@RET LF@RET LF@TMP\n";
-	i=i-1; // indexovanie od 1
-	for(int a = 0; a < n ; a++){
-		stat1[26] = (i++)+'0';
-		list_insert(list,stat1);
-		list_insert(list, stat2);
-	}
-	if(!(list_insert(list, "PUSHS LF@RET"))){
-		//print_err(99);
-	}
-	
-}
-*/
 void retype(variable_t * var){
 	if(var->data_type == INTEGER){
 		list_insert("INT2FLOATS ",NULL, NULL, NULL);
@@ -234,12 +163,65 @@ void retype(variable_t * var){
 		list_insert("FLOAT2INTS ",NULL, NULL, NULL);
 	}
 }
+
+void substr(variable_t * s, variable_t * i, variable_t * n){
+
+	list_insert("CREATEFRAME ",NULL, NULL, NULL);
+	list_insert("PUSHFRAME ",NULL, NULL, NULL);
+	variable_t * ret = create_var("RETURN ", "LF@");
+	variable_t * tmp = create_var("PRINT ", "LF@");
+	variable_t * jedna = create_var("INT@1", NULL);
+	variable_t * nula = create_var("INT@0", NULL);
+	/*
+	variable_t * tmp = init_variable();
+	tmp->data.str = (char *) malloc(8);
+ 		if(!tmp->data.str)
+ 		 	print_err(99);
+	strcpy(tmp->data.str,"LF@RETURN ");*/
+
+	//tmp->data_type=STRING;
+	list_insert("DEFVAR ",ret, NULL, NULL);
+	list_insert("DEFVAR ",tmp, NULL, NULL);
+	list_insert("DEFVAR ",jedna, NULL, NULL);
+	list_insert("DEFVAR ",nula, NULL, NULL);
+	
+	variable_t * var = create_var("STRING@", NULL);
+	list_insert("MOVE ", ret, var, NULL);
+
+	list_insert("POPS ", n, NULL, NULL);
+	list_insert("POPS ", i, NULL, NULL);
+	list_insert("POPS ", s, NULL, NULL);
+
+	i->data.d-=1; // ma to indexovat od 1
+
+	var = create_var("FOR ", NULL);
+	list_insert("LABEL ", var, NULL, NULL);
+	list_insert("GETCHAR ",tmp, s, i);
+	list_insert("CONCAT ", ret, ret, tmp);
+	list_insert("SUB ", n, n, jedna);
+	list_insert("ADD ", i, i, jedna);
+	list_insert("JUMPIFNEQ ", var, n, nula);
+	
+
+	list_insert("PUSHS ",ret, NULL, NULL);
+	
+	// free	
+	free(ret->data.str);
+	free(ret);
+	free(tmp->data.str);
+	free(tmp);
+	free(jedna->data.str);
+	free(jedna);
+	free(nula->data.str);
+	free(nula);
+
+}
 /*
-DEFVAR LF@RET
-DEFVAR LF@STR
-DEFVAR LF@TMP
-DEFVAR LF@COUNTER
-DEFVAR LF@POS
+DEFVAR LF@RET // ret
+DEFVAR LF@STR // s
+DEFVAR LF@TMP // tmp
+DEFVAR LF@COUNTER // n
+DEFVAR LF@POS  // i
 
 MOVE LF@STR STRING@ABCDEFGHIJ # ABCDEFGHIJ-string
 MOVE LF@COUNTER INT@4
@@ -256,9 +238,6 @@ JUMPIFNEQ FOR LF@COUNTER INT@0
 WRITE LF@RET
 */
 //int main(){
-
-//FILE * fw = fopen("ppprog.code", "w");
-//list_t *list = list_init();
 
 //char test_string [1000] = "Volam sa MAtus \nTOTO je text\n";
 //a dnes by som rad povedal \nze mam rad vonu cerstvo upeceneho jablkoveho kolaca\n";

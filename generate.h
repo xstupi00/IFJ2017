@@ -3,6 +3,11 @@
 #include "semantic_control.h"
 extern struct list_t * list;
 
+#define S "string"
+#define I "int"
+#define F "float"
+
+
 typedef struct instruction_t{
 	char instr_name [15];
 	struct variable_t * op1;
@@ -21,7 +26,7 @@ void retype(variable_t * var);
 void process_string (char * orig_string);
 void length_of_str(variable_t * var);
 void list_insert(char * instr, variable_t * par1, variable_t * par2, variable_t * par3 );
-void concat(variable_t * op1, variable_t * op2);
-variable_t * create_var(int i);
-
+void concat();
+variable_t * create_var(char *str1, char * str2);
+//variable_t * create_label(char *string);
 #endif

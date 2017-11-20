@@ -10,15 +10,16 @@ int main(){
 
     initToken();
     init_global_symtables();
-    
-    /*list_init();
-    expression(NULL, NULL);
-    printf(".IFJcode17\n");
-    printf("CREATEFRAME\n");
+    list_init();
+    parse();
+   
+    /*expression(NULL, NULL);*/
+    printf(".IFJcode17\nJUMP SCOPE\n");
+    /*printf("CREATEFRAME\n");
     printf("PUSHFRAME\n");
 
     printf("DEFVAR LF@VAR\n");
-    
+    */
     for(instruction_t * tmp = list->First; tmp!=NULL; tmp=tmp->next){
         printf("%s",tmp->instr_name); 
         if(tmp->op1){
@@ -51,7 +52,8 @@ int main(){
         }
         printf("\n");
     }
-    printf("WRITE LF@CON\n");*/
-    variable_t * str = create_var(998);
+    //printf("POPS LF@VAR\nWRITE LF@VAR\n");
+    /*variable_t * str = create_var("prmenna", "TF@");
     printf("%s\n", str->data.str);
+    */
 }

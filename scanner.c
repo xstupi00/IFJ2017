@@ -74,7 +74,9 @@ token_t *getToken(){
         if(token->str->length+1 > token->str->capacity){
             extendStr(token->str, 2*token->str->capacity);
         }
-        c = tolower(c);
+
+        if(state != S_STR)
+            c = tolower(c);
        
         switch(state){
             case S_START:
