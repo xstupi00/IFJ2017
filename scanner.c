@@ -256,7 +256,7 @@ token_t *getToken(){
 			     //ak sa jedná o tretie číslo, zapíšeme ho na tretiu pozíciu
 			    else if(((isdigit(c)) && (pocet_cisel == 2))){
 					hexa[2] = c;
-			    	pocet_cisel = 3;
+			    	//pocet_cisel = 3;
 					int number = atoi(hexa);
 
 					//číslo musí byť z intervalu <0,255>, ak nie je, tak to značí lexikálnu chybu
@@ -325,7 +325,7 @@ token_t *getToken(){
                         if(c == '\''){
                             c = fgetc(stdin);
                             if(c == '/'){
-                                state = S_START;
+                                //state = S_START;
                                 break;
                             }
                         }

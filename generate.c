@@ -8,9 +8,19 @@
 #include "symtable.h"
 #include "semantic_control.h"
 #include "scanner.h"
+#include <math.h>
 #define LENGTH 120
 
 list_t * list;
+
+char * gen_label_name(int i, char c){
+	unsigned digits	= floor(log10(abs(i)))+1;
+	char * name = (char *) malloc(digits*sizeof(int)+3);
+	name[0] = '&';
+	name[1] = (c=='W')?'W':'I';
+	sprintf(name+2, "%d", i);
+	return name;
+}
 
 void list_init()
 {
@@ -22,16 +32,15 @@ void list_init()
 }
 
 
-variable_t * create_var(char *str1, char * str2){
+variable_t * create_var(char *str1, bool constant){
 	variable_t * tmp = init_variable();
-	unsigned length_of_instr = (str2)? strlen(str2):0;
-	tmp->data.str = (char*)malloc(sizeof(char)*(length_of_instr+strlen(str1)+1));
- 		if(!tmp->data.str)
- 		 	print_err(99);
- 	strcpy(tmp->data.str, (str2)? str2:"");
-	strcat(tmp->data.str, str1);
+	//unsigned length_of_instr = (str2)? strlen(str2):0;
+	tmp->data.str = (char*)malloc(sizeof(char)*(strlen(str1)+1));
+ 	if(!tmp->data.str)
+ 		print_err(99);
+	strcpy(tmp->data.str, str1);
 	strcat(tmp->data.str, " ");
-	//tmp->constant = true;
+	tmp->constant = constant;
 	return tmp;
 }
 
@@ -40,17 +49,23 @@ variable_t * create_var(char *str1, char * str2){
 	tmp->data.str = (char*)malloc(sizeof(char)*(4+strlen(string)));
  		if(!tmp->data.str)
  		 	print_err(99);
-	strcpy(tmp->data.str, "LF@");
+	strcpy(tmp->data.str);
 	strcat(tmp->data.str, string);
 	return tmp;
 }
 */
 void concat()
 {
-	variable_t * tmp1 = create_var("NEXT ", "LF@");
-	variable_t * tmp2 = create_var("SUBSTR ", "LF@");
-	variable_t * tmp3 = create_var("ASC ", "LF@");
+	variable_t * tmp1 = create_var("NEXT ", false);
+	variable_t * tmp2 = create_var("SUBSTR ", false);
+	variable_t * tmp3 = create_var("ASC ", false);
 	
+
+	list_insert("DEFVAR ", tmp1, NULL, NULL);
+	list_insert("DEFVAR ", tmp2, NULL, NULL);
+	list_insert("DEFVAR ", tmp3, NULL, NULL);
+
+
 	list_insert("POPS ", tmp1, NULL, NULL);
 	list_insert("POPS ", tmp2, NULL, NULL);
 
@@ -88,7 +103,7 @@ variable_t * copy_variable(variable_t * src){
  					 	print_err(99);
  					 strcpy(new->data.str, src->data.str);break;
 	}
-	//new->constant = src->constant;
+	new->constant = src->constant;
 	return new;
 }
 
@@ -133,23 +148,27 @@ void process_string (char * orig_string){
 }
 
 
-void length_of_str(variable_t * var){
+void length_of_str(variable_t * l_value){
 
 	list_insert("CREATEFRAME ",NULL, NULL, NULL);
 	list_insert("PUSHFRAME ",NULL, NULL, NULL);
-	variable_t * tmp = create_var("RETURN ", "LF@");
-	/*
-	variable_t * tmp = init_variable();
-	tmp->data.str = (char *) malloc(8);
- 		if(!tmp->data.str)
- 		 	print_err(99);
-	strcpy(tmp->data.str,"LF@RETURN ");*/
+	variable_t * tmp = create_var("RETURN ", false);
 
-	//tmp->data_type=STRING;
 	list_insert("DEFVAR ",tmp, NULL, NULL);
+	variable_t * str = create_var("PRINT ", false);
+	list_insert("DEFVAR ",str, NULL, NULL);
+	//list_insert("MOVE  ", tmp, var, NULL);
+	list_insert("POPS ", str, NULL, NULL);
 
-	list_insert("STRLEN ",tmp, var, NULL);
+	list_insert("STRLEN ",tmp, str, NULL);
+
+
 	list_insert("PUSHS ",tmp, NULL, NULL);
+
+	
+	if(l_value && l_value->data_type == DOUBLE)
+		list_insert("INT2FLOATS ",NULL, NULL, NULL);
+	list_insert("POPFRAME ",NULL, NULL, NULL);
 	free(tmp->data.str);
 	free(tmp);
 }
@@ -160,18 +179,29 @@ void retype(variable_t * var){
 		list_insert("INT2FLOATS ",NULL, NULL, NULL);
 	}
 	else if(var->data_type == DOUBLE){
-		list_insert("FLOAT2INTS ",NULL, NULL, NULL);
+		list_insert("FLOAT2R2EINTS ",NULL, NULL, NULL);
 	}
 }
 
-void substr(variable_t * s, variable_t * i, variable_t * n){
-
+void substr(){
 	list_insert("CREATEFRAME ",NULL, NULL, NULL);
 	list_insert("PUSHFRAME ",NULL, NULL, NULL);
-	variable_t * ret = create_var("RETURN ", "LF@");
-	variable_t * tmp = create_var("PRINT ", "LF@");
-	variable_t * jedna = create_var("INT@1", NULL);
-	variable_t * nula = create_var("INT@0", NULL);
+	variable_t * ret = create_var("RETURN ", false);
+	variable_t * tmp = create_var("PRINT ", false);
+	variable_t * jedna = create_var("INT@1", true);
+	variable_t * nula = create_var("INT@0", true);
+	variable_t * s = create_var("ASC ", false);
+	variable_t * i = create_var("NEXT ", false);
+	variable_t * n = create_var("SUBSTR ", false);
+	variable_t * zero= create_var("ZERO ", true);
+	variable_t * change = create_var("CHANGE ", true);
+	variable_t * normal = create_var("NORMAL ", true);
+
+	variable_t * end = create_var("END", true);
+	variable_t * b = create_var("BOOLEAN ", false);
+	variable_t * btrue = create_var("bool@true", true);
+
+
 	/*
 	variable_t * tmp = init_variable();
 	tmp->data.str = (char *) malloc(8);
@@ -182,29 +212,74 @@ void substr(variable_t * s, variable_t * i, variable_t * n){
 	//tmp->data_type=STRING;
 	list_insert("DEFVAR ",ret, NULL, NULL);
 	list_insert("DEFVAR ",tmp, NULL, NULL);
-	list_insert("DEFVAR ",jedna, NULL, NULL);
-	list_insert("DEFVAR ",nula, NULL, NULL);
+
+	list_insert("DEFVAR ",s, NULL, NULL);
+	list_insert("DEFVAR ",i, NULL, NULL);
+	list_insert("DEFVAR ",n, NULL, NULL);
+	list_insert("DEFVAR ",b, NULL, NULL);
+
 	
-	variable_t * var = create_var("STRING@", NULL);
+	variable_t * var = create_var("STRING@", true);
 	list_insert("MOVE ", ret, var, NULL);
 
 	list_insert("POPS ", n, NULL, NULL);
 	list_insert("POPS ", i, NULL, NULL);
 	list_insert("POPS ", s, NULL, NULL);
 
-	i->data.d-=1; // ma to indexovat od 1
+	//list_insert("SUB ", i, i, jedna);
+	//i->data.d-=1; // ma to indexovat od 1
 
-	var = create_var("FOR ", NULL);
+	list_insert("JUMPIFEQ ", end, n, nula);
+	// podmieneny skook
+	list_insert("STRLEN ", tmp, s, NULL);
+	list_insert("JUMPIFEQ ", zero ,tmp, nula);
+	list_insert("GT ", b, i, nula);
+	list_insert("NOT ", b, b, NULL);
+	list_insert("JUMPIFEQ ", zero, b, btrue);
+
+	list_insert("SUB ", tmp, tmp, i);
+	list_insert("GT ", b, n, tmp);
+	list_insert("JUMPIFEQ ", change ,b, btrue);
+	
+	list_insert("LT ",b ,n, nula);
+	list_insert("JUMPIFEQ ", change ,b, btrue);
+	
+	list_insert("JUMP ", normal, NULL, NULL);
+	// jump normal 
+
+
+
+	//label change
+	list_insert("LABEL ", change, NULL, NULL);
+	list_insert("MOVE ", n, tmp, NULL);
+	list_insert("ADD ", n, n, jedna);
+
+
+
+	// label normal
+	
+	list_insert("LABEL ", normal, NULL, NULL);
+	list_insert("SUB ", i, i, jedna);
+
+	var = create_var("FOR ", true);
 	list_insert("LABEL ", var, NULL, NULL);
 	list_insert("GETCHAR ",tmp, s, i);
 	list_insert("CONCAT ", ret, ret, tmp);
 	list_insert("SUB ", n, n, jedna);
 	list_insert("ADD ", i, i, jedna);
 	list_insert("JUMPIFNEQ ", var, n, nula);
-	
+	list_insert("JUMP ", end, NULL, NULL);
+	// JUMP END
 
+	// LABEL NULA
+	list_insert("LABEL ", zero, NULL, NULL);
+	var = create_var("STRING@", true);
+	list_insert("MOVE ", ret, var, NULL);
+
+	// LABEL END
+	list_insert("LABEL ", end, NULL, NULL);
 	list_insert("PUSHS ",ret, NULL, NULL);
-	
+	list_insert("POPFRAME ",NULL, NULL, NULL);
 	// free	
 	free(ret->data.str);
 	free(ret);
@@ -216,27 +291,89 @@ void substr(variable_t * s, variable_t * i, variable_t * n){
 	free(nula);
 
 }
-/*
-DEFVAR LF@RET // ret
-DEFVAR LF@STR // s
-DEFVAR LF@TMP // tmp
-DEFVAR LF@COUNTER // n
-DEFVAR LF@POS  // i
 
-MOVE LF@STR STRING@ABCDEFGHIJ # ABCDEFGHIJ-string
-MOVE LF@COUNTER INT@4
-MOVE LF@POS INT@2
-MOVE LF@RET STRING@
+void asc (variable_t * l_value){
+list_insert("CREATEFRAME ",NULL, NULL, NULL);
+list_insert("PUSHFRAME ",NULL, NULL, NULL);
+variable_t * tmp = create_var("RETURN ", false);
+variable_t * s = create_var("STRING ", false);
+variable_t * b = create_var("BOOLEAN ", false);
+variable_t * i = create_var("NEXT ", false);
+variable_t * jedna = create_var("INT@1", true);
+variable_t * nula = create_var("INT@0", true);
+variable_t * btrue = create_var("bool@true", true);
 
-LABEL FOR
-GETCHAR LF@TMP LF@STR LF@POS
-CONCAT LF@RET LF@RET LF@TMP
-SUB LF@COUNTER LF@COUNTER INT@1
-ADD LF@POS LF@POS INT@1
-JUMPIFNEQ FOR LF@COUNTER INT@0
+variable_t * zero= create_var("ZERO ", true);
+variable_t * end = create_var("END", true);
+list_insert("DEFVAR ",tmp, NULL, NULL);
+list_insert("DEFVAR ",s, NULL, NULL);
+list_insert("DEFVAR ",b, NULL, NULL);
+list_insert("DEFVAR ",i, NULL, NULL);
 
-WRITE LF@RET
+list_insert("POPS ", i, NULL, NULL);
+list_insert("POPS ", s, NULL, NULL);
+
+list_insert("JUMPIFEQ ", zero, i, nula);
+
+list_insert("SUB ", i, i, jedna);
+list_insert("STRLEN ", tmp, s, NULL);
+list_insert("LT ", b, i, tmp);
+list_insert("NOT ", b, b, NULL);
+list_insert("JUMPIFEQ ", zero, b, btrue);
+list_insert("STRI2INT ", tmp, s, i);
+list_insert("JUMP ", end, NULL, NULL);
+list_insert("LABEL ", zero, NULL, NULL);
+list_insert("MOVE ", tmp, nula, NULL );
+list_insert("LABEL ", end, NULL, NULL);
+list_insert("PUSHS ", tmp, NULL, NULL);
+
+
+if(l_value && l_value->data_type == DOUBLE)
+	list_insert("INT2FLOATS ",NULL, NULL, NULL);
+list_insert("POPFRAME ",NULL, NULL, NULL);
+free(tmp->data.str);
+free(tmp);
+}
+
+void chr(){
+
+list_insert("CREATEFRAME ",NULL, NULL, NULL);
+list_insert("PUSHFRAME ",NULL, NULL, NULL);
+list_insert("INT2CHARS", NULL, NULL, NULL);
+list_insert("POPFRAME ",NULL, NULL, NULL);
+
+}
+/*CREATEFRAME
+DEFVAR TF@RETURN
+DEFVAR TF@STRING
+DEFVAR TF@INDEX
+DEFVAR TF@BOOL
+MOVE TF@STRING STRING@AHOJ
+MOVE TF@INDEX INT@0
+
+JUMPIFEQ NULA TF@INDEX INT@0
+
+SUB TF@INDEX TF@INDEX INT@1
+STRLEN TF@RETURN TF@STRING
+
+LT TF@BOOL TF@INDEX TF@RETURN
+NOT TF@BOOL TF@BOOL
+JUMPIFEQ NULA TF@BOOL bool@true
+STRI2INT TF@RETURN TF@STRING TF@INDEX
+
+JUMP KONEC
+
+LABEL NULA
+MOVE TF@RETURN INT@0
+
+LABEL KONEC
+PUSHS TF@RETURN
+WRITE TF@RETURN
+
 */
+
+
+
 //int main(){
 
 //char test_string [1000] = "Volam sa MAtus \nTOTO je text\n";

@@ -24,9 +24,13 @@ typedef struct list_t{
 void list_init();
 void retype(variable_t * var);
 void process_string (char * orig_string);
-void length_of_str(variable_t * var);
+void length_of_str(variable_t * l_value);
 void list_insert(char * instr, variable_t * par1, variable_t * par2, variable_t * par3 );
 void concat();
-variable_t * create_var(char *str1, char * str2);
+variable_t * create_var(char *str1, bool constant);
+void substr();
+void asc(variable_t * l_value);
+void chr();
+char * gen_label_name(int i, char c);
 //variable_t * create_label(char *string);
 #endif

@@ -13,6 +13,9 @@ void init_global_symtables(){
     const_symtable = htab_init(SIZE_HTABLE);
     current_function_name = strInit(STR_INIT);
     current_variable_name = strInit(STR_INIT);
+    if ( (label_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
+        print_err(99);
+    S_Init(label_stack);
 }
 
 variable_t *init_variable(){
@@ -75,6 +78,7 @@ void store_var_in_symtable(function_t *fun, variable_t *var, const char *var_nam
         print_err(3);
     htab_item_t *new_var = htab_insert(fun->local_symtable,var_name);
     new_var->data.var = var;
+    new_var->data.var->data.str = new_var->key;
     new_var->is_function = false;
 }
 

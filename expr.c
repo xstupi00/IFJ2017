@@ -101,17 +101,15 @@ bool is_number (int type) {
 
 token_t* copy_token(token_t *act_token) {
 
-    token_t *new_token = NULL;
+    token_t *new_token;
     if ( (new_token = malloc(sizeof(token_t))) == NULL )
         print_err(99);
 
-    new_token->str = malloc(sizeof(act_token->str));
-    new_token->str->string = malloc(act_token->str->capacity);
+    new_token->str = strInit(strlen(act_token->str->string)) ;
 
     new_token->type = act_token->type;
     if ( act_token->str->string )
         strcpy(new_token->str->string, act_token->str->string);
-    new_token->str->capacity = act_token->str->capacity;
     new_token->str->length = act_token->str->length;
 
     return new_token;
@@ -228,9 +226,9 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
     S_Init(output_stack);
 
     token_t *act_token;
-    variable_t *operand_1 = init_variable();
-    variable_t *operand_2 = init_variable();
-    variable_t *operand = init_variable();
+    variable_t *operand_1;
+    variable_t *operand_2;
+    variable_t *operand;
     int ret_type;
     int prev_type = -1;
     bool is_string = false;
@@ -268,8 +266,8 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
                 }
                 if ( operand_2->data_type == STRING )
                     is_string = true;
-                if ( !operand_2->constant )
-                    operand_2 = create_var(operand_2->data.str, "LF@");
+                /*if ( !operand_2->constant )
+                    operand_2 = create_var(operand_2->data.str);*/
                 list_insert("PUSHS ", operand_2, NULL, NULL);
                 if ( operand_2 != NULL && operand_2->data_type != ret_type)  
                     retype(operand_2);
@@ -281,8 +279,8 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
                 }
                 if ( operand_1->data_type == STRING )
                     is_string &= 1;
-                if ( !operand_1->constant )
-                    operand_1 = create_var(operand_1->data.str, "LF@");
+                /*if ( !operand_1->constant )
+                    operand_1 = create_var(operand_1->data.str);*/
                 list_insert("PUSHS ", operand_1, NULL, NULL);
                 if ( operand_1 != NULL && operand_1->data_type != ret_type)
                     retype(operand_1);
@@ -320,8 +318,8 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
                 operand_1->data.str = (char *)malloc(1);
                 strcpy(operand_1->data.str,"");
             }
-            if ( !operand_1->constant )
-                operand_1 = create_var(operand_1->data.str, "LF@");
+            /*if ( !operand_1->constant )
+                operand_1 = create_var(operand_1->data.str);*/
             list_insert("PUSHS ", operand_1, NULL, NULL);
         }
     }
@@ -440,6 +438,8 @@ variable_t *store_constant (token_t *const_token) {
         else if ( const_token->type == TEXT ) {
             new_constant->data_type = STRING;
             new_constant->data.str = malloc(const_token->str->capacity);
+            if(!new_constant->data.str)
+                print_err(99);
             strcpy(new_constant->data.str, const_token->str->string);
             //new_constant->data.str = const_token->str->string;
         }
@@ -462,7 +462,8 @@ variable_t *find_var (token_t *find_token, function_t *act_function) {
             print_err(3);
         }
         //free(find_token->str);
-        is_found->data.var->data.str = find_token->str->string;
+        //token_t *tmp = copy_token(find_token);
+        //is_found->data.var->data.str = tmp->str->string;
         return is_found->data.var;
     }
     else if ( find_token->type >= INT_NUMBER && find_token->type <= TEXT )
@@ -510,34 +511,56 @@ void builtin_function (token_t *function, function_t *act_function, variable_t *
         variable_t *param = next_params(act_function, STRING);
         control_token(RIGHT_R_BRACKET);
         types_control(INTEGER, l_value->data_type);
-        printf("obsah: %d\n",param->data_type);
+        //if ( !param->constant )
+                //param = create_var(param->data.str);
+        list_insert("PUSHS ", param, NULL, NULL);
+        length_of_str(l_value);
+        //printf("obsah: %d\n",param->data_type);
     }
     else if ( function_name == SUBSTR ) {
         variable_t *param_1 = next_params(act_function, STRING);
-        printf("obsah: %d\n",param_1->data_type);
+        //printf("obsah: %d\n",param_1->data_type);
         control_token(COMMA);
         variable_t *param_2 = next_params(act_function, INTEGER);
-        printf("obsah: %d\n",param_2->data_type);
+        //printf("obsah: %d\n",param_2->data_type);
         control_token(COMMA);
         variable_t *param_3 = next_params(act_function, INTEGER);
-        printf("obsah: %d\n",param_3->data_type);
+        //printf("obsah: %d\n",param_3->data_type);
         control_token(RIGHT_R_BRACKET);
         types_control(STRING, l_value->data_type);
+        list_insert("PUSHS ", param_1, NULL, NULL);
+        list_insert("PUSHS ", param_2, NULL, NULL);
+        if(param_2->data_type == DOUBLE)
+            list_insert("FLOAT2R2EINTS ", NULL, NULL, NULL);
+        list_insert("PUSHS ", param_3, NULL, NULL);
+        if(param_3->data_type == DOUBLE)
+            list_insert("FLOAT2R2EINTS ", NULL, NULL, NULL);
+        substr();
     }
     else if ( function_name == ASC ) {
         variable_t *param_1  = next_params(act_function, STRING);
-        printf("obsah: %d\n",param_1->data_type);
+        //printf("obsah: %d\n",param_1->data_type);
         control_token(COMMA);
         variable_t *param_2 = next_params(act_function, INTEGER);
-        printf("obsah: %d\n",param_2->data_type);
+        //printf("obsah: %d\n",param_2->data_type);
         control_token(RIGHT_R_BRACKET);
         types_control(INTEGER, l_value->data_type);
+        list_insert("PUSHS ", param_1, NULL, NULL);
+        list_insert("PUSHS ", param_2, NULL, NULL);
+        if(param_2->data_type == DOUBLE)
+            list_insert("FLOAT2R2EINTS ", NULL, NULL, NULL);
+        asc(l_value);
+
     }
     else {
         variable_t *param = next_params(act_function, INTEGER);
-        printf("obsah: %d\n",param->data_type);
+        //printf("obsah: %d\n",param->data_type);
         control_token(RIGHT_R_BRACKET);
         types_control(STRING, l_value->data_type);
+        list_insert("PUSHS ", param, NULL, NULL);
+        if(param->data_type == DOUBLE)
+            list_insert("FLOAT2R2EINTS ", NULL, NULL, NULL);
+        chr();
     }
 
     //control_token(RIGHT_R_BRACKET);
@@ -554,13 +577,13 @@ int decode_type (char type) {
         return STRING;
 }
 
-void users_function (token_t *act_token, function_t *act_function, variable_t *l_value) {
+int users_function (token_t *act_token, function_t *act_function, variable_t *l_value) {
 
     htab_item_t *search_function = htab_find(global_symtable, act_token->str->string);
     //printf("%s\n", act_token->str->string);
 
-    function_t *users_function = init_function();
-    variable_t *param = init_variable();
+    function_t *users_function;
+    variable_t *param;
 
     users_function = search_function->data.fun;
 
@@ -573,21 +596,35 @@ void users_function (token_t *act_token, function_t *act_function, variable_t *l
         param = next_params(act_function, type_param);
         if ( i != count_of_params-1 )
             control_token(COMMA);
-        printf("obsah: %d\n",param->data_type);   
+        list_insert("PUSHS ", param, NULL, NULL);
+        if ( param->data_type != type_param)
+            retype(param);
+        //printf("obsah: %d\n",param->data_type);   
     }
 
     control_token(RIGHT_R_BRACKET);
     //printf("%d\t%d\n", search_function->data.fun->return_type, l_value->data_type);
     types_control(search_function->data.fun->return_type, l_value->data_type);
+    variable_t * tmp = create_var(search_function->key, true);
+    list_insert("CALL ", tmp, NULL, NULL);
+    return users_function->return_type;
 }
 
 void expression (function_t *act_function, variable_t *l_value) {
-
     token_t *act_token = getToken();
     if ( is_builtin_function(act_token->type) ) 
         builtin_function(act_token, act_function, l_value);
-    else if ( is_users_function(act_token, act_function) )
-        users_function(act_token, act_function, l_value);
+    else if ( is_users_function(act_token, act_function) ){
+        int f_type = users_function(act_token, act_function, l_value);
+        if(f_type != l_value->data_type ){
+            if(f_type == INTEGER){
+                list_insert("INT2FLOATS ",NULL, NULL, NULL);
+            }
+            else if(f_type == DOUBLE){
+                list_insert("FLOAT2INTS ",NULL, NULL, NULL);
+            } 
+        }
+    }
     else
         infix_to_postfix(act_function, l_value);
 }
