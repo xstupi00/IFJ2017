@@ -30,7 +30,7 @@ void initToken(){
     
 }
 void freeToken(){
-    free_string(token->str)
+    free_string(token->str);
     if(token)
         free(token);
 }
