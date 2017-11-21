@@ -107,10 +107,12 @@ bool DECLARE_FUNCTION(){
 			else if(token->type == LENGTH || token->type == SUBSTR || 
 					token->type == ASC || token->type == CHR){
 				//redefinition of builtin function
+				free_function(current_function);
 				print_err(3);
 			}
 		}
 	}
+	free_function(current_function);
 	return false;
 }
 
@@ -127,18 +129,11 @@ bool DEFINE_FUNCTION(){
 			store_current_function_name(token);
 			
 			variable_t * tmp = create_var(current_function_name->string, true);
-			list_insert("LABEL ", tmp, NULL, NULL);
+			list_insert("LABEL ", tmp, NULL, NULL); free_var(tmp);
 			list_insert("CREATEFRAME ", NULL, NULL, NULL);
 			list_insert("PUSHFRAME ", NULL, NULL, NULL);
 			tmp = create_var("PRINT", false);
-    		list_insert("DEFVAR ", tmp, NULL, NULL);
-			/*tmp = create_var("NEXT ", false);
-  	  		list_insert("DEFVAR ", tmp, NULL, NULL);
-			tmp = create_var("SUBSTR ", false);
-  			list_insert("DEFVAR ", tmp, NULL, NULL);
-			tmp = create_var("ASC ", false);
-    		list_insert("DEFVAR ", tmp, NULL, NULL);*/
-    		free(tmp);
+    		list_insert("DEFVAR ", tmp, NULL, NULL);free_var(tmp);
 
 			token = getToken();
 			if(token->type == LEFT_R_BRACKET){
@@ -160,7 +155,7 @@ bool DEFINE_FUNCTION(){
 										}
 										list_insert("PUSHS ", type, NULL, NULL);
 										list_insert("POPFRAME ", NULL, NULL, NULL);
-										list_insert("RETURN ", NULL, NULL, NULL);
+										list_insert("RETURN ", NULL, NULL, NULL); free_var(type);
 										token = getToken(); // pushs a return
 										return true;
 									}
@@ -174,27 +169,24 @@ bool DEFINE_FUNCTION(){
 		else if(token->type == LENGTH || token->type == SUBSTR || 
 				token->type == ASC || token->type == CHR){
 			//redefinition of built-in function
+			free_function(current_function);
 			print_err(3);
 		}
 	}
+	free_function(current_function);	
 	return false;
 }
 
 bool MAIN_FUNCTION(){
 	//debug_p("enter MAIN_FUNCTION");
 	variable_t * tmp = create_var("SCOPE", true);
-	list_insert("LABEL ", tmp, NULL, NULL);
+	list_insert("LABEL ", tmp, NULL, NULL); free_var(tmp);
 	list_insert("CREATEFRAME ", NULL, NULL, NULL);
 	list_insert("PUSHFRAME ", NULL, NULL, NULL);
 	tmp = create_var("PRINT", false);
     list_insert("DEFVAR ", tmp, NULL, NULL);
-	/*tmp = create_var("NEXT ", false);
-    list_insert("DEFVAR ", tmp, NULL, NULL);
-	tmp = create_var("SUBSTR ", false);
-    list_insert("DEFVAR ", tmp, NULL, NULL);
-	tmp = create_var("ASC ", false);
-    list_insert("DEFVAR ", tmp, NULL, NULL);*/
-    free(tmp); 					
+
+    free_var(tmp); 					
 
 
 	function_t *current_function = init_function();
@@ -216,6 +208,7 @@ bool MAIN_FUNCTION(){
 			}
 		}
 	}
+	free_function(current_function);
 	return false;
 }
 
@@ -234,7 +227,7 @@ bool FUNCTION_ELEMENT(function_t *f){
 
 			variable_t * tmp = create_var(current_variable_name->string, false);
 			list_insert("DEFVAR ", tmp, NULL, NULL);
-			free(tmp);
+			free_var(tmp);
 
 			token = getToken();
 			if(token->type == AS){
@@ -250,8 +243,10 @@ bool FUNCTION_ELEMENT(function_t *f){
 		//name of var is equal to name of built-in function
 		else if(token->type == LENGTH || token->type == SUBSTR || 
 				token->type == ASC || token->type == CHR){
+			free_var(current_variable);
 			print_err(3);
 		}
+		free_var(current_variable);
 	}
 	else if(token->type == EOL	 ||	token->type == ID     || token->type == PRINT || 
 			token->type == INPUT || token->type == RETURN || token->type == DO	  ||
@@ -290,7 +285,7 @@ bool STATEMENT(function_t *f){
 		expression(f,var);
 		variable_t * tmp = create_var(current_variable_name->string, false);
 		list_insert("POPS ", tmp, NULL, NULL);
-		free(tmp);
+		free_var(tmp);
 			token = getToken();
 			if(token->type == EOL){
 				token = getToken();
@@ -310,7 +305,7 @@ bool STATEMENT(function_t *f){
 		variable_t * tmp = create_var("PRINT", false);
 		list_insert("POPS ", tmp, NULL, NULL);
 		list_insert("WRITE ", tmp, NULL, NULL);
-		free(tmp);
+		free_var(tmp);
 
 		token = getToken();
 		if(token->type == SEMICOLON){
@@ -416,9 +411,9 @@ bool STATEMENT(function_t *f){
 		list_insert("NOT ", tmp, tmp, NULL);
 		if_counter ++;
 		char * if_lab_name = gen_label_name(if_counter,'I');
-		variable_t * tmp1 = create_var(if_lab_name,true);
+		variable_t * tmp1 = create_var(if_lab_name,true);free(if_lab_name);
 		S_Push(label_stack, tmp1);
-		list_insert("JUMPIFEQ ", tmp1, tmp, btrue);
+		list_insert("JUMPIFEQ ", tmp1, tmp, btrue); free_var(tmp); free_var(btrue);
 
 		token = getToken();
 		if(token->type == THEN){
@@ -428,12 +423,12 @@ bool STATEMENT(function_t *f){
 				if(STAT_LIST(f)){
 					if_counter++;
 					if_lab_name = gen_label_name(if_counter,'I');
-					variable_t * L2 = create_var(if_lab_name,true);free(if_lab_name);
+					variable_t * L2 = create_var(if_lab_name,true); free(if_lab_name);
 					variable_t * L1  = S_Top(label_stack);
 					S_Pop(label_stack);
 					S_Push(label_stack, L2);
 					list_insert("JUMP ", L2, NULL, NULL);
-					list_insert("LABEL ", L1, NULL, NULL);
+					list_insert("LABEL ", L1, NULL, NULL); free_var(L1);
 					
 					//goto L2
 					//L1
@@ -445,9 +440,9 @@ bool STATEMENT(function_t *f){
 								//L2 
 								variable_t * L2= S_Top(label_stack);
 								S_Pop(label_stack);
-								list_insert("LABEL ", L2, NULL, NULL);
-
-								token = getToken();//pop
+								list_insert("LABEL ", L2, NULL, NULL); free_var(L2);
+								//pop
+								token = getToken();
 								return true;
 							}
 						}	
@@ -530,7 +525,7 @@ bool EXPRESSION(function_t *f){
 		variable_t * tmp = create_var("PRINT", false);
 		list_insert("POPS ", tmp, NULL, NULL);
 		list_insert("WRITE ", tmp, NULL, NULL);
-		free(tmp);
+		free_var(tmp);
 
 		token = getToken();
 		if(token->type == SEMICOLON){
@@ -619,8 +614,10 @@ bool PARAM(function_t *f, stack_t * param_stack ){
 	}
 	else if((token->type == LENGTH || token->type == SUBSTR || 
 			 token->type == ASC || token->type == CHR) && f->defined){
+		free_var(current_variable);
 		print_err(3);
 	}
+	free_var(current_variable);
 	return false;
 }
 

@@ -53,4 +53,6 @@ void store_current_variable_name(struct token_t *token);
 
 void store_current_function_name(struct token_t *token);
 
+void free_function(function_t * f);
+
 #endif

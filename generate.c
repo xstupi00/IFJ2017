@@ -16,11 +16,20 @@ list_t * list;
 char * gen_label_name(int i, char c){
 	unsigned digits	= floor(log10(abs(i)))+1;
 	char * name = (char *) malloc(digits*sizeof(int)+3);
+	if(!name)
+		print_err(99);
 	name[0] = '&';
 	name[1] = (c=='W')?'W':'I';
 	sprintf(name+2, "%d", i);
 	return name;
 }
+
+void free_var(variable_t * v){
+	if(v->data.str)
+		free(v->data.str);
+	if(v)
+		free(v);
+} 
 
 void list_init()
 {
@@ -72,9 +81,10 @@ void concat()
 	list_insert("CONCAT ",tmp3, tmp2, tmp1);
 	list_insert("PUSHS ",tmp3, NULL, NULL);
 
-	/*free(tmp->data.str);
-	free(tmp);
-*/
+	free_var(tmp1);
+	free_var(tmp2);
+	free_var(tmp3);
+
 
 }
 instruction_t * instr_init (){
@@ -83,9 +93,6 @@ instruction_t * instr_init (){
 		print_err(99);
 	memset(new->instr_name, '\0', sizeof(new->instr_name));
 
-	new->op1 = init_variable();
-	new->op2 = init_variable();
-	new->op3 = init_variable();
 	new->next = NULL;
 
 	return new;
@@ -169,8 +176,8 @@ void length_of_str(variable_t * l_value){
 	if(l_value && l_value->data_type == DOUBLE)
 		list_insert("INT2FLOATS ",NULL, NULL, NULL);
 	list_insert("POPFRAME ",NULL, NULL, NULL);
-	free(tmp->data.str);
-	free(tmp);
+	free_var(tmp);
+	free_var(str);
 }
 
 
@@ -281,14 +288,20 @@ void substr(){
 	list_insert("PUSHS ",ret, NULL, NULL);
 	list_insert("POPFRAME ",NULL, NULL, NULL);
 	// free	
-	free(ret->data.str);
-	free(ret);
-	free(tmp->data.str);
-	free(tmp);
-	free(jedna->data.str);
-	free(jedna);
-	free(nula->data.str);
-	free(nula);
+	free_var(ret);
+	free_var(tmp);
+	free_var(jedna);
+	free_var(nula);
+	free_var(s);
+	free_var(i);
+	free_var(n);
+	free_var(zero);
+	free_var(change);
+	free_var(normal);
+	free_var(end);
+	free_var(b);
+	free_var(btrue);
+	free_var(var);
 
 }
 
@@ -331,8 +344,16 @@ list_insert("PUSHS ", tmp, NULL, NULL);
 if(l_value && l_value->data_type == DOUBLE)
 	list_insert("INT2FLOATS ",NULL, NULL, NULL);
 list_insert("POPFRAME ",NULL, NULL, NULL);
-free(tmp->data.str);
-free(tmp);
+
+free_var(tmp);
+free_var(s);
+free_var(b);
+free_var(i);
+free_var(jedna);
+free_var(nula);
+free_var(btrue);
+free_var(zero);
+free_var(end);
 }
 
 void chr(){

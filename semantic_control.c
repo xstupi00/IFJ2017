@@ -18,6 +18,13 @@ void init_global_symtables(){
     S_Init(label_stack);
 }
 
+void free_function (function_t * f){
+    htab_free(f->local_symtable);
+    free_string(f->params);
+    if(f->return_var)
+        free(f->return_var);
+}
+
 variable_t *init_variable(){
     variable_t *new_var = (variable_t*)malloc(sizeof(variable_t));
     if(new_var == NULL)
@@ -67,6 +74,7 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
         //fun->return_var = found_function->return_var;
         //i am not sure if free is valid here
         //free(f->data.fun);
+        free_function(f->data.fun);
         f->data.fun = fun;
     }
 }
@@ -77,6 +85,8 @@ void store_var_in_symtable(function_t *fun, variable_t *var, const char *var_nam
     if(!strcmp(current_function_name->string, var_name))
         print_err(3);
     htab_item_t *new_var = htab_insert(fun->local_symtable,var_name);
+    if(!new_var)
+        print_err(99);
     new_var->data.var = var;
     new_var->data.var->data.str = new_var->key;
     new_var->is_function = false;

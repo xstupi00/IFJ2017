@@ -30,9 +30,9 @@ void initToken(){
     
 }
 void freeToken(){
-    free(token->str->string);
-    free(token->str);
-    free(token);
+    free_string(token->str)
+    if(token)
+        free(token);
 }
 void ungetToken(){
     unget=true;

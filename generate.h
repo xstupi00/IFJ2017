@@ -32,5 +32,6 @@ void substr();
 void asc(variable_t * l_value);
 void chr();
 char * gen_label_name(int i, char c);
+void free_var(variable_t * v);
 //variable_t * create_label(char *string);
 #endif

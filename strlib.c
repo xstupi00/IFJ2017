@@ -22,3 +22,10 @@ string_t * strInit(size_t size){
 	str->length = 0;
 	return str;
 } 
+
+void free_string(string_t * s){
+	if(s->string)
+		free(s->string);
+	if(s)
+		free(s);
+}

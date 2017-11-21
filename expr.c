@@ -250,6 +250,7 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             S_Pop(output_stack);
             operand_2 = S_Top(output_stack);
             S_Pop(output_stack);
+            
             ret_type = check_return_type(&act_token->type, operand_1, operand_2);
             //printf("types is: %d\n", ret_type);
             if ( prev_type != ret_type && prev_type != -1 ) {
@@ -445,6 +446,8 @@ variable_t *store_constant (token_t *const_token) {
         }
         new_constant->constant = true;
         is_find = htab_insert(const_symtable, const_token->str->string); 
+        if(!is_find)
+            print_err(99);
         is_find->is_function = 0;
         is_find->data.var = new_constant;
     }

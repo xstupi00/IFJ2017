@@ -4,6 +4,7 @@
 #define STR_INIT 128
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct string_t{
 	char * string;
@@ -13,6 +14,6 @@ typedef struct string_t{
 
 string_t * strInit(size_t size);
 bool extendStr(string_t * str, size_t new_size);
-
+void free_string(string_t * s);
 
 #endif
