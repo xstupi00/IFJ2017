@@ -8,9 +8,9 @@ ____________________|_____________|_____________________________________________
 <element-list>			| 		{}			| EOL,id,Print,Input,Return,Do,If							| End																									
 <statement>					| 		{}			| EOL,id,Print,Input,Return,Do,If							| Dim,EOL,id,Print,Input,Return,Do,If,End,Loop,Else 
 <value>							| 	epsilon		| assign																			| EOL																										
-<else-branch>							| 	epsilon		| Else																				| End																										
+<else-branch>				| 	epsilon		| Else																				| End																										
 <stat-list>					| 	epsilon		| EOL,id,Print,Input,Return,Do,If							| Loop,Else,End
-<exp-to-print>				| 	epsilon		| E																						| EOL																										
+<exp-to-print>			| 	epsilon		| E																						| EOL																										
 <call-assign>				| 		{}			| E,id																				| EOL																										
 <param-value>				| 	epsilon		| E																						| right_rounded_bracket 																
 <next-param-value>	| 	epsilon		| comma																				| right_rounded_bracket																	
