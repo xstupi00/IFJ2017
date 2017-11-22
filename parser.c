@@ -112,7 +112,7 @@ bool DECLARE_FUNCTION(){
 			}
 		}
 	}
-	free_function(current_function);
+	//free_function(current_function);
 	return false;
 }
 
@@ -208,7 +208,7 @@ bool MAIN_FUNCTION(){
 			}
 		}
 	}
-	free_function(current_function);
+	//free_function(current_function);
 	return false;
 }
 
@@ -333,8 +333,8 @@ bool STATEMENT(function_t *f){
 			variable_t * print = create_var(current_variable_name->string, false);
 
 			list_insert("READ ", print, type, NULL);
-			free(type);
-			free(print);
+			free_var(type);
+			free_var(print);
 			token = getToken();
 			if(token->type == EOL){
 				token = getToken();
@@ -389,10 +389,10 @@ bool STATEMENT(function_t *f){
 					if(token->type == EOL){ //pop
 						variable_t * t = S_Top(label_stack);
 						S_Pop(label_stack);
-						list_insert ("JUMP ", t, NULL, NULL);free(t);
+						list_insert ("JUMP ", t, NULL, NULL);free_var(t);
 						t = S_Top(label_stack);
 						S_Pop(label_stack);
-						list_insert("LABEL ", t, NULL, NULL);free(t);
+						list_insert("LABEL ", t, NULL, NULL);free_var(t);
 						token = getToken();
 						return true;
 					}
@@ -503,7 +503,7 @@ bool VALUE(function_t *f, variable_t *v){
 		store_var_in_symtable(f,v,current_variable_name->string);
 		variable_t * tmp = create_var(current_variable_name->string, false);
 		list_insert("POPS ", tmp, NULL, NULL);
-		free(tmp);
+		free_var(tmp);
 		//move to local variable
 		token = getToken();
 		return true;
@@ -555,7 +555,7 @@ bool PARAM_LIST(function_t *f){
 			 	    variable_t * tmp = S_Top(param_stack);
 			       	S_Pop(param_stack);
 					list_insert("POPS ", tmp, NULL, NULL);
-					free(tmp);
+					free_var(tmp);
 				}
 			}	
 			return true;

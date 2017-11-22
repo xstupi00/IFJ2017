@@ -20,7 +20,7 @@ void S_Destroy (stack_t *s) {
 int S_Push (stack_t *s, void* d) {
 
     elem_t *new_element = NULL;
-    if ( (new_element = (elem_t *) malloc(sizeof(void *))) == NULL ) 
+    if ( (new_element = (elem_t *) malloc(sizeof(struct elem_t))) == NULL ) 
         print_err(99);
 
     new_element->data = d;

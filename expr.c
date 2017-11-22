@@ -189,7 +189,7 @@ void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act
     }
 }
 
-int check_return_type(int *operator, variable_t *operand_1, variable_t *operand_2) {
+int check_return_type(int operator, variable_t *operand_1, variable_t *operand_2) {
 
     /*if ( *operator == ADD && operand_1->data_type == TEXT && operand_2->data_type == TEXT ) 
         return TEXT;
@@ -201,12 +201,12 @@ int check_return_type(int *operator, variable_t *operand_1, variable_t *operand_
                 ( (types_control(operand_1->data_type, operand_2->data_type) && (*operator == INT_DIV)) ) ) 
         return INT_NUMBER; */
     
-    if ( !is_number(operand_1->data_type) && !is_number(operand_2->data_type) && (*operator == ADD || is_logic_opr(*operator)) )
+    if ( !is_number(operand_1->data_type) && !is_number(operand_2->data_type) && (operator == ADD || is_logic_opr(operator)) )
         return STRING;
     else if ( (is_number(operand_1->data_type) || is_number(operand_2->data_type)) && types_control(operand_1->data_type, operand_2->data_type) ) {
-        if ( (((operand_1->data_type != INT_NUMBER && operand_1->data_type != INTEGER) || 
-             (operand_2->data_type != INT_NUMBER && operand_2->data_type != INTEGER)) &&
-             *operator != INT_DIV) || *operator == DIV )
+        if ( ((operand_1->data_type != INT_NUMBER && operand_1->data_type != INTEGER) || 
+             (operand_2->data_type != INT_NUMBER && operand_2->data_type != INTEGER)) ||
+             (operator == INT_DIV || operator == DIV ))
              return DOUBLE;
         return INTEGER;
     }
@@ -230,11 +230,11 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
     variable_t *operand_2;
     variable_t *operand;
     int ret_type;
-    int prev_type = -1;
-    bool is_string = false;
+    //int prev_type = -1;
+    //bool is_string = false;
 
     variable_t *new_var = init_variable();   
-    new_var->data.i = -1;
+    //new_var->data.i = -1;
 
     while ( !S_Empty(postfix_stack) ) {
         act_token = S_Top(postfix_stack);
@@ -243,6 +243,12 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             //printf("i have token %d\t%s\n", act_token->type, act_token->str->string);          
             operand = find_var(act_token, act_function);
             S_Push(output_stack, operand);
+            if ( !is_number(operand->data_type) && operand->data.str == NULL ) {
+                operand->data.str = (char *)malloc(1);
+                strcpy(operand->data.str,"");
+            }
+            list_insert("PUSHS ", operand, NULL, NULL);
+
             ret_type = operand->data_type;
         }
         else {
@@ -251,51 +257,59 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             operand_2 = S_Top(output_stack);
             S_Pop(output_stack);
             
-            ret_type = check_return_type(&act_token->type, operand_1, operand_2);
+            ret_type = check_return_type(act_token->type, operand_1, operand_2);
             //printf("types is: %d\n", ret_type);
-            if ( prev_type != ret_type && prev_type != -1 ) {
-                if ( operand_2->data.i != -1 )
+            //if ( prev_type != ret_type && prev_type != -1 ) {
+            if(operand_1->data_type != ret_type)
+                retype(operand_1);
+            if(operand_2->data_type != ret_type){
+                variable_t * tmp = create_var("PRINT ", false);
+                list_insert("POPS ", tmp, NULL, NULL);
+                retype(operand_2);
+                list_insert("PUSHS ", tmp, NULL, NULL);free_var(tmp);
+            } 
+                /*if ( operand_2->data.i != -1 )
                     retype(operand_2);
                 else
-                    retype(operand_1);
-                }
-
-            if ( operand_2->data.i != -1 ) {
-                if ( !is_number(operand_2->data_type) && operand_2->data.str == NULL ) {
-                    operand_2->data.str = (char *)malloc(1);
-                    strcpy(operand_2->data.str,"");
-                }
-                if ( operand_2->data_type == STRING )
-                    is_string = true;
+                    retype(operand_1);*/
+            //}
+            
+            //if ( !is_number(operand_2->data_type) && operand_2->data.str == NULL ) {
+             //   operand_2->data.str = (char *)malloc(1);
+              //  strcpy(operand_2->data.str,"");
+            //}
+              //  if ( operand_2->data_type == STRING )
+                //    is_string = true;
                 /*if ( !operand_2->constant )
                     operand_2 = create_var(operand_2->data.str);*/
-                list_insert("PUSHS ", operand_2, NULL, NULL);
-                if ( operand_2 != NULL && operand_2->data_type != ret_type)  
-                    retype(operand_2);
-            }
-            if ( operand_1->data.i != -1 ) {
-                if ( !is_number(operand_1->data_type) && operand_1->data.str == NULL ) {
-                    operand_1->data.str = (char *)malloc(1);
-                    strcpy(operand_1->data.str,"");
-                }
-                if ( operand_1->data_type == STRING )
-                    is_string &= 1;
+                //list_insert("PUSHS ", operand_2, NULL, NULL);
+             //   if ( operand_2 != NULL && operand_2->data_type != ret_type)  
+               //     retype(operand_2);
+            //}
+            //if ( operand_1->data.i != -1 ) {
+              //  if ( !is_number(operand_1->data_type) && operand_1->data.str == NULL ) {
+                //    operand_1->data.str = (char *)malloc(1);
+              //      strcpy(operand_1->data.str,"");
+              //  }
+               // if ( operand_1->data_type == STRING )
+                  //  is_string &= 1;
                 /*if ( !operand_1->constant )
                     operand_1 = create_var(operand_1->data.str);*/
-                list_insert("PUSHS ", operand_1, NULL, NULL);
-                if ( operand_1 != NULL && operand_1->data_type != ret_type)
-                    retype(operand_1);
-            }
+                //list_insert("PUSHS ", operand_1, NULL, NULL);
+              //  if ( operand_1 != NULL && operand_1->data_type != ret_type)
+                //    retype(operand_1);
+            //}
             if ( is_logic_opr(act_token->type) )  
                 ret_type = INTEGER;
             //printf("EXECUTE: %d\n",act_token->type);
             switch(act_token->type) {
-                case ADD: if ( is_string ) {concat();break;}
+                case ADD: if ( operand_1->data_type == STRING && operand_2->data_type == STRING ) {concat();break;}
                         list_insert("ADDS ", NULL, NULL, NULL);break;
                 case SUB: list_insert("SUBS ", NULL, NULL, NULL);break;
                 case MUL: list_insert("MULS ", NULL, NULL, NULL);break;
                 case DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
-                case INT_DIV: list_insert("DIVS ", NULL, NULL, NULL);break;
+                case INT_DIV: list_insert("DIVS ", NULL, NULL, NULL);
+                              list_insert("FLOAT2INTS ", NULL, NULL, NULL);break;
                 case LESS: list_insert("LTS ", NULL, NULL, NULL);break;
                 case GREATER: list_insert("GTS ", NULL, NULL, NULL);break;
                 case ASSIGNMENT_EQ: list_insert("EQS ", NULL, NULL, NULL);break;
@@ -311,7 +325,7 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             S_Push(output_stack, new_var);
         }
     }
-    if ( !S_Empty(output_stack) ) {
+    /*if ( !S_Empty(output_stack) ) {
         operand_1 = S_Top(output_stack);
         new_var->data_type = operand_1->data_type;
         if ( operand_1->data.i != -1) {
@@ -319,11 +333,11 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
                 operand_1->data.str = (char *)malloc(1);
                 strcpy(operand_1->data.str,"");
             }
-            /*if ( !operand_1->constant )
+            if ( !operand_1->constant )
                 operand_1 = create_var(operand_1->data.str);*/
-            list_insert("PUSHS ", operand_1, NULL, NULL);
-        }
-    }
+     //       list_insert("PUSHS ", operand_1, NULL, NULL);
+       // }
+    //}
     //printf("types is: %d\n", ret_type);
     if ( l_value != NULL) {
         //printf("return type is: %d\nl_value type is: %d\n", ret_type, l_value->data_type);
@@ -333,6 +347,9 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             retype(new_var);
         }
     }
+    S_Destroy(output_stack);
+    free_var(new_var);
+
 }
 
 void infix_to_postfix (function_t *act_function, variable_t *l_value) {
@@ -397,6 +414,8 @@ void infix_to_postfix (function_t *act_function, variable_t *l_value) {
     ungetToken();
 
     control_postfix(infix_stack, act_function, l_value);
+    S_Destroy(infix_stack);
+
     //S_Print(infix_stack);
 }
 
