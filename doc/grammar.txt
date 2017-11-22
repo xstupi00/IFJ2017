@@ -14,23 +14,23 @@
 <element-list> -> <statement> <function-element>
 <statement> -> EOL
 <statement> -> id = <call-assign> EOL
-<statement> -> Print <E> ; <expression> EOL
+<statement> -> Print <E> ; <exp-to-print> EOL
 <statement> -> Input id EOL
 <statement> -> Return <E> EOL
 <statement> -> Do While <E> EOL <stat-list> Loop EOL
-<statement> -> If <E> Then EOL <stat-list> <else> End If EOL
+<statement> -> If <E> Then EOL <stat-list> <else-branch> End If EOL
 
 <value> -> epsilon
 <value> -> = <E>  
 
-<else> -> epsilon
-<else> -> Else EOL <stat-list>
+<else-branch> -> epsilon
+<else-branch> -> Else EOL <stat-list>
 
 <stat-list> -> <statement> <stat-list>
 <stat-list> -> epsilon
 
-<expression> -> <E> ; <expression>
-<expression> -> epsilon
+<exp-to-print> -> <E> ; <exp-to-print>
+<exp-to-print> -> epsilon
 
 <call-assign> -> <E>
 <call-assign> -> id (<param-value>)

@@ -8,9 +8,9 @@ ____________________|_____________|_____________________________________________
 <element-list>			| 		{}			| EOL,id,Print,Input,Return,Do,If							| End																									
 <statement>					| 		{}			| EOL,id,Print,Input,Return,Do,If							| Dim,EOL,id,Print,Input,Return,Do,If,End,Loop,Else 
 <value>							| 	epsilon		| assign																			| EOL																										
-<else>							| 	epsilon		| Else																				| End																										
+<else-branch>							| 	epsilon		| Else																				| End																										
 <stat-list>					| 	epsilon		| EOL,id,Print,Input,Return,Do,If							| Loop,Else,End
-<expression>				| 	epsilon		| E																						| EOL																										
+<exp-to-print>				| 	epsilon		| E																						| EOL																										
 <call-assign>				| 		{}			| E,id																				| EOL																										
 <param-value>				| 	epsilon		| E																						| right_rounded_bracket 																
 <next-param-value>	| 	epsilon		| comma																				| right_rounded_bracket																	
@@ -38,19 +38,19 @@ ________________________________________________________________________________
 11. <element-list> -> <statement> <function-element>																									| EOL,id,Print,Input,Return,Do,If
 12. <statement> -> EOL																																								| EOL
 13. <statement> -> id = <call-assign> EOL																															| id
-14. <statement> -> Print <E> ; <expression> EOL																												| Print
+14. <statement> -> Print <E> ; <exp-to-print> EOL																											| Print
 15. <statement> -> Input id EOL																																				| Input
 16. <statement> -> Return <E> EOL																																			| Return
 17. <statement> -> Do While <E> EOL <stat-list> Loop EOL																							| Do
-18. <statement> -> If <E> Then EOL <stat-list> <else> End If EOL																			| If
+18. <statement> -> If <E> Then EOL <stat-list> <else-branch> End If EOL																| If
 19. <value> -> epsilon																																								| EOL
 20. <value> -> = <E>  																																								| assign
-21. <else> -> epsilon																																									| End 
-22. <else> -> Else EOL <stat-list>																																		| Else
+21. <else-branch> -> epsilon																																					| End 
+22. <else-branch> -> Else EOL <stat-list>																															| Else
 23. <stat-list> -> <statement> <stat-list>																														| EOL,id,Print,Input,Return,Do,If 
 24. <stat-list> -> epsilon																																						| Loop,Else,End
-25. <expression> -> <E> ; <expression>																																|	First<E>
-26. <expression> -> epsilon																																						| EOL
+25. <exp-to-print> -> <E> ; <exp-to-print>																														|	First<E>
+26. <exp-to-print> -> epsilon																																					| EOL
 27. <call-assign> -> <E>																																							| First<E>
 28. <call-assign> -> id(<param-value>)																																| id	
 29. <param-value> -> epsilon																																					| right_rounded_bracket
