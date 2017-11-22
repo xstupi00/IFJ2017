@@ -1,14 +1,26 @@
+///////////////////////////////////////////////////////////////////////////////////
+// School:      Brno University of Technology, Faculty of Information Technology //
+// Course:      Formal Languages and Compilers                                   //
+// Project:     IFJ17                                                            //
+// Module:      Semantic control                                                 //
+// Authors:     Kristián Liščinský  (xlisci01)                                   //
+//              Matúš Liščinský     (xlisci02)                                   //
+//              Šimon Stupinský     (xstupi00)                                   //
+//              Vladimír Marcin     (xmarci10)                                   //
+///////////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "semantic_control.h"
 #include "symtable.h"
 #include "error.h"
 #include "scanner.h"
+#include "generate.h"
 
 htab_t *global_symtable;
 htab_t *const_symtable;
 
-void init_global_symtables(){
+void init_globals(){
     global_symtable = htab_init(SIZE_HTABLE);
     const_symtable = htab_init(SIZE_HTABLE);
     current_function_name = strInit(STR_INIT);
@@ -16,6 +28,8 @@ void init_global_symtables(){
     if ( (label_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
         print_err(99);
     S_Init(label_stack);
+    initToken();
+    list_init();
 }
 
 void free_function (function_t * f){
@@ -74,7 +88,7 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
         //fun->return_var = found_function->return_var;
         //i am not sure if free is valid here
         //free(f->data.fun);
-        free_function(f->data.fun);
+        //free_function(f->data.fun);
         f->data.fun = fun;
     }
 }

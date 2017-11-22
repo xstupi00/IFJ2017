@@ -33,7 +33,7 @@ typedef struct function_t{
     variable_t *return_var;        
 }function_t;
 
-void init_global_symtables();
+void init_globals();
 
 variable_t *init_variable();
 
