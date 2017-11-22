@@ -1,69 +1,24 @@
+///////////////////////////////////////////////////////////////////////////////////
+// School:      Brno University of Technology, Faculty of Information Technology //
+// Course:      Formal Languages and Compilers                                   //
+// Project:     IFJ17                                                            //
+// Module:      Main module                                                      //
+// Authors:     Kristián Liščinský  (xlisci01)                                   //
+//              Matúš Liščinský     (xlisci02)                                   //
+//              Šimon Stupinský     (xstupi00)                                   //
+//              Vladimír Marcin     (xmarci10)                                   //
+///////////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
-#include "scanner.h"
-#include "strlib.h"
-#include "error.h"
-#include "stack.h"
 #include "parser.h"
-#include "expr.h"
 #include "generate.h"
+#include "semantic_control.h"
+
 int main(){
 
-    initToken();
-    init_global_symtables();
-    list_init();
+    init_globals();
     parse();
-   
-    /*expression(NULL, NULL);*/
-    printf(".IFJcode17\nJUMP SCOPE\n");
-    /*printf("CREATEFRAME\n");
-    printf("PUSHFRAME\n");
+    print_list();
 
-    printf("DEFVAR LF@VAR\n");
-    */
-    for(instruction_t * tmp = list->First; tmp!=NULL; tmp=tmp->next){
-        printf("%s",tmp->instr_name); 
-        if(tmp->op1){
-            if(tmp->op1->constant){
-                switch (tmp->op1->data_type){
-                    case INTEGER:printf("int@%d",tmp->op1->data.i);break;
-                    case DOUBLE:printf("float@%g",tmp->op1->data.d);break;
-                    case STRING:printf("string@");
-                                process_string(tmp->op1->data.str); break;
-                    default: if(tmp->op1->data.str)printf("%s", tmp->op1->data.str);break;
-                }
-            }
-            else printf("LF@%s ", tmp->op1->data.str);
-        }
-       
-        if(tmp->op2){
-            if(tmp->op2->constant){
-                switch (tmp->op2->data_type){
-                    case INTEGER:printf("int@%d",tmp->op2->data.i);break;
-                    case DOUBLE:printf("float@%g",tmp->op2->data.d);break;
-                    case STRING:printf("string@");
-                                process_string(tmp->op2->data.str); break;
-                    default: if(tmp->op2->data.str)printf("%s", tmp->op2->data.str);break;
-                }
-            }
-            else printf("LF@%s ", tmp->op2->data.str);
-        }
-        if(tmp->op3){
-            if(tmp->op3->constant){
-                switch (tmp->op3->data_type){
-                    case INTEGER:printf("int@%d",tmp->op3->data.i);break;
-                    case DOUBLE:printf("float@%g",tmp->op3->data.d);break;
-                    case STRING:printf("string@");
-                                process_string(tmp->op3->data.str); break;
-                    default: if(tmp->op3->data.str)printf("%s", tmp->op3->data.str);break;
-                }
-            }
-            else printf("LF@%s ", tmp->op3->data.str);
-        }
-        printf("\n");
-    }
-    //printf("POPS LF@VAR\nWRITE LF@VAR\n");
-    /*variable_t * str = create_var("prmenna", "TF@");
-    printf("%s\n", str->data.str);
-    */
-    //printf("%s\n",gen_label_name(800004, 'I'));
+    return 0;
 }
