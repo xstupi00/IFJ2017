@@ -22,6 +22,7 @@ typedef struct list_t{
 }list_t;
 
 void list_init();
+void print_list();
 void retype(variable_t * var);
 void process_string (char * orig_string);
 void length_of_str(variable_t * l_value);
