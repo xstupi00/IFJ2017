@@ -1,18 +1,27 @@
+///////////////////////////////////////////////////////////////////////////////////
+// School:      Brno University of Technology, Faculty of Information Technology //
+// Course:      Formal Languages and Compilers                                   //
+// Project:     IFJ17                                                            //
+// Module:      Error states	                                                 //
+// Authors:     Kristián Liščinský  (xlisci01)                                   //
+//              Matúš Liščinský     (xlisci02)                                   //
+//              Šimon Stupinský     (xstupi00)                                   //
+//              Vladimír Marcin     (xmarci10)                                   //
+///////////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
 
-
 void print_err(int id)
 {
 	switch(id){
-		case 1: fprintf(stderr,"Chyba pri lexikalnej analyze\n");break;
-		case 2: fprintf(stderr,"Chyba pri syntaktickej analyze\n");break;
-		case 3: fprintf(stderr,"Sémantická chyba v programe\n");break;
-		case 4: fprintf(stderr,"Sémantická chyba typovej kompatibility\n");break;
-		case 6: fprintf(stderr,"Iná sémantická chyba\n");break;
-		case 99: fprintf(stderr,"Interná chyba prekladača\n");break;
-		default: fprintf(stderr,"ERR: volas funkciu so zlym parametrom\n"); // debug
+		case 1: fprintf(stderr,"Error in the program associated with lexical analysis\n"); break;
+		case 2: fprintf(stderr,"Error in the program associated with syntax analysis\n"); break;
+		case 3: fprintf(stderr,"Semantic error in the program\n"); break;
+		case 4: fprintf(stderr,"Semantic type compatibility error\n"); break;
+		case 6: fprintf(stderr,"Others semantic error\n"); break;
+		case 99: fprintf(stderr,"Interna error of compiler\n"); break;
 	}
 	exit(id);
 }
