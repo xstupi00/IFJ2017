@@ -1,3 +1,14 @@
+///////////////////////////////////////////////////////////////////////////////////
+// School:      Brno University of Technology, Faculty of Information Technology //
+// Course:      Formal Languages and Compilers                                   //
+// Project:     IFJ17                                                            //
+// Module:      Stack                                                            //
+// Authors:     Kristián Liščinský  (xlisci01)                                   //
+//              Matúš Liščinský     (xlisci02)                                   //
+//              Šimon Stupinský     (xstupi00)                                   //
+//              Vladimír Marcin     (xmarci10)                                   //
+///////////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
