@@ -1,13 +1,13 @@
-//////////////////////////////////////////////////////////////////////////
-//      Vysoké Učení Technické, Fakulta Informačních Technologií        //
-//      Předmět Formální jazyky a překladače                            //
-//      Projekt  IFJ17                                                  //
-//      Lexikální analýza                                               //
-//      Autoři: Kristián Liščinský  (xlisci01)                          //
-//              Matúš Liščinský     (xlisci02)                          //
-//              Šimon Stupinský     (xstupi00)                          //
-//              Vladimír Marcin     (xmarci10)                          //
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+// School:      Brno University of Technology, Faculty of Information Technology //
+// Course:      Formal Languages and Compilers                                   //
+// Project:     IFJ17                                                            //
+// Module:      Lexical analysis                                                 //
+// Authors:     Kristián Liščinský  (xlisci01)                                   //
+//              Matúš Liščinský     (xlisci02)                                   //
+//              Šimon Stupinský     (xstupi00)                                   //
+//              Vladimír Marcin     (xmarci10)                                   //
+///////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -258,7 +258,7 @@ token_t *getToken(){
 					hexa[2] = c;
 			    	//pocet_cisel = 3;
 					int number = atoi(hexa);
-
+                    //printf("ASCII: %d\n", number);
 					//číslo musí byť z intervalu <0,255>, ak nie je, tak to značí lexikálnu chybu
 				    if(((number < 001) || (number > 255))){
 				    	print_err(1);
