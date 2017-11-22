@@ -268,22 +268,36 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
                 ret_type = INTEGER;
 
             switch(act_token->type) {
-                case ADD: if ( operand_1->data_type == STRING && operand_2->data_type == STRING ) {concat(); break;}
-                          list_insert("ADDS ", NULL, NULL, NULL); break;
-                case SUB: list_insert("SUBS ", NULL, NULL, NULL); break;
-                case MUL: list_insert("MULS ", NULL, NULL, NULL); break;
-                case DIV: list_insert("DIVS ", NULL, NULL, NULL); break;
-                case INT_DIV: list_insert("DIVS ", NULL, NULL, NULL);
-                              list_insert("FLOAT2INTS ", NULL, NULL, NULL); break;
-                case LESS: list_insert("LTS ", NULL, NULL, NULL); break;
-                case GREATER: list_insert("GTS ", NULL, NULL, NULL); break;
-                case ASSIGNMENT_EQ: list_insert("EQS ", NULL, NULL, NULL); break;
-                case LESS_EQ: list_insert("GTS ", NULL, NULL, NULL);
-                              list_insert("NOTS ", NULL, NULL, NULL); break;
-                case GREATER_EQ: list_insert("LTS ", NULL, NULL, NULL);
-                                 list_insert("NOTS ", NULL, NULL, NULL); break;
-                case NEQ:list_insert("EQS ", NULL, NULL, NULL);
-                         list_insert("NOTS ", NULL, NULL, NULL); break;
+                case ADD:  
+                            if ( operand_1->data_type == STRING && operand_2->data_type == STRING ) {
+                                concat(); 
+                                break;
+                            }
+                            list_insert("ADDS ", NULL, NULL, NULL); break;
+                case SUB: 
+                            list_insert("SUBS ", NULL, NULL, NULL); break;
+                case MUL: 
+                            list_insert("MULS ", NULL, NULL, NULL); break;
+                case DIV: 
+                            list_insert("DIVS ", NULL, NULL, NULL); break;
+                case INT_DIV: 
+                            list_insert("DIVS ", NULL, NULL, NULL);
+                            list_insert("FLOAT2INTS ", NULL, NULL, NULL); break;
+                case LESS: 
+                            list_insert("LTS ", NULL, NULL, NULL); break;
+                case GREATER: 
+                            list_insert("GTS ", NULL, NULL, NULL); break;
+                case ASSIGNMENT_EQ: 
+                            list_insert("EQS ", NULL, NULL, NULL); break;
+                case LESS_EQ: 
+                            list_insert("GTS ", NULL, NULL, NULL);
+                            list_insert("NOTS ", NULL, NULL, NULL); break;
+                case GREATER_EQ: 
+                            list_insert("LTS ", NULL, NULL, NULL);
+                            list_insert("NOTS ", NULL, NULL, NULL); break;
+                case NEQ:
+                            list_insert("EQS ", NULL, NULL, NULL);
+                            list_insert("NOTS ", NULL, NULL, NULL); break;
             }
             new_var->data_type = ret_type;
             S_Push(output_stack, new_var);
