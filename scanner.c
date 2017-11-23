@@ -59,7 +59,7 @@ token_t *getToken(){
     }
     
     int position = 0;           //index aktualneho charu
-    char c;
+    //char c; cppcheck
     char hexa[4];
     hexa[3] = '\0';
     int escapovanie = 0;
@@ -68,7 +68,8 @@ token_t *getToken(){
     bool dot = false;
     states_t state = S_START;   //stav automatu
 
-    while(((c = fgetc(stdin)) != EOF)){
+    while(/*((c = fgetc(stdin)) != EOF)+*/1){
+        char c = fgetc(stdin);
         token->str->length=strlen(token->str->string);
   
         if(token->str->length+1 > token->str->capacity){
@@ -124,8 +125,8 @@ token_t *getToken(){
                 }
 
                 else if(c == '\''){
-                    while (((c = fgetc(stdin)) != '\n') && (c != EOF));
-                    if(c == EOF){
+                    while ( ((c = fgetc(stdin)) != '\n') && (c != -1) );
+                    if(c == -1){
                         return saveToken(END_OF_FILE, false);
                     }
                     else if (c=='\n')
@@ -154,7 +155,7 @@ token_t *getToken(){
                 else if(c == '<'){
                     state = S_LESS_EQ;  //menší/menší alebo rovný
                 }
-                else if(c == EOF){
+                else if(c == -1){
                     return  saveToken(END_OF_FILE, false);   //koniec suboru
                 }
                 else{
@@ -320,7 +321,7 @@ token_t *getToken(){
                 //jedná sa o blokový komentár
                 if(c == '\''){
                     //načítavame do konca súboru
-                    while((c  = fgetc(stdin)) != EOF){
+                    while((c  = fgetc(stdin)) != -1){
                         //keď príde / vyskakujeme z blokového komentára a ideme na počiatočný stav
                         if(c == '\''){
                             c = fgetc(stdin);
@@ -331,13 +332,13 @@ token_t *getToken(){
                         }
                     }
                     //koemntár do konca súboru
-                    if(c == EOF){
+                    if(c == -1){
                         //return saveToken(END_OF_FILE, false);
                         print_err(1);
                     }
                     state = S_START;
                 }
-                else if(c == EOF){
+                else if(c == -1){
                     return saveToken(DIV, false);    //delenie, ako posledný znak, očakáva sa syntaktická chyba
                 }
                 else{
@@ -556,6 +557,7 @@ token_t *getToken(){
             break;
 
         }
+    if ( c == -1 )
+        print_err(1);
     }
-    return saveToken(END_OF_FILE, false);
 }
