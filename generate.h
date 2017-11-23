@@ -9,7 +9,7 @@ extern struct list_t * list;
 
 
 typedef struct instruction_t{
-	char instr_name [15];
+	char * instr_name;
 	struct variable_t * op1;
 	struct variable_t * op2;
 	struct variable_t * op3;

@@ -76,43 +76,48 @@ variable_t * create_var(char *str1, bool constant){
 */
 void concat()
 {
-	static unsigned conc_counter;
-	conc_counter++;
-	char *name = gen_label_name(conc_counter, 'C');
-	variable_t * tmp1 = create_var(name, false); free(name);
-	conc_counter++;
-	name = gen_label_name(conc_counter, 'C');
-	variable_t * tmp2 = create_var(name, false); free(name);
-	conc_counter++;
-	name = gen_label_name(conc_counter, 'C');
-	variable_t * tmp3 = create_var(name, false); free(name);
+	//static unsigned conc_counter;
+	//conc_counter++;
+	//char *name = gen_label_name(conc_counter, 'C');
+	//variable_t * tmp1 = create_var(name, false); free(name);
+	//conc_counter++;
+	//name = gen_label_name(conc_counter, 'C');
+	//variable_t * tmp2 = create_var(name, false); free(name);
+	//conc_counter++;
+	//name = gen_label_name(conc_counter, 'C');
+	//variable_t * tmp3 = create_var(name, false); free(name);
 
 
-	//variable_t * tmp1 = create_var("NEXT ", false);
-	//variable_t * tmp2 = create_var("SUBSTR ", false);
+	variable_t * tmp1 = create_var("&C1 ", false);
+	variable_t * tmp2 = create_var("&C2 ", false);
 	//variable_t * tmp3 = create_var("ASC ", false);
 	
 
+	list_insert("CREATEFRAME ",NULL, NULL, NULL);
+	list_insert("PUSHFRAME ",NULL, NULL, NULL);
 	list_insert("DEFVAR ", tmp1, NULL, NULL);
 	list_insert("DEFVAR ", tmp2, NULL, NULL);
-	list_insert("DEFVAR ", tmp3, NULL, NULL);
+	//list_insert("DEFVAR ", tmp3, NULL, NULL);
 
 
 	list_insert("POPS ", tmp1, NULL, NULL);
 	list_insert("POPS ", tmp2, NULL, NULL);
 
-	list_insert("CONCAT ",tmp3, tmp2, tmp1);
-	list_insert("PUSHS ",tmp3, NULL, NULL);
+	list_insert("CONCAT ",tmp2, tmp2, tmp1);
+	list_insert("PUSHS ",tmp2, NULL, NULL);
+	list_insert("POPFRAME ",NULL, NULL, NULL);
+
 
 	free_var(tmp1);
 	free_var(tmp2);
-	free_var(tmp3);
+	//free_var(tmp3);
 }
 instruction_t * instr_init (){
 	instruction_t * new =  (instruction_t *)malloc(sizeof(instruction_t));
 	if(!new)
 		print_err(99);
-	memset(new->instr_name, '\0', sizeof(new->instr_name));
+	new->instr_name = (char *) calloc(15,sizeof(char));
+	//memset(new->instr_name, '\0', sizeof(new->instr_name));
 	new->op1 = new->op2 = new->op3 = NULL;
 	new->next = NULL;
 
@@ -164,6 +169,9 @@ void list_insert(char * instr, variable_t * par1, variable_t * par2, variable_t 
 }
 
 void process_string (char * orig_string){
+
+	if (!orig_string)
+		return;
 
 	for(unsigned i = 0; orig_string[i]!='\0' ; i++){
 		if(isalpha(orig_string[i]) || isdigit(orig_string[i]))
