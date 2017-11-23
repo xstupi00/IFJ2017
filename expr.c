@@ -27,7 +27,7 @@ bool is_builtin_function (int token_type);
 bool is_users_function (token_t *act_token, function_t *act_function);
 bool is_number (int type);
 bool shift_to_stack (token_t *entry_token, token_t *stack_token);
-void control_token (int type_token);
+void control_token (int type_token, int count_params);
 void correct_expr (token_t *act_token, int *prev_token, bool *set_logic);
 void do_until_left_bracket (stack_t *operators_stack, stack_t *output_stack);
 void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act_token, token_t *stack_token);
@@ -173,10 +173,10 @@ void correct_expr (token_t *act_token, int *prev_token, bool *set_logic) {
 
 void do_until_left_bracket (stack_t *operators_stack, stack_t *output_stack) {
 
-    token_t *stack_token;
+   //token_t *stack_token; cppcheck
 
     while ( !S_Empty(operators_stack) ) {
-        stack_token = copy_token(S_Top(operators_stack));
+        token_t * stack_token = copy_token(S_Top(operators_stack));
         if ( stack_token->type != LEFT_R_BRACKET ) {
             S_Push(output_stack, stack_token);
             S_Pop(operators_stack);    
@@ -230,18 +230,18 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
         print_err(99);
     S_Init(output_stack);
 
-    token_t *act_token;
-    variable_t *operand_1;
-    variable_t *operand_2;
-    variable_t *operand;
+    //token_t *act_token; cppcheck
+    //variable_t *operand_1;
+    //variable_t *operand_2;
+    //variable_t *operand;
     variable_t *new_var = init_variable();   
     int ret_type;
 
     while ( !S_Empty(postfix_stack) ) {
-        act_token = S_Top(postfix_stack);
+        token_t * act_token = S_Top(postfix_stack);
         S_Pop(postfix_stack);
         if ( is_operand(act_token->type) ) {
-            operand = find_var(act_token, act_function);
+            variable_t * operand = find_var(act_token, act_function);
             S_Push(output_stack, operand);
             if ( !is_number(operand->data_type) && operand->data.str == NULL ) {
                 operand->data.str = (char *)malloc(1);
@@ -251,11 +251,12 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
             ret_type = operand->data_type;
         }
         else {
-            operand_1 = S_Top(output_stack);
+            variable_t * operand_1 = S_Top(output_stack);
             S_Pop(output_stack);
-            operand_2 = S_Top(output_stack);
+            variable_t *operand_2 = S_Top(output_stack);
             S_Pop(output_stack);
             ret_type = check_return_type(act_token->type, operand_1, operand_2);
+            //printf("op_1-type:%d\nop_2-type:%d\n", operand_1->data_type, operand_2->data_type);
             if ( operand_1->data_type != ret_type )
                 retype(operand_1);
             if ( operand_2->data_type != ret_type ) {
@@ -282,7 +283,8 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
                             list_insert("DIVS ", NULL, NULL, NULL); break;
                 case INT_DIV: 
                             list_insert("DIVS ", NULL, NULL, NULL);
-                            list_insert("FLOAT2INTS ", NULL, NULL, NULL); break;
+                            list_insert("FLOAT2INTS ", NULL, NULL, NULL);
+                            ret_type = INTEGER; break; // check
                 case LESS: 
                             list_insert("LTS ", NULL, NULL, NULL); break;
                 case GREATER: 
@@ -299,8 +301,15 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
                             list_insert("EQS ", NULL, NULL, NULL);
                             list_insert("NOTS ", NULL, NULL, NULL); break;
             }
-            new_var->data_type = ret_type;
-            S_Push(output_stack, new_var);
+            //printf("------------BEFORE-------------\n");
+            ///S_Print(output_stack);
+            //printf("------------AFTER--------------\n");
+            //new_var->data_type = ret_type;
+            variable_t *stack_var = init_variable();
+            stack_var->data_type = ret_type;
+            S_Push(output_stack, stack_var);
+            //S_Print(output_stack);
+            new_var = stack_var;
         }
     }
     if ( new_var->data_type == 0 )
@@ -311,7 +320,7 @@ void control_postfix (stack_t *postfix_stack, function_t *act_function, variable
         if ( ret_type != l_value->data_type )
             retype(new_var);
     }
-    S_Destroy(output_stack);
+    //S_Destroy(output_stack);
 }
 
 void infix_to_postfix (function_t *act_function, variable_t *l_value) {
@@ -372,29 +381,54 @@ void infix_to_postfix (function_t *act_function, variable_t *l_value) {
 
     if ( count_of_bracket || sum_count )
         print_err(2);
+    if ( l_value->data_type == BOOLEAN && !logic_on ) 
+        print_err(4);
+    if ( l_value->data_type != BOOLEAN && logic_on )
+        print_err(6);
     ungetToken();
 
+    if ( l_value->data_type == BOOLEAN || l_value->data_type == AS) {
+        //free(l_value);
+        l_value = NULL;
+    }     
+
     control_postfix(infix_stack, act_function, l_value);
-    S_Destroy(infix_stack);
+    //S_Destroy(infix_stack);
 }
 
-void control_token (int type_token) {
+void control_token (int type_token, int count_params) {
 
     token_t *act_token = getToken();
 
-    if ( act_token->type != type_token ) {
-        if ( type_token == LEFT_R_BRACKET && act_token->type == RIGHT_R_BRACKET )
+    /*if ( act_token->type != type_token ) {
+        if ( type_token == LEFT_R_BRACKET && act_token->type != LEFT_R_BRACKET )
             print_err(2);
         else if ( (type_token != RIGHT_R_BRACKET && act_token->type == RIGHT_R_BRACKET) || (type_token != COMMA && act_token->type == COMMA) ) {
+            //print_err(4);
             act_token = getToken();
-            if ( act_token->type == RIGHT_R_BRACKET )
-                print_err(2);
-            else if ( is_operand(act_token->type) )
-                print_err(4);
+            if ( act_token->type == EOL )
+                print_err(2); //4
+            //else if ( is_operand(act_token->type) )
+            //    print_err(4);
             ungetToken();
+            print_err(4);
         }
         print_err(2);
+    }*/
+
+    if ( type_token == LEFT_R_BRACKET && act_token->type != LEFT_R_BRACKET)
+        print_err(2);
+    if ( (type_token != RIGHT_R_BRACKET && act_token->type == RIGHT_R_BRACKET) ||
+         (type_token != COMMA && act_token->type == COMMA) ) {
+            token_t *token = getToken();
+            if ( (token->type == RIGHT_R_BRACKET || token->type == EOL) && !count_params )
+                print_err(2);
+            ungetToken(); 
+        print_err(4);
     }
+    if ( (type_token == RIGHT_R_BRACKET && is_operand(act_token->type)) ||
+         type_token != act_token->type )
+        print_err(2);
 }
 
 variable_t *store_constant (token_t *const_token) {
@@ -435,9 +469,8 @@ variable_t *find_var (token_t *find_token, function_t *act_function) {
 
     if ( find_token->type == ID ) {
         htab_item_t *is_found = htab_find(act_function->local_symtable, find_token->str->string);
-        if ( !is_found ) {
+        if ( !is_found )
             print_err(3);
-        }
         return is_found->data.var;
     }
     else if ( find_token->type >= INT_NUMBER && find_token->type <= TEXT )
@@ -460,8 +493,8 @@ variable_t *next_params (function_t *act_function, int expect_type) {
     token_t *act_token = getToken();
 
     if ( !is_operand(act_token->type) ) {
-        if ( act_token->type == RIGHT_R_BRACKET )
-            print_err(4);
+        //if ( act_token->type == RIGHT_R_BRACKET )
+        //    print_err(4);
         print_err(2);
     }
     variable_t *act_param = find_var(act_token, act_function);
@@ -474,23 +507,31 @@ void builtin_function (token_t *function, function_t *act_function, variable_t *
 
     int function_name = function->type;
 
-    control_token(LEFT_R_BRACKET);
+    control_token(LEFT_R_BRACKET, 0);
+
+    token_t *act_token = getToken();
+    if (act_token->type == RIGHT_R_BRACKET)
+        print_err(4);
+    else 
+        ungetToken();
 
     if ( function_name == LENGTH ) {
         variable_t *param = next_params(act_function, STRING);
-        control_token(RIGHT_R_BRACKET);
-        types_control(INTEGER, l_value->data_type);
+        control_token(RIGHT_R_BRACKET, 0);
+        if (l_value)
+            types_control(INTEGER, l_value->data_type);
         list_insert("PUSHS ", param, NULL, NULL);
         length_of_str(l_value);
     }
     else if ( function_name == SUBSTR ) {
         variable_t *param_1 = next_params(act_function, STRING);
-        control_token(COMMA);
+        control_token(COMMA, 2);
         variable_t *param_2 = next_params(act_function, INTEGER);
-        control_token(COMMA);
+        control_token(COMMA, 1);
         variable_t *param_3 = next_params(act_function, INTEGER);
-        control_token(RIGHT_R_BRACKET);
-        types_control(STRING, l_value->data_type);
+        control_token(RIGHT_R_BRACKET, 0);
+        if (l_value)
+            types_control(STRING, l_value->data_type);
         list_insert("PUSHS ", param_1, NULL, NULL);
         list_insert("PUSHS ", param_2, NULL, NULL);
         if(param_2->data_type == DOUBLE)
@@ -502,10 +543,11 @@ void builtin_function (token_t *function, function_t *act_function, variable_t *
     }
     else if ( function_name == ASC ) {
         variable_t *param_1  = next_params(act_function, STRING);
-        control_token(COMMA);
+        control_token(COMMA, 1);
         variable_t *param_2 = next_params(act_function, INTEGER);
-        control_token(RIGHT_R_BRACKET);
-        types_control(INTEGER, l_value->data_type);
+        control_token(RIGHT_R_BRACKET, 0);
+        if (l_value)
+            types_control(INTEGER, l_value->data_type);
         list_insert("PUSHS ", param_1, NULL, NULL);
         list_insert("PUSHS ", param_2, NULL, NULL);
         if(param_2->data_type == DOUBLE)
@@ -515,8 +557,9 @@ void builtin_function (token_t *function, function_t *act_function, variable_t *
     }
     else {
         variable_t *param = next_params(act_function, INTEGER);
-        control_token(RIGHT_R_BRACKET);
-        types_control(STRING, l_value->data_type);
+        control_token(RIGHT_R_BRACKET,0);
+        if (l_value)
+            types_control(STRING, l_value->data_type);
         list_insert("PUSHS ", param, NULL, NULL);
         if(param->data_type == DOUBLE)
             list_insert("FLOAT2R2EINTS ", NULL, NULL, NULL);
@@ -538,23 +581,33 @@ int users_function (token_t *act_token, function_t *act_function, variable_t *l_
 
     htab_item_t *search_function = htab_find(global_symtable, act_token->str->string);
     function_t *users_function;
-    variable_t *param;
+    //variable_t *param; cppcheck
 
     users_function = search_function->data.fun;
 
-    control_token(LEFT_R_BRACKET);
+    control_token(LEFT_R_BRACKET, 0);
     int count_of_params = users_function->params->length;
+
+    if ( count_of_params ) {
+        act_token = getToken();
+        if (act_token->type == RIGHT_R_BRACKET)
+            print_err(4);
+        else 
+            ungetToken();
+    }
+
     for( int i = 0; i < count_of_params; i++ ) {
         int type_param = decode_type(users_function->params->string[i]);
-        param = next_params(act_function, type_param);
+        variable_t * param = next_params(act_function, type_param);
         if ( i != count_of_params-1 )
-            control_token(COMMA);
+            control_token(COMMA, count_of_params-i);
         list_insert("PUSHS ", param, NULL, NULL);
         if ( param->data_type != type_param )
             retype(param);
     }
-    control_token(RIGHT_R_BRACKET);
-    types_control(search_function->data.fun->return_type, l_value->data_type);
+    control_token(RIGHT_R_BRACKET, 0);
+    if ( l_value )
+        types_control(search_function->data.fun->return_type, l_value->data_type);
 
     variable_t * tmp = create_var(search_function->key, true);
     list_insert("CALL ", tmp, NULL, NULL);
@@ -570,7 +623,7 @@ void expression (function_t *act_function, variable_t *l_value) {
         builtin_function(act_token, act_function, l_value);
     else if ( is_users_function(act_token, act_function) ) {
         int fun_type = users_function(act_token, act_function, l_value);
-        if(fun_type != l_value->data_type ) {
+        if(l_value && fun_type != l_value->data_type ) {
             if(fun_type == INTEGER)
                 list_insert("INT2FLOATS ",NULL, NULL, NULL);
             else if(fun_type == DOUBLE)
