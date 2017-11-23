@@ -135,7 +135,7 @@ variable_t *find_variable(htab_t *symtable, const char *key){
     htab_item_t *item = htab_find(symtable,key);
     if(item == NULL)
         return NULL;
-    if(item != NULL && item->is_function)
+    if(item->is_function) 
         return NULL;
     return item->data.var;
 }
