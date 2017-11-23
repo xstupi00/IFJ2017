@@ -30,7 +30,7 @@ void S_Destroy (stack_t *s) {
 
 int S_Push (stack_t *s, void* d) {
 
-    elem_t *new_element = NULL;
+    elem_t *new_element; //= NULL;
     if ( (new_element = (elem_t *) malloc(sizeof(struct elem_t))) == NULL ) 
         print_err(99);
 
@@ -43,10 +43,10 @@ int S_Push (stack_t *s, void* d) {
 
 void S_Pop (stack_t *s) {
     
-    elem_t *tmp_element;
+    //elem_t *tmp_element; cppcheck
 
     if ( s->top_ptr != NULL ) {
-        tmp_element = s->top_ptr;
+        elem_t * tmp_element = s->top_ptr;
         s->top_ptr = s->top_ptr->next_ptr;
         //free(tmp_element->data);
         free(tmp_element);
