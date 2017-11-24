@@ -1,6 +1,8 @@
 #ifndef GENERATE_H
 #define GENERATE_H
+
 #include "semantic_control.h"
+
 extern struct list_t * list;
 
 #define S "string"

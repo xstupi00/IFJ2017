@@ -2,7 +2,7 @@
 #define SYMTABLE_H
 
 #include <stdbool.h>
-#include "semantic_control.h"
+//#include "semantic_control.h"
 
 #define SIZE_HTABLE 97
 
@@ -35,8 +35,6 @@ void htab_remove(htab_t *table, const char *key);
 void htab_clear(htab_t *table);
 
 void htab_free(htab_t *table);
-
-//debug
 
 void htab_foreach(htab_t *table,void(*func)(char*,bool,void*));
 

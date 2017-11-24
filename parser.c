@@ -17,7 +17,6 @@
 #include "scanner.h"
 #include "error.h"
 #include "expr.h"
-#include "symtable.h"
 #include "semantic_control.h"
 #include "strlib.h"
 #include "generate.h"
@@ -48,7 +47,7 @@ bool DATA_TYPE();
 
 void debug_p(char *c){
 	(void)c;
-#ifdef DEBUG_PARSE
+#ifdef DEBUG
 	fprintf(stdout, "parser: %s\n", c);
 #endif
 }
@@ -345,8 +344,10 @@ bool STATEMENT(function_t *f){
 				case DOUBLE: type = create_var(F, true); break;
 				case STRING: type = create_var(S, true); break;
 			}
-			variable_t * user_input = create_var(current_variable_name->string, false);
-
+			variable_t *user_input = create_var(current_variable_name->string, false);
+			variable_t *input_symbol = create_var("string@?\\032", true);
+			
+			list_insert("WRITE ", input_symbol, NULL, NULL );
 			list_insert("READ ", user_input, type, NULL);
 			//free_var(type);
 			//free_var(print);
@@ -564,10 +565,7 @@ bool PARAM_LIST(function_t *f){
 	if(token->type == ID){
 		stack_t * param_stack;
 		if(f->defined){
-			if ( (param_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
-			   	print_err(99);
-			S_Init(param_stack);
-			
+			param_stack = S_Init();
 		}
 		if(PARAM(f, param_stack) && NEXT_PARAM(f, param_stack)){
 			if(f->defined){

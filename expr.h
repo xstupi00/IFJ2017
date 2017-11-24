@@ -1,7 +1,6 @@
 #ifndef EXPR_H
 #define EXPR_H
 
-#include "symtable.h"
 #include "semantic_control.h"
 
 #define SIZE_TABLE 16

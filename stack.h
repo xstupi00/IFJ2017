@@ -10,7 +10,7 @@ typedef struct stack_t {
     elem_t *top_ptr;
 } stack_t;
 
-void S_Init (stack_t *s);
+stack_t* S_Init ();
 int S_Push (stack_t *s, void* data);
 void S_Pop (stack_t *s);
 void* S_Top (stack_t *s);

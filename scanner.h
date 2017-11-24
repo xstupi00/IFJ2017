@@ -1,16 +1,7 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <ctype.h>
-#include "scanner.h"
-#include "error.h"
 #include "strlib.h"
-#include "stack.h"
-
 
 typedef enum{
 

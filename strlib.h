@@ -3,8 +3,6 @@
 
 #define STR_INIT 128
 
-#include <stdlib.h>
-#include <stdbool.h>
 
 typedef struct string_t{
 	char * string;

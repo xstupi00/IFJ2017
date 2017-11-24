@@ -14,9 +14,12 @@
 #include "stack.h"
 #include "error.h"
 
-void S_Init (stack_t *s) {
-
+stack_t* S_Init () {
+    stack_t* s;
+    if( !(s = (stack_t*)malloc(sizeof(stack_t))) )
+        print_err(99);
     s->top_ptr = NULL;
+    return s;
 }
 
 void S_Destroy (stack_t *s) {

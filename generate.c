@@ -14,12 +14,12 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <math.h>
 #include "generate.h"
 #include "error.h"
-#include "symtable.h"
 #include "semantic_control.h"
 #include "scanner.h"
-#include <math.h>
+
 #define LENGTH 120
 
 list_t * list;

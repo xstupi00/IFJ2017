@@ -15,6 +15,7 @@
 #include "symtable.h"
 #include "error.h"
 #include "scanner.h"
+#include "semantic_control.h"
 
 unsigned hash_function(const char *key){
     unsigned int h = 0;
@@ -145,6 +146,8 @@ void htab_foreach(htab_t *table, void(*func)(char*,bool,void*)){
 }
 
 void htab_print(char *key, bool f, void *data){
+    (void)key;(void)f;(void)data;
+#ifdef DEBUG
     printf("id:\t\t%s\n",key);
     if(!f){
         printf("VARIABLE\n");
@@ -171,4 +174,5 @@ void htab_print(char *key, bool f, void *data){
             htab_foreach(((function_t*)data)->local_symtable,htab_print);
         }
     }
+#endif
 }

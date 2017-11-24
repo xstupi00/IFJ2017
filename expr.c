@@ -9,9 +9,9 @@
 //              Vladimír Marcin     (xmarci10)                                   //
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "scanner.h"
 #include "error.h"
 #include "expr.h"
@@ -19,6 +19,7 @@
 #include "symtable.h"
 #include "semantic_control.h"
 #include "generate.h"
+#include "strlib.h"
 
 bool is_arithmetic_opr (int token_type);
 bool is_logic_opr (int token_type);
@@ -225,10 +226,7 @@ int check_return_type(int operator, variable_t *operand_1, variable_t *operand_2
 
 void control_postfix (stack_t *postfix_stack, function_t *act_function, variable_t *l_value) {
 
-    stack_t *output_stack;
-    if ( !(output_stack = (stack_t *) malloc(sizeof(stack_t))) )
-        print_err(99);
-    S_Init(output_stack);
+    stack_t *output_stack = S_Init();
 
     //token_t *act_token; cppcheck
     //variable_t *operand_1;
@@ -331,15 +329,9 @@ void infix_to_postfix (function_t *act_function, variable_t *l_value) {
     int sum_count = 1;
     bool logic_on = false;
  
-    stack_t *output_stack;
-    if ( (output_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
-        print_err(99);
-    S_Init(output_stack);
+    stack_t *output_stack = S_Init();
 
-    stack_t *infix_stack;
-    if ( (infix_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
-        print_err(99);
-    S_Init(infix_stack);
+    stack_t *infix_stack = S_Init();
 
     act_token = getToken();
     int prev_token = FIRST_TOKEN;

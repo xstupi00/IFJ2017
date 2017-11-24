@@ -9,13 +9,15 @@
 //              Vladimír Marcin     (xmarci10)                                   //
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "semantic_control.h"
+#include "stack.h"
 #include "symtable.h"
 #include "error.h"
 #include "scanner.h"
 #include "generate.h"
+
 
 htab_t *global_symtable;
 htab_t *const_symtable;
@@ -25,9 +27,7 @@ void init_globals(){
     const_symtable = htab_init(SIZE_HTABLE);
     current_function_name = strInit(STR_INIT);
     current_variable_name = strInit(STR_INIT);
-    if ( (label_stack = (stack_t *) malloc(sizeof(stack_t))) == NULL )
-        print_err(99);
-    S_Init(label_stack);
+    label_stack = S_Init();
     initToken();
     list_init();
 }

@@ -5,15 +5,15 @@
 #include "symtable.h"
 #include "strlib.h"
 #include "scanner.h"
+#include "stack.h"
 
 #define PARAM_COUNT 10
 
-extern struct htab_t *global_symtable;
-extern struct htab_t *const_symtable;
-extern struct string_t *current_function_name;
-extern struct string_t *current_variable_name;
-extern struct stack_t *label_stack;
-
+extern htab_t *global_symtable;
+extern htab_t *const_symtable;
+extern string_t *current_function_name;
+extern string_t *current_variable_name;
+extern stack_t *label_stack;
 
 typedef struct variable_t{
     int data_type;
