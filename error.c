@@ -21,7 +21,7 @@ void print_err(int id)
 		case 3: fprintf(stderr,"Semantic error in the program\n"); break;
 		case 4: fprintf(stderr,"Semantic type compatibility error\n"); break;
 		case 6: fprintf(stderr,"Others semantic error\n"); break;
-		case 99: fprintf(stderr,"Interna error of compiler\n"); break;
+		case 99: fprintf(stderr,"Internal error of compiler\n"); break;
 	}
 	exit(id);
 }
