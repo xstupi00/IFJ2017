@@ -329,6 +329,8 @@ token_t *getToken(){
                                 //state = S_START;
                                 break;
                             }
+                            else if (c == '\'')
+                                ungetc(c, stdin);
                         }
                     }
                     //koemntár do konca súboru
