@@ -16,7 +16,7 @@ REMOVE= rm -f
 SRC= $(wildcard *.c) 
 OBJ= $(SRC:%.c=%.o)
 
-.PHONY: all debug clean
+.PHONY: all debug test clean 
 
 all: $(EXECUTABLE)
 
@@ -46,6 +46,10 @@ strlib.o: strlib.c strlib.h error.h
 	$(CC) $(CCFLAGS) -c $< -o $@
 symtable.o: symtable.c symtable.h error.h scanner.h semantic_control.h
 	$(CC) $(CCFLAGS) -c $< -o $@
+
+test: $(EXECUTABLE)
+test:
+	python tests/tests.py
 
 clean:
 	$(REMOVE) $(OBJ) $(EXECUTABLE)
