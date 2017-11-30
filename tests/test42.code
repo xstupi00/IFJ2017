@@ -1,0 +1,24 @@
+' delete string with built-in function
+function delete_string(s as string) as string
+	dim result as string
+	dim len as integer
+	len = length(s)
+	result = substr(s,1,0)
+	return result
+end function
+
+scope
+	dim text as string
+	input text
+	text = delete_string(text)
+	dim num as integer = 0	
+	if text = !"" then
+		print !"String was succesfully deleting\n";
+	else 
+		print !"You are vely lazy programmer!";
+		do while num < 10
+			print !"You must learning a long time from a day!";
+			num = num + 1
+		loop
+	end if
+end scope

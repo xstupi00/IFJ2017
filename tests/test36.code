@@ -1,0 +1,18 @@
+'count letters in word
+scope
+	dim text as string
+	input text
+	dim cmp as string
+	dim count as integer = 1
+	dim len as integer
+	len = length(text)
+	do while count < len
+		cmp = substr(text, count, 1)
+		if cmp = !"a" then
+			print !"This letter was accepted\n";
+		else
+			print !"This letter wasnt accepted\n";
+		end if
+		count = count + 1
+	loop
+end scope

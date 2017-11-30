@@ -1,0 +1,6 @@
+'different return type of function
+declare function foo(n as integer, m as integer) as string
+
+function foo(n as integer, m as integer) as integer
+	print !"Hello world"
+end function

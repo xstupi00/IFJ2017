@@ -1,0 +1,6 @@
+' integer divide with two double
+scope
+	dim a as double = 10.25
+	dim b as double = 5.1
+	print (a\b + a\b) * 2 \ (2+5);
+end scope

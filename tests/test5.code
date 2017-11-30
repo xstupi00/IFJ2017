@@ -1,0 +1,5 @@
+' using boolean in expression without extension
+scope
+	dim a as integer
+	a = 2<2+2
+end scope

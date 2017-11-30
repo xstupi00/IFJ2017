@@ -1,0 +1,8 @@
+'test calling built-in function
+scope
+	dim a as integer
+	input a
+	dim s as string
+	s = chr(a)
+	print s;
+end scope

@@ -1,0 +1,5 @@
+' redeclaration built-in function
+declare function length(s as string) as integer
+
+scope
+end scope

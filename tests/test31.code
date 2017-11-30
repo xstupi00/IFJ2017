@@ -1,0 +1,12 @@
+' Add numbers from 1 to n
+scope
+    dim number as integer
+    input number
+    dim one as integer = 1
+    dim sum as integer
+    do while one <= number
+        sum = sum + one
+        one = one + 1
+    loop
+    print !"Sum of numbers from 1 to "; number ; !" is:"; sum;
+end scope

@@ -1,0 +1,8 @@
+'final test
+scope
+	dim final as string
+	input final
+	if final = !"End of testing" then
+		print !"I am happy man";
+	end if
+end scope

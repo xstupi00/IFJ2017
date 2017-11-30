@@ -1,0 +1,7 @@
+' double in integer div
+scope
+	dim a as double = 12.5
+	dim b as double = 1.5
+	dim result as integer = a \ b
+	print result;
+end scope

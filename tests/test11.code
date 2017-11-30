@@ -1,0 +1,6 @@
+'test calling built-in function
+scope
+	dim text as string = !"Hello world"
+	text = substr(text, 1, 5)
+	print text;
+end scope

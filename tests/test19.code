@@ -1,0 +1,6 @@
+' different type in declare and definition function 
+declare function foo(n as integer, s as string) as integer
+
+function foo(n as string, s as integer) as integer
+	print !"Hello world"
+end function

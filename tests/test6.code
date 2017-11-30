@@ -1,0 +1,4 @@
+' simple test print
+scope
+	print 42;
+end scope

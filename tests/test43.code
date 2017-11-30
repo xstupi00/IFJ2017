@@ -1,0 +1,27 @@
+' calculate year of birth
+function date_of_birth(age as integer, year as integer) as integer	
+	if age > 100 then
+		print !"I dont trust, that you can doing with PC!";
+	end if
+	if year > 2018 then
+		print !"It's a trap!!!";
+	end if
+	if age < 5 then
+		print !"Yoy are very young for this work!";
+	end if
+	if year < 1950 then
+		print !"You dont have PC at home in this year, will be created in the next year!";
+	end if
+	dim your_age as integer
+	your_age = year - age
+	return your_age
+end function
+
+scope
+	dim age as integer
+	dim year as integer
+	year = 2017
+	input age
+	age = date_of_birth(age, year)
+	print age;
+end scope

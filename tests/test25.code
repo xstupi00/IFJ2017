@@ -1,0 +1,16 @@
+'test concat string
+function concat_multiply(s as string) as string
+	dim count as integer = 10
+	do while count > 0
+		s = s + s
+		count = count - 1
+	loop
+	return s
+end function
+
+scope 
+	dim result as string
+	input result
+	result = concat_multiply(result)
+	print result;
+end scope

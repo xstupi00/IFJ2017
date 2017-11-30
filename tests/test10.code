@@ -1,0 +1,7 @@
+' test call built-in function
+scope
+	dim len as integer
+	dim text as string = !"Hello world"
+	len = length(text)
+	print len;
+end scope

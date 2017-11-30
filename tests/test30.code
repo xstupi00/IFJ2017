@@ -1,0 +1,25 @@
+' Print all prime numbers
+function prime_number(a as integer) as integer
+    dim divisor as integer = a - 1
+    do while divisor > 1
+        if ((a \ divisor) * divisor) = a then
+            return 0
+        end if
+        divisor = divisor - divisor
+    loop   
+    return 1
+end function
+
+scope
+	dim number as integer
+	input number
+	dim actual as integer = 1
+	dim is_prime as integer
+	do while actual <= number
+    	is_prime = prime_number(actual)
+    	if is_prime = 1 then
+        	print actual;
+    	end if
+    	actual = actual + 1	
+	loop
+end scope

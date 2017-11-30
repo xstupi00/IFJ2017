@@ -1,0 +1,10 @@
+' not allowed conversion
+function foo() as integer
+	return 2+2
+end function
+
+scope
+	dim s as string
+	s = foo()
+	print s;
+end scope

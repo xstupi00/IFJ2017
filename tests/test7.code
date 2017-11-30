@@ -1,0 +1,6 @@
+'simple test with input and print
+scope
+	dim a as integer
+	input a
+	print a;
+end scope

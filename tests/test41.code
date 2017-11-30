@@ -1,0 +1,8 @@
+'implicit inicialization
+scope
+	dim i as integer 
+	dim d as double
+	dim s as string
+	print i; d; s;
+end scope
+

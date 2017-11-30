@@ -1,0 +1,16 @@
+' is OK or no?!
+declare function foo(n as integer) as double
+declare function dog(foo as integer) as integer
+
+function foo(n as integer) as double
+	return 0
+end function
+
+function dog(n as integer) as integer
+	print !"OK";
+end function
+
+scope
+	dim a as integer
+	a = dog(a)
+end scope

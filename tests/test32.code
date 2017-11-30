@@ -1,0 +1,10 @@
+' multiple string concatenations
+scope
+	dim result as string
+	dim counter as integer = 42
+	do while counter > 0
+        	result = !"" + result + !" IFJ17" + !""
+        	counter = counter - 1
+	loop
+	print result;
+end scope

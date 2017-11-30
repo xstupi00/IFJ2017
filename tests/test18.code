@@ -1,0 +1,4 @@
+' test expression
+scope 
+	print 3+69*9-9/2.5+96;
+end scope

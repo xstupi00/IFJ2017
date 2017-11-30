@@ -1,0 +1,6 @@
+'test built-in function
+scope
+	dim index as integer
+	index = asc(!"Hello world", 5)
+	print index;
+end scope

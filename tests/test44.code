@@ -1,0 +1,29 @@
+' control day of month
+function is_day_of_month(day as integer, month as integer) as integer
+	if day = 28 then
+		if month = 2 then
+			print !"You are lucky man";
+			return 0
+		else
+			print !"This is don't dat of actual month";
+			return 0
+		end if
+	end if
+	if day < 1 then
+		print !"No accepted";
+		return 0
+	end if
+	if day > 31 then
+		print !"No accepted";
+		return 0
+	else 
+		print !"Maybe is okay";
+		return 0
+	end if
+end function
+
+scope
+	dim day as integer = 28
+	dim month as integer = 3
+	day = is_day_of_month(28, 3)
+end scope

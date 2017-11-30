@@ -1,0 +1,9 @@
+' test if-statement
+scope
+	dim a as integer = 20
+	if a < a-3 then
+		print !"Som v IF";
+	else
+		print !"Som v ELSE";
+	end if 
+end scope

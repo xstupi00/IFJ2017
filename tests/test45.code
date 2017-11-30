@@ -1,0 +1,5 @@
+scope
+	print !"Hello world"
+end scope
+
+hocico

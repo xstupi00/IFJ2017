@@ -1,0 +1,5 @@
+' calling undefinition functio - semantic error
+scope
+	dim a as integer
+	a = foo()
+end scope

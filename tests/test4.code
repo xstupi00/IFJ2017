@@ -1,0 +1,5 @@
+' miss of type -> semantic type error
+scope
+	dim a as string
+	a = 3
+end scope

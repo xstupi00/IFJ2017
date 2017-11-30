@@ -1,0 +1,13 @@
+'double declaration of function
+declare function foo(n as integer, d as double) as integer
+declare function foo(n as integer, d as double) as integer
+
+function foo(number as integer, num as double) as integer
+	return 42
+end function
+
+scope
+	dim result as integer
+	result = foo(2,2.5)
+	print result;
+end scope

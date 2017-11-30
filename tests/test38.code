@@ -1,0 +1,6 @@
+'redeclaration built-in function as variabe
+scope
+	dim length as integer
+	length = 2
+	print length;
+end scope

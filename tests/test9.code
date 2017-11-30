@@ -1,0 +1,13 @@
+'test calling function
+function adder (first as integer, second as integer, third as integer) as integer
+	return first+second+third
+end function
+
+scope
+	dim result as integer
+	dim n1 as integer = 10
+	dim n2 as integer = 20
+	dim n3 as integer = 30
+	result = adder(n1, n2, n3)
+	print result;
+end scope

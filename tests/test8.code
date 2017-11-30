@@ -1,0 +1,4 @@
+' test expression in print
+scope
+	print 42+42-42;
+end scope

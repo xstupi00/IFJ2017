@@ -1,0 +1,23 @@
+' prime number
+function prime_number(a as integer) as integer
+	dim divisor as integer = a - 1
+    do while divisor > 1
+    	if ((a \ divisor) * divisor) = a then
+    		return 0
+   		end if
+   	 	divisor = divisor - 1
+    loop
+    return 1
+end function
+
+scope
+    dim number as integer
+    input number
+    dim control as integer 
+    control = prime_number(number)
+    if control = 1 then
+        print !"Number "; number ; !" is prime_number";
+    else
+        print !"Number "; number ; !" is not prime_number";
+    end if
+end scope

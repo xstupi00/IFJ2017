@@ -1,0 +1,6 @@
+' declare without definition
+declare function foo() as integer
+
+scope
+	print "!Hello error"
+end scope

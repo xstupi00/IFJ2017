@@ -1,0 +1,8 @@
+' odd number, big while with condition
+scope
+	dim counter as integer = 10000
+	do while counter > 0
+		print !"Still running\n";
+		counter = counter - 1
+	loop
+end scope

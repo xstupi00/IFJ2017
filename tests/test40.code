@@ -1,0 +1,8 @@
+' interesting comment in code
+scope
+	dim a as integer = 3
+	dim b as integer = 3
+	dim result as integer
+	result = a * /' In the end will be next apostroph and we will see, what doing our lexer ''/ b
+	print result;
+end scope

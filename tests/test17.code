@@ -1,0 +1,8 @@
+'test simple while-statement
+scope
+	dim a as integer = 10
+	do while a > 0
+		print a;
+		a = a - 1
+	loop
+end scope

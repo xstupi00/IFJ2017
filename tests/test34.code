@@ -1,0 +1,12 @@
+' one hour back
+function time_before_hour(hour as integer, minute as integer, second as integer) as string
+	print !"Time before one hour was: "; hour-1; !":"; minute; !":"; second;
+end function
+
+scope
+	dim hour as integer = 14
+	dim minute as integer = 22
+	dim second as integer = 05
+	dim info as string
+	info = time_before_hour(hour, minute, second)
+end scope

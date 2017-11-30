@@ -1,0 +1,6 @@
+' test concat two string and space
+scope
+	dim result as string = !""
+	result = !"Hello" + !" " + !"world"
+	print result;
+end scope

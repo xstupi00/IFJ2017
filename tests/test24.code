@@ -1,0 +1,6 @@
+' variable definitions
+scope
+	dim a as double = 20e-4
+	dim b as double = 50.12e-5
+	print a * b;
+end scope
