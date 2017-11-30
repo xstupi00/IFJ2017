@@ -16,7 +16,6 @@ void S_Pop (stack_t *s);
 void* S_Top (stack_t *s);
 int S_Empty (stack_t *s);
 void S_Print (stack_t *s);
-void S_Destroy (stack_t *s);
 void S_Copy (stack_t *dst_stack, stack_t *src_stack);
 
 #endif // STACK_H

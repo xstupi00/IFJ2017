@@ -17,12 +17,17 @@
 #include "error.h"
 #include "scanner.h"
 #include "generate.h"
+#include "clear.h"
 
+#define malloc(size) _malloc(size)
+#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
+#define calloc(num, size) _calloc(num, size)
 
 htab_t *global_symtable;
 htab_t *const_symtable;
 
 void init_globals(){
+    init_ptr_stack();
     global_symtable = htab_init(SIZE_HTABLE);
     const_symtable = htab_init(SIZE_HTABLE);
     current_function_name = strInit(STR_INIT);
@@ -30,13 +35,6 @@ void init_globals(){
     label_stack = S_Init();
     initToken();
     list_init();
-}
-
-void free_function (function_t * f){
-    htab_free(f->local_symtable);
-    free_string(f->params);
-    if(f->return_var)
-        free(f->return_var);
 }
 
 variable_t *init_variable(){
@@ -72,6 +70,8 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
         new_fun->is_function = true;
     }
     else{
+        if(!fun->defined)
+            print_err(3);
         function_t *found_function = f->data.fun;
         unsigned long i;
         if(found_function->defined)
@@ -84,11 +84,6 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
             print_err(3);
         if(found_function->return_type != fun->return_type)
             print_err(3);
-        //check it
-        //fun->return_var = found_function->return_var;
-        //i am not sure if free is valid here
-        //free(f->data.fun);
-        //free_function(f->data.fun);
         f->data.fun = fun;
     }
 }

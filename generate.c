@@ -19,8 +19,12 @@
 #include "error.h"
 #include "semantic_control.h"
 #include "scanner.h"
+#include "clear.h"
 
-#define LENGTH 120
+#define malloc(size) _malloc(size)
+#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
+#define calloc(num, size) _calloc(num, size)
+
 
 list_t * list;
 
@@ -34,13 +38,6 @@ char * gen_label_name(int i, char c){
 	sprintf(name+2, "%d", i);
 	return name;
 }
-
-void free_var(variable_t * v){
-	if(v->data.str)
-		free(v->data.str);
-	if(v)
-		free(v);
-} 
 
 void list_init()
 {
@@ -81,9 +78,6 @@ void concat()
 	list_insert("PUSHS ",tmp2, NULL, NULL);
 	list_insert("POPFRAME ",NULL, NULL, NULL);
 
-
-	free_var(tmp1);
-	free_var(tmp2);
 }
 instruction_t * instr_init (){
 	instruction_t * new =  (instruction_t *)malloc(sizeof(instruction_t));
@@ -173,8 +167,7 @@ void length_of_str(variable_t * l_value){
 	if(l_value && l_value->data_type == DOUBLE)
 		list_insert("INT2FLOATS ",NULL, NULL, NULL);
 	list_insert("POPFRAME ",NULL, NULL, NULL);
-	free_var(tmp);
-	free_var(str);
+
 }
 
 
@@ -204,16 +197,16 @@ void substr(){
 	static unsigned substr_counter;
 	substr_counter++;
 	char *name = gen_label_name(substr_counter, 'S');
-	variable_t * zero = create_var(name, true); free(name);
+	variable_t * zero = create_var(name, true); 
 	substr_counter++;
 	name = gen_label_name(substr_counter, 'S');
-	variable_t * end = create_var(name, true); free(name);
+	variable_t * end = create_var(name, true); 
 	substr_counter++;
 	name = gen_label_name(substr_counter, 'S');
-	variable_t * change = create_var(name, true); free(name);
+	variable_t * change = create_var(name, true); 
 	substr_counter++;
 	name = gen_label_name(substr_counter, 'S');
-	variable_t * normal = create_var(name, true); free(name);
+	variable_t * normal = create_var(name, true); 
 
 	list_insert("DEFVAR ",ret, NULL, NULL);
 	list_insert("DEFVAR ",tmp, NULL, NULL);
@@ -280,88 +273,63 @@ void substr(){
 	list_insert("LABEL ", end, NULL, NULL);
 	list_insert("PUSHS ",ret, NULL, NULL);
 	list_insert("POPFRAME ",NULL, NULL, NULL);
-	// free	
-	free_var(ret);
-	free_var(tmp);
-	free_var(jedna);
-	free_var(nula);
-	free_var(s);
-	free_var(i);
-	free_var(n);
-	free_var(zero);
-	free_var(change);
-	free_var(normal);
-	free_var(end);
-	free_var(b);
-	free_var(btrue);
-	free_var(var);
-
 }
 
 void asc (variable_t * l_value){
-list_insert("CREATEFRAME ",NULL, NULL, NULL);
-list_insert("PUSHFRAME ",NULL, NULL, NULL);
-variable_t * tmp = create_var("RETURN ", false);
-variable_t * s = create_var("STRING ", false);
-variable_t * b = create_var("BOOLEAN ", false);
-variable_t * i = create_var("NEXT ", false);
-variable_t * jedna = create_var("INT@1", true);
-variable_t * nula = create_var("INT@0", true);
-variable_t * btrue = create_var("bool@true", true);
+	list_insert("CREATEFRAME ",NULL, NULL, NULL);
+	list_insert("PUSHFRAME ",NULL, NULL, NULL);
+	variable_t * tmp = create_var("RETURN ", false);
+	variable_t * s = create_var("STRING ", false);
+	variable_t * b = create_var("BOOLEAN ", false);
+	variable_t * i = create_var("NEXT ", false);
+	variable_t * jedna = create_var("INT@1", true);
+	variable_t * nula = create_var("INT@0", true);
+	variable_t * btrue = create_var("bool@true", true);
 
-static unsigned asc_counter;
-asc_counter++;
-char *name = gen_label_name(asc_counter, 'A');
-variable_t * zero = create_var(name, true); free(name);
-asc_counter++;
-name = gen_label_name(asc_counter, 'A');
-variable_t * end = create_var(name, true); free(name);
-list_insert("DEFVAR ",tmp, NULL, NULL);
-list_insert("DEFVAR ",s, NULL, NULL);
-list_insert("DEFVAR ",b, NULL, NULL);
-list_insert("DEFVAR ",i, NULL, NULL);
+	static unsigned asc_counter;
+	asc_counter++;
+	char *name = gen_label_name(asc_counter, 'A');
+	variable_t * zero = create_var(name, true);
+	asc_counter++;
+	name = gen_label_name(asc_counter, 'A');
+	variable_t * end = create_var(name, true);
+	list_insert("DEFVAR ",tmp, NULL, NULL);
+	list_insert("DEFVAR ",s, NULL, NULL);
+	list_insert("DEFVAR ",b, NULL, NULL);
+	list_insert("DEFVAR ",i, NULL, NULL);
 
-list_insert("POPS ", i, NULL, NULL);
-list_insert("POPS ", s, NULL, NULL);
+	list_insert("POPS ", i, NULL, NULL);
+	list_insert("POPS ", s, NULL, NULL);
 
-list_insert("GT ", b, i, nula);
-list_insert("NOT ", b, b, NULL);
-list_insert("JUMPIFEQ ", zero, b, btrue);
+	list_insert("GT ", b, i, nula);
+	list_insert("NOT ", b, b, NULL);
+	list_insert("JUMPIFEQ ", zero, b, btrue);
 
-list_insert("SUB ", i, i, jedna);
-list_insert("STRLEN ", tmp, s, NULL);
-list_insert("LT ", b, i, tmp);
-list_insert("NOT ", b, b, NULL);
-list_insert("JUMPIFEQ ", zero, b, btrue);
-list_insert("STRI2INT ", tmp, s, i);
-list_insert("JUMP ", end, NULL, NULL);
-list_insert("LABEL ", zero, NULL, NULL);
-list_insert("MOVE ", tmp, nula, NULL );
-list_insert("LABEL ", end, NULL, NULL);
-list_insert("PUSHS ", tmp, NULL, NULL);
+	list_insert("SUB ", i, i, jedna);
+	list_insert("STRLEN ", tmp, s, NULL);
+	list_insert("LT ", b, i, tmp);
+	list_insert("NOT ", b, b, NULL);
+	list_insert("JUMPIFEQ ", zero, b, btrue);
+	list_insert("STRI2INT ", tmp, s, i);
+	list_insert("JUMP ", end, NULL, NULL);
+	list_insert("LABEL ", zero, NULL, NULL);
+	list_insert("MOVE ", tmp, nula, NULL );
+	list_insert("LABEL ", end, NULL, NULL);
+	list_insert("PUSHS ", tmp, NULL, NULL);
 
 
-if(l_value && l_value->data_type == DOUBLE)
-	list_insert("INT2FLOATS ",NULL, NULL, NULL);
-list_insert("POPFRAME ",NULL, NULL, NULL);
+	if(l_value && l_value->data_type == DOUBLE)
+		list_insert("INT2FLOATS ",NULL, NULL, NULL);
+	list_insert("POPFRAME ",NULL, NULL, NULL);
 
-free_var(tmp);
-free_var(s);
-free_var(b);
-free_var(i);
-free_var(jedna);
-free_var(nula);
-free_var(btrue);
-free_var(zero);
-free_var(end);
 }
 
 void chr(){
 
-list_insert("CREATEFRAME ",NULL, NULL, NULL);
-list_insert("PUSHFRAME ",NULL, NULL, NULL);
-list_insert("INT2CHARS", NULL, NULL, NULL);
-list_insert("POPFRAME ",NULL, NULL, NULL);
+	list_insert("CREATEFRAME ",NULL, NULL, NULL);
+	list_insert("PUSHFRAME ",NULL, NULL, NULL);
+	list_insert("INT2CHARS", NULL, NULL, NULL);
+	list_insert("POPFRAME ",NULL, NULL, NULL);
 
 }
 

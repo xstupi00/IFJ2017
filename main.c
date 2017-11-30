@@ -10,9 +10,12 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "parser.h"
 #include "generate.h"
 #include "semantic_control.h"
+#include "clear.h"
+
 
 int main(){
 
@@ -20,5 +23,7 @@ int main(){
     parse();
     print_list();
 
+    clear_all();
+    free(ptr_stack);
     return 0;
 }

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
+#include "clear.h"
 
 void print_err(int id)
 {
@@ -23,5 +24,7 @@ void print_err(int id)
 		case 6: fprintf(stderr,"Others semantic error\n"); break;
 		case 99: fprintf(stderr,"Internal error of compiler\n"); break;
 	}
+	clear_all();
+	free(ptr_stack);
 	exit(id);
 }

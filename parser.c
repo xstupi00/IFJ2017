@@ -32,17 +32,17 @@ bool PROG();
 bool DECLARE_FUNCTION();	
 bool DEFINE_FUNCTION();			
 bool MAIN_FUNCTION();		
-bool FUNCTION_ELEMENT();	
-bool ELEMENT_LIST();		
-bool STATEMENT();		
-bool VALUE();		
-bool ELSE_BRANCH();	
-bool STAT_LIST();		
-bool EXP_TO_PRINT();		
-bool PARAM_LIST();	
-bool NEXT_PARAM();	
-bool PARAM();	
-bool DATA_TYPE();		 
+bool FUNCTION_ELEMENT(function_t *);	
+bool ELEMENT_LIST(function_t *);		
+bool STATEMENT(function_t *);		
+bool VALUE(function_t *, variable_t *);		
+bool ELSE_BRANCH(function_t *);	
+bool STAT_LIST(function_t *);		
+bool EXP_TO_PRINT(function_t *);		
+bool PARAM_LIST(function_t *);	
+bool NEXT_PARAM(function_t *, stack_t *);	
+bool PARAM(function_t *, stack_t *);	
+bool DATA_TYPE(int *);		 
 
 
 void debug_p(char *c){
@@ -119,11 +119,6 @@ bool DECLARE_FUNCTION(){
 					}
 				}
 			}
-			else if(token->type >= LENGTH && token->type <= CHR){
-				//redefinition of builtin function
-				//free_function(current_function);
-				print_err(3);
-			}
 		}
 	}
 	//free_function(current_function);
@@ -179,11 +174,6 @@ bool DEFINE_FUNCTION(){
 					}
 				}
 			}
-		}
-		else if(token->type >= LENGTH && token->type <= CHR){
-			//redefinition of built-in function
-			//free_function(current_function);
-			print_err(3);
 		}
 	}
 	//free_function(current_function);	
@@ -253,12 +243,6 @@ bool FUNCTION_ELEMENT(function_t *f){
 				}
 			}
 		}
-		//name of var is equal to name of built-in function
-		else if(token->type >= LENGTH && token->type <= CHR){
-			//free_var(current_variable);
-			print_err(3);
-		}
-		//free_var(current_variable);
 	}
 	else if(token->type == EOL	 ||	token->type == ID     || token->type == PRINT || 
 			token->type == INPUT || token->type == RETURN || token->type == DO	  ||
@@ -630,11 +614,6 @@ bool PARAM(function_t *f, stack_t * param_stack ){
 			}
 		}
 	}
-	else if((token->type >= LENGTH && token->type <= CHR) && f->defined){
-		//free_var(current_variable);
-		print_err(3);
-	}
-	//free_var(current_variable);
 	return false;
 }
 

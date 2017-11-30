@@ -20,6 +20,11 @@
 #include "semantic_control.h"
 #include "generate.h"
 #include "strlib.h"
+#include "clear.h"
+
+#define malloc(size) _malloc(size)
+#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
+#define calloc(num, size) _calloc(num, size)
 
 bool is_arithmetic_opr (int token_type);
 bool is_logic_opr (int token_type);
@@ -362,7 +367,7 @@ void infix_to_postfix (function_t *act_function, variable_t *l_value) {
     }
 
     S_Copy(infix_stack, output_stack);
-    S_Destroy(output_stack);
+    //S_Destroy(output_stack);
 
     if ( count_of_bracket || sum_count )
         print_err(2);

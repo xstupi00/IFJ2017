@@ -17,6 +17,11 @@
 #include "scanner.h"
 #include "error.h"
 #include "strlib.h"
+#include "clear.h"
+
+#define malloc(size) _malloc(size)
+#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
+#define calloc(num, size) _calloc(num, size)
 
 token_t * token;
 bool unget;
@@ -29,11 +34,7 @@ void initToken(){
     token->str = strInit(STR_INIT); // alokacia pamate pre string
     
 }
-void freeToken(){
-    free_string(token->str);
-    if(token)
-        free(token);
-}
+
 void ungetToken(){
     unget=true;
 }

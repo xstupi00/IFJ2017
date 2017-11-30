@@ -16,6 +16,11 @@
 #include "error.h"
 #include "scanner.h"
 #include "semantic_control.h"
+#include "clear.h"
+
+#define malloc(size) _malloc(size)
+#define realloc(ptr, size) _realloc(ptr, size)
+#define calloc(num, size) _calloc(num, size)
 
 unsigned hash_function(const char *key){
     unsigned int h = 0;
@@ -65,7 +70,6 @@ htab_item_t* htab_insert(htab_t *table, const char *key){
     
     new_item->key = malloc((strlen(key)+1)*sizeof(char));
     if(new_item->key == NULL){
-        free(new_item);
         print_err(99);
     }
     strcpy(new_item->key, key);
@@ -77,58 +81,6 @@ htab_item_t* htab_insert(htab_t *table, const char *key){
     table->n+=1;
 
     return new_item;    
-}
-
-void htab_remove(htab_t *table, const char *key){
-    if(table == NULL || key == NULL)
-        return; 
-    
-    unsigned index = hash_function(key) % table->arr_size;
-    htab_item_t *tmp = NULL;
-    htab_item_t *prev = NULL;
-    htab_item_t *next = NULL;
-
-    for(tmp = table->ptr[index]; tmp != NULL;){
-        next = tmp->next;
-        if(!(strcmp(key,tmp->key))){
-            if(tmp == table->ptr[index])
-                table->ptr[index] = tmp->next;
-            else
-                prev->next = tmp->next;
-            free(tmp->key);
-            free(tmp);
-            table->n-=1;
-            return;
-        }        
-        prev = tmp;
-        tmp = next;
-    }
-}
-
-void htab_clear(htab_t *table){
-    if(table == NULL)
-        return;
-    htab_item_t *tmp = NULL;
-
-    for(unsigned i = 0; i < table->arr_size; i++){
-        if(table->ptr[i] == NULL)
-            continue;
-        while(table->ptr[i] != NULL){
-            tmp = table->ptr[i];
-            table->ptr[i] = table->ptr[i]->next;
-            if(tmp->key != NULL)
-                free(tmp->key);
-            free(tmp);
-        }
-    }
-    table->n = 0;
-}
-
-void htab_free(htab_t *table){
-    if(table == NULL)
-        return;
-    htab_clear(table);
-    free(table);
 }
 
 //debug

@@ -13,9 +13,14 @@
 #include <stdbool.h>
 #include "strlib.h"
 #include "error.h"
+#include "clear.h"
+
+#define malloc(size) _malloc(size)
+#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
+#define calloc(num, size) _calloc(num, size)
 
 bool extendStr(string_t * str, size_t new_size){
-    if( !(str->string =(char *)(realloc(str->string, sizeof(char)*new_size+1))) ) 
+    if( !(str->string =(char *)(realloc(str->string, sizeof(char)*new_size+1, str->capacity+1))) ) 
 		print_err(99);
     str->capacity=new_size;
     return true;
@@ -33,10 +38,3 @@ string_t * strInit(size_t size){
 	str->length = 0;
 	return str;
 } 
-
-void free_string(string_t * s){
-	if(s->string)
-		free(s->string);
-	if(s)
-		free(s);
-}
