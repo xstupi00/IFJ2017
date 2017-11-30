@@ -1,6 +1,4 @@
 import sys, os, filecmp, os.path
-from termcolor import colored
-import subprocess
 
 counter = 1
 error = False
@@ -47,9 +45,9 @@ while counter <= 50:
         os.system('%(ic17int)s %(input_ic17int)s >%(output)s' % locals())
 
     if filecmp.cmp(output, test_output):
-        print (colored('Tests no.%(counter)d is succesful!' % locals(), 'green'))
+        print ('Tests no.%(counter)d is succesful!' % locals())
     else:
-        print (colored('Tests no.%(counter)d is unsuccesful!' % locals(), 'red'))
+        print ('Tests no.%(counter)d is unsuccesful!' % locals())
         
     os.remove(output)
     os.remove(input_ic17int)
