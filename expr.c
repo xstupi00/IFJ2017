@@ -23,30 +23,210 @@
 #include "clear.h"
 
 #define malloc(size) _malloc(size)
-#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
-#define calloc(num, size) _calloc(num, size)
 
+/**
+ * @brief      Determines if arithmetic operator.
+ *
+ * @param[in]  token_type  The token type
+ *
+ * @return     True if arithmetic operator, False otherwise.
+ */
 bool is_arithmetic_opr (int token_type);
+
+/**
+ * @brief      Determines if logic operator.
+ *
+ * @param[in]  token_type  The token type
+ *
+ * @return     True if logic operator, False otherwise.
+ */
 bool is_logic_opr (int token_type);
+
+/**
+ * @brief      Determines if operand.
+ *
+ * @param[in]  token_type  The token type
+ *
+ * @return     True if operand, False otherwise.
+ */
 bool is_operand (int token_type);
+
+/**
+ * @brief      Determines if builtin function.
+ *
+ * @param[in]  token_type  The token type
+ *
+ * @return     True if builtin function, False otherwise.
+ */
 bool is_builtin_function (int token_type);
+
+/**
+ * @brief      Determines if users function.
+ *
+ * @param      act_token     The act token
+ * @param      act_function  The act function
+ *
+ * @return     True if users function, False otherwise.
+ */
 bool is_users_function (token_t *act_token, function_t *act_function);
+
+/**
+ * @brief      Determines if number.
+ *
+ * @param[in]  type  The type
+ *
+ * @return     True if number, False otherwise.
+ */
 bool is_number (int type);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      entry_token  The entry token
+ * @param      stack_token  The stack token
+ *
+ * @return     { description_of_the_return_value }
+ */
 bool shift_to_stack (token_t *entry_token, token_t *stack_token);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param[in]  type_token    The type token
+ * @param[in]  count_params  The count parameters
+ */
 void control_token (int type_token, int count_params);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      act_token   The act token
+ * @param      prev_token  The previous token
+ * @param      set_logic   The set logic
+ */
 void correct_expr (token_t *act_token, int *prev_token, bool *set_logic);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      operators_stack  The operators stack
+ * @param      output_stack     The output stack
+ */
 void do_until_left_bracket (stack_t *operators_stack, stack_t *output_stack);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      operators_stack  The operators stack
+ * @param      output_stack     The output stack
+ * @param      act_token        The act token
+ * @param      stack_token      The stack token
+ */
 void do_operation (stack_t *operators_stack, stack_t *output_stack, token_t *act_token, token_t *stack_token);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      function      The function
+ * @param      act_function  The act function
+ * @param      l_value       The l value
+ */
 void builtin_function (token_t *function, function_t *act_function, variable_t *l_value);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      act_function  The act function
+ * @param      l_value       The l value
+ */
 void infix_to_postfix (function_t *act_function, variable_t *l_value);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      postfix_stack  The postfix stack
+ * @param      act_function   The act function
+ * @param      l_value        The l value
+ */
 void control_postfix (stack_t *postfix_stack, function_t *act_function, variable_t *l_value);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param[in]  <unnamed>  { parameter_description }
+ * @param      operand_1  The operand 1
+ * @param      operand_2  The operand 2
+ *
+ * @return     { description_of_the_return_value }
+ */
 int check_return_type(int operator, variable_t *operand_1, variable_t *operand_2);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      act_token     The act token
+ * @param      act_function  The act function
+ * @param      l_value       The l value
+ *
+ * @return     { description_of_the_return_value }
+ */
 int users_function (token_t *act_token, function_t *act_function, variable_t *l_value);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param[in]  expect_type  The expect type
+ * @param[in]  real_type    The real type
+ *
+ * @return     { description_of_the_return_value }
+ */
 int types_control (int expect_type, int real_type);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param[in]  type  The type
+ *
+ * @return     { description_of_the_return_value }
+ */
 int decode_type (char type);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      find_token    The find token
+ * @param      act_function  The act function
+ *
+ * @return     { description_of_the_return_value }
+ */
 variable_t *find_var (token_t *find_token, function_t *act_function);
+
+/**
+ * @brief      Stores a constant.
+ *
+ * @param      const_token  The constant token
+ *
+ * @return     { description_of_the_return_value }
+ */
 variable_t *store_constant (token_t *const_token);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      act_function  The act function
+ * @param[in]  expect_type   The expect type
+ *
+ * @return     { description_of_the_return_value }
+ */
 variable_t *next_params (function_t *act_function, int expect_type);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      act_token  The act token
+ *
+ * @return     { description_of_the_return_value }
+ */
 token_t *copy_token (token_t *act_token);
 
 char precedence_table [SIZE_TABLE][SIZE_TABLE] = {

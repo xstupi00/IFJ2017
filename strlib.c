@@ -17,7 +17,6 @@
 
 #define malloc(size) _malloc(size)
 #define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
-#define calloc(num, size) _calloc(num, size)
 
 bool extendStr(string_t * str, size_t new_size){
     if( !(str->string =(char *)(realloc(str->string, sizeof(char)*new_size+1, str->capacity+1))) ) 

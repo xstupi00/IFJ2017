@@ -18,9 +18,8 @@
 #include "semantic_control.h"
 #include "clear.h"
 
+/// replace malloc calls with our malloc wrapper
 #define malloc(size) _malloc(size)
-#define realloc(ptr, size) _realloc(ptr, size)
-#define calloc(num, size) _calloc(num, size)
 
 unsigned hash_function(const char *key){
     unsigned int h = 0;
@@ -32,12 +31,14 @@ unsigned hash_function(const char *key){
 }
 
 htab_t* htab_init(unsigned size){
+    /// create new hash table
     htab_t *t = (htab_t*) malloc(sizeof(htab_t) + size * sizeof(htab_item_t*));
-    if(t == NULL){
+    if(t == NULL)
         print_err(99);
-    }
+    
     t->arr_size = size;
     t->n = 0;
+    /// init hash table
     for(unsigned i = 0; i < t->arr_size; i++){
         t->ptr[i] = NULL;
     }
@@ -47,13 +48,14 @@ htab_t* htab_init(unsigned size){
 htab_item_t* htab_find(htab_t *table, const char *key){
     if(table == NULL || key == NULL)
         return NULL;
+    /// get index to table
     unsigned index = hash_function(key) % table->arr_size;
+    
     htab_item_t *tmp = NULL;
-
     for(tmp = table->ptr[index]; tmp != NULL; tmp = tmp->next){
-        if(!(strcmp(tmp->key,key))){
+        /// return found item
+        if(!(strcmp(tmp->key,key)))
             return tmp;
-        }
     }
     return NULL;
 }
@@ -64,16 +66,19 @@ htab_item_t* htab_insert(htab_t *table, const char *key){
     
     unsigned index = hash_function(key) % table->arr_size;
     htab_item_t *tmp = NULL; 
+
+    /// create new item
     htab_item_t *new_item = (htab_item_t*)malloc(sizeof(htab_item_t));
     if(new_item == NULL)
         print_err(99);
     
     new_item->key = malloc((strlen(key)+1)*sizeof(char));
-    if(new_item->key == NULL){
+    if(new_item->key == NULL)
         print_err(99);
-    }
+    
     strcpy(new_item->key, key);
     
+    /// insertion of the item to the first position in list
     tmp = table->ptr[index];
     new_item->next = tmp;
     table->ptr[index] = new_item;
@@ -83,12 +88,10 @@ htab_item_t* htab_insert(htab_t *table, const char *key){
     return new_item;    
 }
 
-//debug
-
 void htab_foreach(htab_t *table, void(*func)(char*,bool,void*)){
+
     for(unsigned i = 0; i < table->arr_size; i++){
         for(htab_item_t *tmp = table->ptr[i]; tmp != NULL; tmp = tmp->next){
-            printf("index: %u\n",i);
             if(tmp->is_function)
                 func(tmp->key, tmp->is_function, tmp->data.fun);
             else    
@@ -99,6 +102,7 @@ void htab_foreach(htab_t *table, void(*func)(char*,bool,void*)){
 
 void htab_print(char *key, bool f, void *data){
     (void)key;(void)f;(void)data;
+/// function is defined only if DEBUG option is use while compiling
 #ifdef DEBUG
     printf("id:\t\t%s\n",key);
     if(!f){

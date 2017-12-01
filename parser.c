@@ -27,7 +27,7 @@ string_t *current_function_name;
 string_t *current_variable_name;
 stack_t * label_stack;
 
-//Declaration of non-terminal functions
+/// DECLARATION OF NON-TERMINALS FUNCTIONS
 bool PROG();
 bool DECLARE_FUNCTION();	
 bool DEFINE_FUNCTION();			
@@ -52,7 +52,7 @@ void debug_p(char *c){
 #endif
 }
 
-//Definition of non-terminal functions
+/// DEFINITIONS OF NON-TERMINALS FUNCTIONS
 bool PROG(){
 	debug_p("enter PROG");
 	
@@ -89,6 +89,7 @@ bool PROG(){
 		return PROG();
 	}
 	
+	/// syntax error
 	return false;
 }
 
@@ -103,7 +104,7 @@ bool DECLARE_FUNCTION(){
 		if(token->type == T_FUNCTION){
 			token = getToken();
 			if(token->type == ID){
-				//save name of current fucntion
+				/// save name of current fucntion
 				store_current_function_name(token);
 				token = getToken();
 				if(token->type == LEFT_R_BRACKET){
@@ -121,7 +122,7 @@ bool DECLARE_FUNCTION(){
 			}
 		}
 	}
-	//free_function(current_function);
+	/// syntax error
 	return false;
 }
 
@@ -134,15 +135,15 @@ bool DEFINE_FUNCTION(){
 	if(token->type == T_FUNCTION){
 		token = getToken();
 		if(token->type == ID){
-			//save name of current function
+			/// save name of current function
 			store_current_function_name(token);
 			
 			variable_t * tmp = create_var(current_function_name->string, true);
-			list_insert("LABEL ", tmp, NULL, NULL); //free_var(tmp);
+			list_insert("LABEL ", tmp, NULL, NULL); 
 			list_insert("CREATEFRAME ", NULL, NULL, NULL);
 			list_insert("PUSHFRAME ", NULL, NULL, NULL);
 			tmp = create_var("PRINT", false);
-    		list_insert("DEFVAR ", tmp, NULL, NULL);//free_var(tmp);
+    		list_insert("DEFVAR ", tmp, NULL, NULL);
 
 			token = getToken();
 			if(token->type == LEFT_R_BRACKET){
@@ -164,7 +165,7 @@ bool DEFINE_FUNCTION(){
 										}
 										list_insert("PUSHS ", type, NULL, NULL);
 										list_insert("POPFRAME ", NULL, NULL, NULL);
-										list_insert("RETURN ", NULL, NULL, NULL); //free_var(type);
+										list_insert("RETURN ", NULL, NULL, NULL); 
 										token = getToken(); 
 										return true;
 									}
@@ -176,20 +177,18 @@ bool DEFINE_FUNCTION(){
 			}
 		}
 	}
-	//free_function(current_function);	
+	/// syntax error
 	return false;
 }
 
 bool MAIN_FUNCTION(){
 	debug_p("enter MAIN_FUNCTION");
 	variable_t * tmp = create_var("SCOPE", true);
-	list_insert("LABEL ", tmp, NULL, NULL); //free_var(tmp);
+	list_insert("LABEL ", tmp, NULL, NULL); 
 	list_insert("CREATEFRAME ", NULL, NULL, NULL);
 	list_insert("PUSHFRAME ", NULL, NULL, NULL);
 	tmp = create_var("PRINT", false);
     list_insert("DEFVAR ", tmp, NULL, NULL);
-
-    //free_var(tmp); 					
 
 
 	function_t *current_function = init_function();
@@ -211,7 +210,7 @@ bool MAIN_FUNCTION(){
 			}
 		}
 	}
-	//free_function(current_function);
+	/// syntax error
 	return false;
 }
 
@@ -230,7 +229,6 @@ bool FUNCTION_ELEMENT(function_t *f){
 
 			variable_t * tmp = create_var(current_variable_name->string, false);
 			list_insert("DEFVAR ", tmp, NULL, NULL);
-			//free_var(tmp);
 
 			token = getToken();
 			if(token->type == AS){
@@ -249,6 +247,7 @@ bool FUNCTION_ELEMENT(function_t *f){
 			token->type == IF){
 		return ELEMENT_LIST(f);
 	}
+	/// syntax error
 	return false;
 }
 
@@ -259,6 +258,7 @@ bool ELEMENT_LIST(function_t *f){
 		token->type == IF){
 		return STATEMENT(f) && FUNCTION_ELEMENT(f);
 	}
+	/// syntax error
 	return false;
 }
 
@@ -278,10 +278,10 @@ bool STATEMENT(function_t *f){
 		
 		token = getToken();
 		if(token->type == ASSIGNMENT_EQ){
-		expression(f,var);
-		variable_t * tmp = create_var(current_variable_name->string, false);
-		list_insert("POPS ", tmp, NULL, NULL);
-		//free_var(tmp);
+			expression(f,var);
+			variable_t * tmp = create_var(current_variable_name->string, false);
+			list_insert("POPS ", tmp, NULL, NULL);
+		
 			token = getToken();
 			if(token->type == EOL){
 				token = getToken();
@@ -303,7 +303,7 @@ bool STATEMENT(function_t *f){
 		variable_t * tmp = create_var("PRINT", false);
 		list_insert("POPS ", tmp, NULL, NULL);
 		list_insert("WRITE ", tmp, NULL, NULL);
-		//free_var(tmp);
+		
 
 		token = getToken();
 		if(token->type == SEMICOLON){
@@ -320,8 +320,7 @@ bool STATEMENT(function_t *f){
 			//undefinied variable
 			if(!var)
 				print_err(3);
-			//----------------------------------------------
-			//#define F "float"
+			
 			variable_t * type;
 			switch(var->data_type){
 				case INTEGER: type = create_var(I, true); break;
@@ -333,8 +332,7 @@ bool STATEMENT(function_t *f){
 			
 			list_insert("WRITE ", input_symbol, NULL, NULL );
 			list_insert("READ ", user_input, type, NULL);
-			//free_var(type);
-			//free_var(print);
+			
 			token = getToken();
 			if(token->type == EOL){
 				token = getToken();
@@ -348,7 +346,7 @@ bool STATEMENT(function_t *f){
 		f->return_var->data_type = f->return_type;
 		expression(f,f->return_var); 
 		list_insert("POPFRAME ", NULL, NULL, NULL);
-		list_insert("RETURN ", NULL, NULL, NULL); // return
+		list_insert("RETURN ", NULL, NULL, NULL); 
 		token = getToken();
 		if(token->type == EOL){
 			token = getToken();
@@ -359,20 +357,20 @@ bool STATEMENT(function_t *f){
 		token = getToken();
 		if(token->type == WHILE){ 
 			static int while_counter;
-			// TODO fuction 
+			
 			while_counter++;
 			char * lab_name = gen_label_name(while_counter, 'W');
 			variable_t * L1 = create_var(lab_name, true);
 			list_insert("LABEL ", L1, NULL, NULL);
-			//free(lab_name);
+			
 			while_counter++;
 			lab_name = gen_label_name(while_counter, 'W');
 			variable_t * L2 = create_var(lab_name, true);
-			//free(lab_name);
+			
 			S_Push(label_stack, L2);
 			S_Push(label_stack, L1);
 			
-			//push
+			
 			variable_t * bool_var = init_variable();
 			bool_var->data_type = BOOLEAN;
 			expression(f,bool_var);
@@ -389,13 +387,13 @@ bool STATEMENT(function_t *f){
 				token = getToken();
 				if(STAT_LIST(f)){
 					token = getToken();
-					if(token->type == EOL){ //pop
+					if(token->type == EOL){ 
 						variable_t * L = S_Top(label_stack);
 						S_Pop(label_stack);
-						list_insert ("JUMP ", L, NULL, NULL);//free_var(t);
+						list_insert ("JUMP ", L, NULL, NULL);
 						L = S_Top(label_stack);
 						S_Pop(label_stack);
-						list_insert("LABEL ", L, NULL, NULL);//free_var(t);
+						list_insert("LABEL ", L, NULL, NULL);
 						token = getToken();
 						return true;
 					}
@@ -408,7 +406,7 @@ bool STATEMENT(function_t *f){
 		variable_t *bool_var = init_variable();
 		bool_var->data_type = BOOLEAN;
 
-		expression(f,bool_var); // push
+		expression(f,bool_var); 
 
 		variable_t * result = create_var("PRINT ", false);
 		variable_t * btrue = create_var("bool@true", true);
@@ -417,9 +415,9 @@ bool STATEMENT(function_t *f){
 		list_insert("NOT ", result, result, NULL);
 		if_counter ++;
 		char * if_lab_name = gen_label_name(if_counter,'I');
-		variable_t * L1 = create_var(if_lab_name,true);//free(if_lab_name);
+		variable_t * L1 = create_var(if_lab_name,true);
 		S_Push(label_stack, L1);
-		list_insert("JUMPIFEQ ", L1, result, btrue); //free_var(tmp); //free_var(btrue);
+		list_insert("JUMPIFEQ ", L1, result, btrue); 
 
 		token = getToken();
 		if(token->type == THEN){
@@ -429,25 +427,24 @@ bool STATEMENT(function_t *f){
 				if(STAT_LIST(f)){
 					if_counter++;
 					if_lab_name = gen_label_name(if_counter,'I');
-					variable_t * L2 = create_var(if_lab_name,true); //free(if_lab_name);
+					variable_t * L2 = create_var(if_lab_name,true); 
 					variable_t * L1  = S_Top(label_stack);
 					S_Pop(label_stack);
 					S_Push(label_stack, L2);
 					list_insert("JUMP ", L2, NULL, NULL);
-					list_insert("LABEL ", L1, NULL, NULL); //free_var(L1);
+					list_insert("LABEL ", L1, NULL, NULL); 
 					
-					//goto L2
-					//L1
+					
 					if(ELSE_BRANCH(f)){
 						token = getToken();
 						if(token->type == IF){
 							token = getToken();
 							if(token->type == EOL){
-								//L2 
+								 
 								variable_t * L2 = S_Top(label_stack);
 								S_Pop(label_stack);
-								list_insert("LABEL ", L2, NULL, NULL); //free_var(L2);
-								//pop
+								list_insert("LABEL ", L2, NULL, NULL); 
+								
 								token = getToken();
 								return true;
 							}
@@ -457,6 +454,7 @@ bool STATEMENT(function_t *f){
 			}
 		}	
 	}
+	/// syntax error
 	return false;
 }
 
@@ -486,6 +484,7 @@ bool ELSE_BRANCH(function_t *f){
 			return STAT_LIST(f);
 		}
 	}
+	/// syntax error
 	return false;
 }
 
@@ -509,11 +508,11 @@ bool VALUE(function_t *f, variable_t *v){
 		store_var_in_symtable(f,v,current_variable_name->string);
 		variable_t * l_value = create_var(current_variable_name->string, false);
 		list_insert("POPS ", l_value, NULL, NULL);
-		//free_var(tmp);
-		//move to local variable
+		
 		token = getToken();
 		return true;
 	}
+	/// syntax error
 	return false;
 }
 
@@ -532,7 +531,7 @@ bool EXP_TO_PRINT(function_t *f){
 		variable_t * tmp = create_var("PRINT", false);
 		list_insert("POPS ", tmp, NULL, NULL);
 		list_insert("WRITE ", tmp, NULL, NULL);
-		//free_var(tmp);
+		
 
 		token = getToken();
 		if(token->type == SEMICOLON){
@@ -540,6 +539,7 @@ bool EXP_TO_PRINT(function_t *f){
 			return EXP_TO_PRINT(f);
 		}
 	}
+	/// syntax error
 	return false;
 }
 
@@ -557,7 +557,7 @@ bool PARAM_LIST(function_t *f){
 			 	    variable_t * tmp = S_Top(param_stack);
 			       	S_Pop(param_stack);
 					list_insert("POPS ", tmp, NULL, NULL);
-					//free_var(tmp);
+					
 				}
 			}	
 			return true;
@@ -567,6 +567,7 @@ bool PARAM_LIST(function_t *f){
 		token = getToken();
 		return true;
 	}
+	/// syntax error
 	return false;
 		
 }
@@ -582,6 +583,7 @@ bool NEXT_PARAM(function_t *f, stack_t * param_stack ){
 		token = getToken();
 		return true;
 	}
+	/// syntax error
 	return false;
 }
 
@@ -590,16 +592,16 @@ bool PARAM(function_t *f, stack_t * param_stack ){
 	variable_t *current_variable = init_variable();
 	if(token->type == ID){
 		store_current_variable_name(token);
-		if(f->defined){						// only if function is defined !!!!!!
+		if(f->defined){						
 			variable_t * tmp = create_var(current_variable_name->string, false);
 	    	list_insert("DEFVAR ", tmp, NULL, NULL);
-			//push
+			
 			S_Push(param_stack, tmp);
 		}
 		token = getToken();
 		if(token->type == AS){
 			token = getToken();
-			int type; //type of parameter		
+			int type; 		
 			if(DATA_TYPE(&type)){
 				if(f->params->capacity < (f->params->length+1))
 					extendStr(f->params,(f->params->capacity*2));
@@ -614,6 +616,7 @@ bool PARAM(function_t *f, stack_t * param_stack ){
 			}
 		}
 	}
+	/// syntax error
 	return false;
 }
 
@@ -634,13 +637,14 @@ bool DATA_TYPE(int *type){
 		*type = STRING;
 		return true;
 	}
+	/// syntax error
 	return false;
 }
 
 void parse(){
 	debug_p("***START***");
 	token = getToken();
-	//syntax error
+	/// syntax error
 	if(!PROG()){
 		print_err(2);
 	}

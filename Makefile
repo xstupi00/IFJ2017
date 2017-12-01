@@ -20,12 +20,15 @@ OBJ= $(SRC:%.c=%.o)
 
 all: $(EXECUTABLE)
 
+#allow debug prints
 debug: CCFLAGS += -DDEBUG -g
 debug: $(EXECUTABLE)
 
+#linking
 $(EXECUTABLE): $(OBJ)
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDLIBS)
 
+#compilation
 error.o: error.c error.h clear.h
 	$(CC) $(CCFLAGS) -c $< -o $@
 expr.o: expr.c scanner.h error.h expr.h stack.h symtable.h semantic_control.h generate.h strlib.h clear.h
@@ -49,10 +52,12 @@ symtable.o: symtable.c symtable.h error.h scanner.h semantic_control.h clear.h
 clear.o: clear.c clear.h stack.h error.h
 	$(CC) $(CCFLAGS) -c $< -o $@
 
+#run automated tests
 test: $(EXECUTABLE)
 test:
 	python tests/tests.py
 
+#clean object files and binary
 clean:
 	$(REMOVE) $(OBJ) $(EXECUTABLE)
 

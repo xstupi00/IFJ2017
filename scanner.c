@@ -20,8 +20,6 @@
 #include "clear.h"
 
 #define malloc(size) _malloc(size)
-#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
-#define calloc(num, size) _calloc(num, size)
 
 token_t * token;
 bool unget;
