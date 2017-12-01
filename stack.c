@@ -15,9 +15,8 @@
 #include "error.h"
 #include "clear.h"
 
+/// replace malloc calls with our malloc wrapper
 #define malloc(size) _malloc(size)
-#define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
-#define calloc(num, size) _calloc(num, size)
 
 stack_t* S_Init () {
     stack_t* s;
@@ -27,22 +26,19 @@ stack_t* S_Init () {
     return s;
 }
 
-int S_Push (stack_t *s, void* d) {
+void S_Push (stack_t *s, void* d) {
 
-    elem_t *new_element; //= NULL;
+    elem_t *new_element; 
     if ( (new_element = (elem_t *) malloc(sizeof(struct elem_t))) == NULL ) 
         print_err(99);
 
+    /// insert new element on top of stack
     new_element->data = d;
     new_element->next_ptr = s->top_ptr;
     s->top_ptr = new_element;
-
-    return 0;
 }
 
 void S_Pop (stack_t *s) {
-    
-    //elem_t *tmp_element; cppcheck
 
     if ( s->top_ptr != NULL ) {
         s->top_ptr = s->top_ptr->next_ptr;
@@ -70,13 +66,14 @@ void S_Copy (stack_t *dst_stack, stack_t *src_stack) {
     }
 }
 
-// debug functions
 void S_Print (stack_t *s) {
-
+    (void)s;
+#ifdef DEBUG
     elem_t *tmp = s->top_ptr;
     while ( s->top_ptr != NULL ) {
         printf ("%d\n", *((int*)s->top_ptr->data));
         s->top_ptr = s->top_ptr->next_ptr;
     }
     s->top_ptr = tmp;
+#endif
 }
