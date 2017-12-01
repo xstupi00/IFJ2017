@@ -36,8 +36,9 @@ void * _malloc(size_t size){
 	elem_t * new_element;
 	if(!(new = malloc(size)))
 		print_err(99);
+	memset(new,0,size);
 	if ( (new_element = (elem_t *) malloc(sizeof(struct elem_t))) == NULL ) 
-        print_err(99);
+		print_err(99);
 	
     new_element->data = new;
     new_element->next_ptr = ptr_stack->top_ptr;

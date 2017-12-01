@@ -51,7 +51,7 @@ void list_init()
 
 variable_t * create_var(char *str1, bool constant){
 	variable_t * tmp = init_variable();
-	tmp->data.str = (char*)malloc(sizeof(char)*(strlen(str1)+1));
+	tmp->data.str = (char*)malloc(sizeof(char)*(strlen(str1)+2));
  	if(!tmp->data.str)
  		print_err(99);
 	strcpy(tmp->data.str, str1);
