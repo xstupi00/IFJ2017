@@ -101,4 +101,14 @@ void asc(variable_t * l_value);
  */
 void chr();
 
+/**
+ * @brief	   Function to generate label name
+ *
+ * @param	   i 	Integer as end of the string
+ * @param	   c    Start char of the string 
+ *
+ * @return	   Generated label name
+ */
+char * gen_label_name(int i, char c);
+
 #endif
