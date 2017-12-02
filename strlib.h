@@ -4,30 +4,30 @@
 #define STR_INIT 128
 
 /**
- * @brief      { item_description }
+ * @brief      this structure represents string with metadata  
  */
 typedef struct string_t{
-	char * string;		///<
-	size_t capacity; 	///<
-	size_t length;		///<
+	char * string;		///< string allocated on heap
+	size_t capacity; 	///< allocated space for string
+	size_t length;		///< actual length of string
 }string_t;
 
 /**
- * @brief      { function_description }
+ * @brief      Function initializes string structure 
  *
- * @param[in]  size  The size
+ * @param[in]  size  Size of usable space
  *
- * @return     { description_of_the_return_value }
+ * @return     Pointer to initialized string structure
  */
 string_t * strInit(size_t size);
 
 /**
- * @brief      { function_description }
+ * @brief      Function to extend string 
  *
- * @param      str       The string
- * @param[in]  new_size  The new size
+ * @param      str       Pointer to string structure 
+ * @param[in]  new_size  New size of usable space
  *
- * @return     { description_of_the_return_value }
+ * @return     Pointer to string structure with extended string
  */
 bool extendStr(string_t * str, size_t new_size);
 

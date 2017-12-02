@@ -21,19 +21,21 @@
 #include "scanner.h"
 #include "clear.h"
 
+/// replace malloc & calloc calls with our malloc & calloc wrapper
 #define malloc(size) _malloc(size)
 #define calloc(num, size) _calloc(num, size)
 
 
 list_t * list;
 
+// generator of label names
 char * gen_label_name(int i, char c){
-	unsigned digits	= floor(log10(abs(i)))+1;
-	char * name = (char *) malloc(digits*sizeof(int)+3);
+	unsigned digits	= floor(log10(abs(i)))+1; /// getting count of digits
+	char * name = (char *) malloc(digits*sizeof(int)+3); 
 	if(!name)
 		print_err(99);
-	name[0] = '&';
-	name[1] = c;
+	name[0] = '&'; /// first character of string will be '&'
+	name[1] = c;  
 	sprintf(name+2, "%d", i);
 	return name;
 }
@@ -78,6 +80,8 @@ void concat()
 	list_insert("POPFRAME ",NULL, NULL, NULL);
 
 }
+
+/// function to create & initialize instruction 
 instruction_t * instr_init (){
 	instruction_t * new =  (instruction_t *)malloc(sizeof(instruction_t));
 	if(!new)
@@ -89,6 +93,7 @@ instruction_t * instr_init (){
 	return new;
 }
 
+/// function to create new variable same as src variable
 variable_t * copy_variable(variable_t * src){
 	variable_t * new = init_variable();
 
@@ -336,18 +341,18 @@ void print_list(){
 	printf(".IFJcode17\nJUMP SCOPE\n");
 
 	for(instruction_t * tmp = list->First; tmp!=NULL; tmp=tmp->next){
-        if (tmp->instr_name) printf("%s",tmp->instr_name); 
+        if (tmp->instr_name) printf("%s",tmp->instr_name);  /// print instruction name
         if(tmp->op1){
-            if(tmp->op1->constant){
+            if(tmp->op1->constant){ /// print var as constant 
                 switch (tmp->op1->data_type){
                     case INTEGER:printf("int@%d",tmp->op1->data.i);break;
                     case DOUBLE:printf("float@%g",tmp->op1->data.d);break;
                     case STRING:printf("string@");
                                 process_string(tmp->op1->data.str); break;
-                    default: if(tmp->op1->data.str)printf("%s", tmp->op1->data.str);break;
+                    default: if(tmp->op1->data.str)printf("%s", tmp->op1->data.str);break;  /// print only stored string as constant
                 }
             }
-            else if(tmp->op1->data.str) printf("LF@%s ", tmp->op1->data.str);
+            else if(tmp->op1->data.str) printf("LF@%s ", tmp->op1->data.str); /// print name of variable this way: LF@var_name
         }
        
         if(tmp->op2){
