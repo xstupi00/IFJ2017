@@ -1,0 +1,21 @@
+\select@language {czech}
+\contentsline {section}{\numberline {1}\IeC {\'U}vod}{2}
+\contentsline {section}{\numberline {2}Jazyk IFJ17}{2}
+\contentsline {section}{\numberline {3}\IeC {\v S}trukt\IeC {\'u}ra projektu}{2}
+\contentsline {subsection}{\numberline {3.1}Lexik\IeC {\'a}lna anal\IeC {\'y}za}{2}
+\contentsline {subsection}{\numberline {3.2}Synktatick\IeC {\'a} a s\IeC {\'e}mantick\IeC {\'a} anal\IeC {\'y}za}{2}
+\contentsline {subsubsection}{\numberline {3.2.1}Synktatick\IeC {\'a} anal\IeC {\'y}za (bez spracovania v\IeC {\'y}razov)}{2}
+\contentsline {subsubsection}{\numberline {3.2.2}Synktatick\IeC {\'a} anal\IeC {\'y}za v\IeC {\'y}razov}{3}
+\contentsline {subsection}{\numberline {3.3}Generovanie vn\IeC {\'u}torn\IeC {\'e}ho k\IeC {\'o}du}{3}
+\contentsline {section}{\numberline {4}Rie\IeC {\v s}enie vybran\IeC {\'y}ch algoritmov z poh\IeC {\v l}adu predmetu IAL}{3}
+\contentsline {subsection}{\numberline {4.1}Z\IeC {\'a}sobn\IeC {\'\i }k}{3}
+\contentsline {subsection}{\numberline {4.2}Tabu\IeC {\v l}ka s rozpt\IeC {\'y}len\IeC {\'y}mi polo\IeC {\v z}kami}{4}
+\contentsline {section}{\numberline {5}V\IeC {\'y}voj}{4}
+\contentsline {subsection}{\numberline {5.1}Rozdelenie pr\IeC {\'a}ce}{4}
+\contentsline {subsection}{\numberline {5.2}Komunik\IeC {\'a}cia a pou\IeC {\v z}it\IeC {\'e} prostriedky}{4}
+\contentsline {section}{\numberline {6}Z\IeC {\'a}ver}{4}
+\contentsline {subsection}{\numberline {6.1}Metriky}{5}
+\contentsline {section}{\numberline {7}Pr\IeC {\'\i }lohy}{6}
+\contentsline {subsection}{\numberline {7.1}LL gramatika}{6}
+\contentsline {subsection}{\numberline {7.2}Diagram kone\IeC {\v c}n\IeC {\'e}ho automatu lexik\IeC {\'a}lneho analyz\IeC {\'a}tora}{8}
+\contentsline {subsection}{\numberline {7.3}Preceden\IeC {\v c}n\IeC {\'a} tabu\IeC {\v l}ka}{9}
