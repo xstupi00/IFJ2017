@@ -169,8 +169,7 @@ token_t *getToken(){
            	//string
            	case S_STR:
            			//character is not backslah, newline or quotation mark
-					if(((c!='"') && (escapovanie == 0) && (c!='\x0A') && (c!='\x5C'))){
-
+				if(((c!='"') && (escapovanie == 0) && (c!='\x0A') && (c!='\x5C'))){
 			        	token->str->string[position++] = c;
 			        	state = S_STR;
 			        }
@@ -179,54 +178,54 @@ token_t *getToken(){
 
 			        	escapovanie = 1;
 			        	state = S_STR;
-					}
-					//if escape sequence is on, write backslash to string
-					else if (((c == '\x5C') && (escapovanie == 1))){
+				}
+				//if escape sequence is on, write backslash to string
+				else if (((c == '\x5C') && (escapovanie == 1))){
 
-						token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+					token->str->string[position++] = c;
+					escapovanie = 0;
+					state = S_STR;
 
 			        }
 			        //if escape sequence is on, write quotation mark to string
 			        else if(((c == '\x22') && (escapovanie == 1))){
 
 			        	token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+					escapovanie = 0;
+					state = S_STR;
 
 			        }
 			        //if escape sequence is on, write new line to string
 			        else if (c == 'n' && escapovanie == 1){
 
-						c = '\x0A';
-						token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
-					}
-					//if escape sequence is on, write tab to string
+					c = '\x0A';
+					token->str->string[position++] = c;
+					escapovanie = 0;
+					state = S_STR;
+				}
+				//if escape sequence is on, write tab to string
 			        else if(((c == 't') && (escapovanie == 1))){
 
-						c = '\x09';
-						token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+					c = '\x09';
+					token->str->string[position++] = c;
+					escapovanie = 0;
+					state = S_STR;
 
 			        }
 			        //escape sequence 
 			        else if (((isdigit(c)) && (escapovanie == 1))){
 
-						hexa[0] = c;
-						pocet_cisel = 1;
-						escapovanie = 0;
-						state = S_STRING_NUMBERS;
+					hexa[0] = c;
+					pocet_cisel = 1;
+					escapovanie = 0;
+					state = S_STRING_NUMBERS;
 
-					}
+				}
 			        //string must be in one row
-					else if (((c == '\n') && (escapovanie == 0))){
+				else if (((c == '\n') && (escapovanie == 0))){
 
 			         	print_err(1);
-						return NULL;
+					return NULL;
 			        }
 
 			        //quotation mark means end of string
