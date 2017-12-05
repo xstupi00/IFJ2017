@@ -3,119 +3,112 @@
 
 #include "semantic_control.h"
 
-extern struct list_t * list;	///<
+extern struct list_t * list;	///< global instrucion tape as list
 
 #define S "string"
 #define I "int"
 #define F "float"
 
 /**
- * @brief      { item_description }
+ * @brief      structure represents instruction
  */
 typedef struct instruction_t{
-	char * instr_name;			///<
-	struct variable_t * op1;	///<
-	struct variable_t * op2;	///<
-	struct variable_t * op3;	///<
-	struct instruction_t* next;	///<
+	char * instr_name;			///< string represents key word with instruction name (operating code)
+	struct variable_t * op1;	///< pointer to 1st variable
+	struct variable_t * op2;	///< pointer to 2nd variable
+	struct variable_t * op3;	///< pointer to 3rd variable
+	struct instruction_t* next;	///< ponter to next instruction in list
 }instruction_t;
 
 /**
- * @brief      { item_description } 
+ * @brief      structure of list
  */
 typedef struct list_t{
-	instruction_t * First;		///<
-	instruction_t * Last;		///<
+	instruction_t * First;		///< pointer to first item of list
+	instruction_t * Last;		///< pointer to last item of list
 }list_t;
 
 /**
- * @brief      { function_description }
+ * @brief      Function to initialize global list (instruction tape)
  */
 void list_init();
 
 /**
- * @brief      { function_description }
+ * @brief      Function to print list
  */
 void print_list();
 
 /**
- * @brief      { function_description }
+ * @brief      Function to insert instruction for default retype according to var
  *
- * @param      var   The variable
+ * @param      var   Pointer to variable
  */
 void retype(variable_t * var);
 
 /**
- * @brief      { function_description }
+ * @brief      Proccess string to acceptable form for interpret
  *
- * @param      orig_string  The original string
+ * @param      orig_string  Original string
  */
 void process_string (char * orig_string);
 
 /**
- * @brief      { function_description }
+ * @brief      Function to generate & add instructions to instr.tape for built-in function length
  *
- * @param      l_value  The l value
+ * @param      l_value  L_value in case of retyping
  */
 void length_of_str(variable_t * l_value);
 
 /**
- * @brief      { function_description }
+ * @brief      Function to insert instruction to instr.tape 
  *
- * @param      instr  The instr
- * @param      par1   The par 1
- * @param      par2   The par 2
- * @param      par3   The par 3
+ * @param      instr  Instruction name (key word)
+ * @param      par1   pointer to 1st variable
+ * @param      par2   pointer to 2nd variable
+ * @param      par3   pointer to 3rd variable
  */
 void list_insert(char * instr, variable_t * par1, variable_t * par2, variable_t * par3 );
 
 /**
- * @brief      { function_description }
+ * @brief      Function to generate & add instructions to instr.tape for concate two strings
  */
 void concat();
 
 /**
  * @brief      Creates a variable.
  *
- * @param      str1      The string 1
- * @param[in]  constant  The constant
+ * @param      str1      Instruction name (key word)
+ * @param[in]  constant  Define if variable is constant or not
  *
- * @return     { description_of_the_return_value }
+ * @return     Pointer to created variable
  */
 variable_t * create_var(char *str1, bool constant);
 
 /**
- * @brief      { function_description }
+ * @brief      Function to generate & add instructions to instr.tape for built-in function substr
  */
 void substr();
 
 /**
- * @brief      { function_description }
+ * @brief      Function to generate & add instructions to instr.tape for built-in function asc
  *
- * @param      l_value  The l value
+ * @param      l_value  L_value in case of retyping
  */
 void asc(variable_t * l_value);
 
 /**
- * @brief      { function_description }
+ * @brief      Function to generate & add instructions to instr.tape for built-in function chr
  */
 void chr();
 
 /**
- * @brief      { function_description }
+ * @brief	   Function to generate label name
  *
- * @param[in]  i     { parameter_description }
- * @param[in]  c     { parameter_description }
+ * @param	   i 	Integer as end of the string
+ * @param	   c    Start char of the string 
  *
- * @return     { description_of_the_return_value }
+ * @return	   Generated label name
  */
 char * gen_label_name(int i, char c);
-
-/**
- * @brief      { function_description }
- *
- * @param      v     { parameter_description }
- */
-void free_var(variable_t * v);
 
 #endif

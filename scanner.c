@@ -29,14 +29,15 @@ void initToken(){
     if(!token){
         print_err(99);
     }       
-    token->str = strInit(STR_INIT); // alokacia pamate pre string
+    token->str = strInit(STR_INIT); // allocation memmory for string
     
 }
 
 void ungetToken(){
     unget=true;
 }
-//funkcia na uloženie načítaného tokena do tokenovej štruktúry
+
+//function to save read token to token structure
 token_t *saveToken(int type, bool string){
     if(!token){
         print_err(99);
@@ -44,7 +45,7 @@ token_t *saveToken(int type, bool string){
     }   
     if(!string)
         token->str->string[0]='\0'; 
-    token->type = type; //priradí typ
+    token->type = type; //assign the type
     token->str->length = strlen(token->str->string);
     //printf("token : %s %d\n",token->str->string,token->type);
     return token;
@@ -57,7 +58,7 @@ token_t *getToken(){
         return token;
     }
     
-    int position = 0;           //index aktualneho charu
+    int position = 0;           //index of actual char
     //char c; cppcheck
     char hexa[4];
     hexa[3] = '\0';
@@ -65,7 +66,7 @@ token_t *getToken(){
     int pocet_cisel = 0;
     bool exponent = false;
     bool dot = false;
-    states_t state = S_START;   //stav automatu
+    states_t state = S_START;   //state of automaton
 
     while(/*((c = fgetc(stdin)) != EOF)+*/1){
         char c = fgetc(stdin);
@@ -84,10 +85,10 @@ token_t *getToken(){
                     return saveToken(EOL, false);    //EOL
                 }
                 else if(isspace(c)){
-                    state = S_START;    //biely znak == pokračuj ďalej
+                    state = S_START;    //white sign == continue
                 }
                 else if(isalpha(c) || c == '_'){
-                    state = S_IDENTIFIER;   //identifikátor, kľúčové slovo
+                    state = S_IDENTIFIER;   //identifier, key word
                     token->str->string[position++] = c;
                 }
                 else if(isdigit(c)){
@@ -95,32 +96,32 @@ token_t *getToken(){
                     token->str->string[position++] = c;
                 }
                 else if(c == '('){
-                    return saveToken(LEFT_R_BRACKET, false);     //ľavá okrúhla zátvorka
+                    return saveToken(LEFT_R_BRACKET, false);     //left rounded bracket
                 }
                 else if(c == ')'){
-                    return saveToken(RIGHT_R_BRACKET, false);    //pravá okrúhla zátvorka
+                    return saveToken(RIGHT_R_BRACKET, false);    //right rounded bracket
                 }
                 else if(c == ','){
-                    return saveToken(COMMA, false);  //čiarka
+                    return saveToken(COMMA, false);  //comma
                 }
                 
                 else if(c == ';'){
-                    return saveToken(SEMICOLON, false);  //bodkočiarka
+                    return saveToken(SEMICOLON, false);  //semicoln
                 }
                 else if(c == '*'){
-                    return saveToken(MUL, false);    //krát
+                    return saveToken(MUL, false);    //mul
                 }
                 else if(c == '-'){
-                    return saveToken(SUB, false);    //minus
+                    return saveToken(SUB, false);    //subtract
                 }
                 else if(c == '+'){
-                    return saveToken(ADD, false);    // plus
+                    return saveToken(ADD, false);    //add
                 }
                 else if(c == '='){
-                    return saveToken(ASSIGNMENT_EQ, false);   //porovnanie alebo priradenie
+                    return saveToken(ASSIGNMENT_EQ, false);   //comparison or assignment
                 }
                 else if(c == '\\'){
-                    return saveToken(INT_DIV, false);   //celociselne delenie
+                    return saveToken(INT_DIV, false);   //integer dividing
                 }
 
                 else if(c == '\''){
@@ -149,92 +150,91 @@ token_t *getToken(){
 
                 }
                 else if(c == '>'){
-                    state = S_GR_EQ;    //väčší/väčší alebo rovný
+                    state = S_GR_EQ;    //greater/ greater or equal
                 }
                 else if(c == '<'){
-                    state = S_LESS_EQ;  //menší/menší alebo rovný
+                    state = S_LESS_EQ;  //less/ less or equal
                 }
                 else if(c == -1){
-                    return  saveToken(END_OF_FILE, false);   //koniec suboru
+                    return  saveToken(END_OF_FILE, false);   //end of file
                 }
                 else{
-                    print_err(1);  //LEX_ERR
+                    print_err(1);  //lexical error
                     return NULL;
                 }
             
             break;
 
 
-           	//jedna sa o retazec
+           	//string
            	case S_STR:
-					//ked sa znak nerovna uvodzovkam, backslashu ani newline
-					if(((c!='"') && (escapovanie == 0) && (c!='\x0A') && (c!='\x5C'))){
-
+           			//character is not backslah, newline or quotation mark
+				if(((c!='"') && (escapovanie == 0) && (c!='\x0A') && (c!='\x5C'))){
 			        	token->str->string[position++] = c;
 			        	state = S_STR;
 			        }
-			        //backslash znamená, že je zapnute escapovanie
+			        //backslash means, that escape sequence is on
 			        else if(((c=='\x5C') && (escapovanie == 0))){
 
 			        	escapovanie = 1;
 			        	state = S_STR;
-					}
-					//ak je zapnute escapovanie, zapiseme do retazca backslash
-					else if (((c == '\x5C') && (escapovanie == 1))){	//odescapeovaný backslash
+				}
+				//if escape sequence is on, write backslash to string
+				else if (((c == '\x5C') && (escapovanie == 1))){
 
-						token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+					token->str->string[position++] = c;
+					escapovanie = 0;
+					state = S_STR;
 
 			        }
-			        //ak je zapnute escapovanie, zapíšeme do reťazca úvodzovky
-			        else if(((c == '\x22') && (escapovanie == 1))){	//odescapeované úvodzovky  '\"'
+			        //if escape sequence is on, write quotation mark to string
+			        else if(((c == '\x22') && (escapovanie == 1))){
 
 			        	token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+					escapovanie = 0;
+					state = S_STR;
 
 			        }
-			        //ak je zapnute escapovanie, zapíšeme do reťazca new line
-			        else if (c == 'n' && escapovanie == 1){		//odescapeovaný
+			        //if escape sequence is on, write new line to string
+			        else if (c == 'n' && escapovanie == 1){
 
-						c = '\x0A';
-						token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
-					}
-					//ak je zapnute escapovanie, zapíšeme do reťazca tabulátor
+					c = '\x0A';
+					token->str->string[position++] = c;
+					escapovanie = 0;
+					state = S_STR;
+				}
+				//if escape sequence is on, write tab to string
 			        else if(((c == 't') && (escapovanie == 1))){
 
-						c = '\x09';
-						token->str->string[position++] = c;
-						escapovanie = 0;
-						state = S_STR;
+					c = '\x09';
+					token->str->string[position++] = c;
+					escapovanie = 0;
+					state = S_STR;
 
 			        }
-			        //ak je zapnuté escapovanie, znak môže byť zadaný pomocou oktalovej escape sekvencii, to riešime v stave S_STRING_NUMBERS
+			        //escape sequence 
 			        else if (((isdigit(c)) && (escapovanie == 1))){
 
-						hexa[0] = c;
-						pocet_cisel = 1;
-						escapovanie = 0;
-						state = S_STRING_NUMBERS;
+					hexa[0] = c;
+					pocet_cisel = 1;
+					escapovanie = 0;
+					state = S_STRING_NUMBERS;
 
-					}
-			        //reťezec musí byť zapísaný na jednom riadku v programe
-					else if (((c == '\n') && (escapovanie == 0))){
+				}
+			        //string must be in one row
+				else if (((c == '\n') && (escapovanie == 0))){
 
 			         	print_err(1);
-						return NULL;
+					return NULL;
 			        }
 
-			        //ak prídu uvodzvky a niesu odescapeovane, znaci to koniec retazca
-			        else if (((c == '"') && (escapovanie == 0))){ // sme na konci retezce
+			        //quotation mark means end of string
+			        else if (((c == '"') && (escapovanie == 0))){ // end of string
 
 			        	token->str->string[position] = '\0';
 						return saveToken(TEXT, true);
 			        }
-			        //všetko iné považujeme za lexikálnu chybu
+			        //everything else we consider as lexical error
 			        else{
 
 			        	print_err(1);
@@ -244,22 +244,22 @@ token_t *getToken(){
 
 			        break;
 
-			//oktalova escape sekvencia
+			//decimal escape sequence
 			case S_STRING_NUMBERS:
 
-				//ak sa jedná o druhé číslo, zapíšeme ho na druhú pozíciu
+				//2nd number is written
 			    if(((isdigit(c)) && (pocet_cisel == 1))){
 					hexa[1] = c;
 				 	pocet_cisel = 2;
 					state = S_STRING_NUMBERS;
 			      }
-			     //ak sa jedná o tretie číslo, zapíšeme ho na tretiu pozíciu
+			     //3rd number is written
 			    else if(((isdigit(c)) && (pocet_cisel == 2))){
 					hexa[2] = c;
-			    	//pocet_cisel = 3;
+			    	//count_of_numbers = 3;
 					int number = atoi(hexa);
                     //printf("ASCII: %d\n", number);
-					//číslo musí byť z intervalu <0,255>, ak nie je, tak to značí lexikálnu chybu
+                    //number must be in interval <0,255>, otherwise lexical error
 				    if(((number < 001) || (number > 255))){
 				    	print_err(1);
 						return NULL;
@@ -285,7 +285,7 @@ token_t *getToken(){
                     return  saveToken(NEQ, false);   // !=
                 }
                 else{
-                    print_err(1);  //lexikálna chyba
+                    print_err(1);  //lexical error
                     return NULL;
                 }
             break;
@@ -317,11 +317,10 @@ token_t *getToken(){
             break;
 
            case S_DIV_COM:
-                //jedná sa o blokový komentár
+                //block comment
                 if(c == '\''){
-                    //načítavame do konca súboru
+                    //read till end of file
                     while((c  = fgetc(stdin)) != -1){
-                        //keď príde / vyskakujeme z blokového komentára a ideme na počiatočný stav
                         if(c == '\''){
                             c = fgetc(stdin);
                             if(c == '/'){
@@ -332,7 +331,7 @@ token_t *getToken(){
                                 ungetc(c, stdin);
                         }
                     }
-                    //koemntár do konca súboru
+                    //comment till end of file
                     if(c == -1){
                         //return saveToken(END_OF_FILE, false);
                         print_err(1);
@@ -340,11 +339,11 @@ token_t *getToken(){
                     state = S_START;
                 }
                 else if(c == -1){
-                    return saveToken(DIV, false);    //delenie, ako posledný znak, očakáva sa syntaktická chyba
+                    return saveToken(DIV, false);    //syntactic error occur
                 }
                 else{
                     ungetc(c, stdin);
-                    return saveToken(DIV, false);    //delenie
+                    return saveToken(DIV, false);    //divide
                 }
             break;
 
@@ -352,10 +351,10 @@ token_t *getToken(){
                 if(isdigit(c)){
                     token->str->string[position++] = c;
                 }
-                //ak pride exponent
+                //exponent
                 else if((c == 'e') || (c == 'E')){
                     if( exponent == true){
-                        print_err(1);  //2 exponenty v číslu vedú k lexikálnej chybe
+                        print_err(1);  //2 exponents == lexical error
                         return NULL;
                     }
 
@@ -371,8 +370,7 @@ token_t *getToken(){
                     else if((c == '+') || (c == '-')){
                         token->str->string[position++] = c;
                         c = fgetc(stdin);
-
-                        //za + alebo - musi nasledovat cislo, inak lexikálna chyba
+                        //after + or - must follow the number, else lexical error
                         if(isdigit(c)){
                             token->str->string[position++] = c;
                         }
@@ -388,10 +386,10 @@ token_t *getToken(){
                     }
                 }
 
-                //desatinné číslo
+                //double
                 else if(c == '.'){
                     if( dot == true){
-                        print_err(1);  //číslo nemôže obsahovať 2 desatinné čiarky
+                        print_err(1);  //number can not content 2 dots
                         return NULL;
                     }
 
@@ -409,7 +407,7 @@ token_t *getToken(){
                     }
                 }
 
-                //znaky, ktoré nemôže číslo obsahovať
+                //characters, that number can not content
                 else if ((c == '_') || isalpha(c)){
                     print_err(1);
                     return NULL;
@@ -426,11 +424,11 @@ token_t *getToken(){
                     }
 
                     if(integer){
-                        return saveToken(INT_NUMBER, true);   //číslo typu integer
+                        return saveToken(INT_NUMBER, true);   //integer
                     }
 
                     else{
-                        return saveToken(DOUBLE_NUMBER, true);    //číslo typu double
+                        return saveToken(DOUBLE_NUMBER, true);    //double
                     }
                 }
 
@@ -445,7 +443,7 @@ token_t *getToken(){
                     ungetc(c, stdin);
                     token->str->string[position] = '\0';
 
-                    //porovnávame, či sa nejedná o kľúčové slová
+                    //identifier or keyword
                     if ((strcmp(token->str->string, "as")) == 0){
                         return saveToken(AS, false);
                     }

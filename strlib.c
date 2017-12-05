@@ -15,6 +15,7 @@
 #include "error.h"
 #include "clear.h"
 
+/// replace malloc & realloc calls with our malloc & realloc wrapper
 #define malloc(size) _malloc(size)
 #define realloc(ptr, new_size, old_size) _realloc(ptr, new_size, old_size)
 

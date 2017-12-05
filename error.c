@@ -24,7 +24,7 @@ void print_err(int id)
 		case 6: fprintf(stderr,"Others semantic error\n"); break;
 		case 99: fprintf(stderr,"Internal error of compiler\n"); break;
 	}
-	clear_all();
-	free(ptr_stack);
-	exit(id);
+	clear_all(); /// clear all allocated memory
+	free(ptr_stack); /// clear memory for pointer stack
+	exit(id); /// exit program with equivalent id
 }

@@ -3,6 +3,7 @@
 
 #include "strlib.h"
 
+//States of finite automaton
 typedef enum{
 
 	S_START,
@@ -16,7 +17,7 @@ typedef enum{
 	S_STR
 
 }states_t;
- 
+
 typedef enum {
 
 	AS,
@@ -80,16 +81,33 @@ typedef enum {
 
 } tokens_t;
 
+//structure of token
 typedef struct token_t{
-	int type;
-	string_t * str;
+	int type;		//identification of token
+	string_t * str;	//attribute of token
 }token_t;
 
-
-
+/**
+ * @brief      Function to get previous token
+ */
 void ungetToken();
+
+/**
+ * @brief      Function to initialize structure of token
+ */
 void initToken();
+
+/**
+ * @brief      Function to get next token
+ */
 token_t *getToken();
+
+/**
+ * @brief      Function to save token
+ *
+ * @param      type 	identification of token
+ * @param      string 	attribute of token
+ */
 token_t *saveToken(int type, bool string);
 
-#endif 
+#endif

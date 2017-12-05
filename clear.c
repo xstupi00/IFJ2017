@@ -17,16 +17,17 @@ void init_ptr_stack(){
 void * _realloc(void *ptr, size_t new_size, size_t old_size){
 	
 	elem_t * help;
-
+	/// finding element of stack pointing to same memory block as ptr
+	
 	for(help = ptr_stack->top_ptr; help != NULL; help = help->next_ptr){
-		if(help->data == ptr)
+		if(help->data == ptr) 
 			break;
 	}
 
-	void * tmp = malloc(new_size);
-	memcpy(tmp, ptr, old_size);
-	free(help->data);
-	help->data = tmp;
+	void * tmp = malloc(new_size); /// allocating new memory block
+	memcpy(tmp, ptr, old_size); /// copy memory  
+	free(help->data); /// free old memory block
+	help->data = tmp; /// now pointer points to new memory block
 	return tmp;
 }
 
@@ -40,6 +41,7 @@ void * _malloc(size_t size){
 	if ( (new_element = (elem_t *) malloc(sizeof(struct elem_t))) == NULL ) 
 		print_err(99);
 	
+	// new element of pointer stack will have pointer to allocated memory
     new_element->data = new;
     new_element->next_ptr = ptr_stack->top_ptr;
     ptr_stack->top_ptr = new_element;
@@ -56,6 +58,7 @@ void * _calloc(size_t num, size_t size){
 	if ( (new_element = (elem_t *) malloc(sizeof(struct elem_t))) == NULL ) 
         print_err(99);
 
+	// new element of pointer stack will have pointer to allocated memory
     new_element->data = new;
     new_element->next_ptr = ptr_stack->top_ptr;
     ptr_stack->top_ptr = new_element;
@@ -69,6 +72,7 @@ void clear_all(){
 	
 	elem_t *tmp = ptr_stack->top_ptr;
     
+    // deallocating all allocated memory going through pointer stack 
     for(; tmp != NULL; tmp = ptr_stack->top_ptr){
       	free(tmp->data);
       	ptr_stack->top_ptr = ptr_stack->top_ptr->next_ptr;
