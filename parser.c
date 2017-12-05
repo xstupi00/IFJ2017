@@ -73,7 +73,7 @@ bool PROG(){
 		}
 	}
 	else if(token->type == SCOPE){
-		//check that all declared functions are defined
+		/// check that all declared functions are defined
 		check_function_definitions();
 		if(MAIN_FUNCTION()){	
 			while(token->type != END_OF_FILE){
@@ -96,6 +96,7 @@ bool PROG(){
 bool DECLARE_FUNCTION(){
 	debug_p("enter DECLARE_FUNCTION");
 
+	/// create new function declaration
 	function_t *current_function = init_function();
 	current_function->defined = false;
 
@@ -104,8 +105,10 @@ bool DECLARE_FUNCTION(){
 		if(token->type == T_FUNCTION){
 			token = getToken();
 			if(token->type == ID){
+				
 				/// save name of current fucntion
 				store_current_function_name(token);
+				
 				token = getToken();
 				if(token->type == LEFT_R_BRACKET){
 					token = getToken();
@@ -113,6 +116,8 @@ bool DECLARE_FUNCTION(){
 						if(token->type == AS){
 							token = getToken();
 							if(DATA_TYPE(&(current_function->return_type))){
+								
+								/// store function declaration into global symbol table
 								store_fun_in_symtable(current_function,current_function_name->string);
 								return true;
 							}
@@ -129,12 +134,14 @@ bool DECLARE_FUNCTION(){
 bool DEFINE_FUNCTION(){
 	debug_p("enter DEFINE_FUNCTION");
 
+	/// create new function definition 
 	function_t *current_function = init_function();
 	current_function->defined = true;
 	
 	if(token->type == T_FUNCTION){
 		token = getToken();
 		if(token->type == ID){
+			
 			/// save name of current function
 			store_current_function_name(token);
 			
@@ -152,11 +159,15 @@ bool DEFINE_FUNCTION(){
 					if(token->type == AS){
 						token = getToken();
 						if(DATA_TYPE(&(current_function->return_type))){
+							
+							/// store function definition in global symtable
 							store_fun_in_symtable(current_function,current_function_name->string);
 							if(token->type == EOL){
 								token = getToken();
 								if(FUNCTION_ELEMENT(current_function)){
 									if(token->type == T_FUNCTION){
+										
+										/// default return value according to function type
 										variable_t * type ;
 										switch(current_function->return_type){
 											case INTEGER: type = create_var("int@0", true); break;
@@ -183,6 +194,7 @@ bool DEFINE_FUNCTION(){
 
 bool MAIN_FUNCTION(){
 	debug_p("enter MAIN_FUNCTION");
+
 	variable_t * tmp = create_var("SCOPE", true);
 	list_insert("LABEL ", tmp, NULL, NULL); 
 	list_insert("CREATEFRAME ", NULL, NULL, NULL);
@@ -190,12 +202,13 @@ bool MAIN_FUNCTION(){
 	tmp = create_var("PRINT", false);
     list_insert("DEFVAR ", tmp, NULL, NULL);
 
-
+	/// create scope function 
 	function_t *current_function = init_function();
 	current_function->defined = true;
 	current_function->return_type = -1;
 	strcpy(current_function_name->string,"scope");
 
+	/// store scope in global symtable
 	store_fun_in_symtable(current_function, current_function_name->string);
 
 	if(token->type == SCOPE){
@@ -221,10 +234,11 @@ bool FUNCTION_ELEMENT(function_t *f){
 		return true;
 	}
 	else if(token->type == DIM){
+		/// create new variable
 		variable_t *current_variable = init_variable();
 		token = getToken();
 		if(token->type == ID){
-			//save name of current variable 
+			/// save the name of current variable 
 			store_current_variable_name(token);
 
 			variable_t * tmp = create_var(current_variable_name->string, false);
@@ -270,14 +284,17 @@ bool STATEMENT(function_t *f){
 		return true;
 	}
 	else if(token->type == ID){
+		/// save the current variable name
 		store_current_variable_name(token);	
 		variable_t *var = find_variable(f->local_symtable,current_variable_name->string);
-		//undefined variable
+		/// undefined variable
 		if(!var)
 			print_err(3);
 		
 		token = getToken();
 		if(token->type == ASSIGNMENT_EQ){
+			
+			/// processing expression
 			expression(f,var);
 			variable_t * tmp = create_var(current_variable_name->string, false);
 			list_insert("POPS ", tmp, NULL, NULL);
@@ -290,7 +307,7 @@ bool STATEMENT(function_t *f){
 		}
 	}
 	else if(token->type == PRINT){
-		//if PRINT command doesn't contain any expression
+		/// if PRINT command doesn't contain any expression
 		token = getToken();
 		if(token->type == SEMICOLON){
 			return false;
@@ -317,7 +334,7 @@ bool STATEMENT(function_t *f){
 		if(token->type == ID){
 			store_current_variable_name(token);
 			variable_t *var = find_variable(f->local_symtable,current_variable_name->string);
-			//undefinied variable
+			/// undefinied variable
 			if(!var)
 				print_err(3);
 			
@@ -341,10 +358,14 @@ bool STATEMENT(function_t *f){
 		}
 	}
 	else if(token->type == RETURN){
+		/// scope can't contain return statement
 		if(!strcmp(current_function_name->string,"scope")) 
 			return false;
 		f->return_var->data_type = f->return_type;
+		
+		/// procesing expression
 		expression(f,f->return_var); 
+		
 		list_insert("POPFRAME ", NULL, NULL, NULL);
 		list_insert("RETURN ", NULL, NULL, NULL); 
 		token = getToken();
@@ -404,8 +425,9 @@ bool STATEMENT(function_t *f){
 	else if(token->type == IF){
 		static int if_counter;
 		variable_t *bool_var = init_variable();
-		bool_var->data_type = BOOLEAN;
 
+		bool_var->data_type = BOOLEAN;
+		/// processing expression
 		expression(f,bool_var); 
 
 		variable_t * result = create_var("PRINT ", false);
@@ -433,7 +455,6 @@ bool STATEMENT(function_t *f){
 					S_Push(label_stack, L2);
 					list_insert("JUMP ", L2, NULL, NULL);
 					list_insert("LABEL ", L1, NULL, NULL); 
-					
 					
 					if(ELSE_BRANCH(f)){
 						token = getToken();
@@ -491,6 +512,7 @@ bool ELSE_BRANCH(function_t *f){
 bool VALUE(function_t *f, variable_t *v){
 	debug_p("enter VALUE");
 	if(token->type == EOL){
+		/// store variable in local symtable of function 'f'
 		store_var_in_symtable(f,v,current_variable_name->string);
 		variable_t * l_value = create_var(current_variable_name->string, false);
 		variable_t * type ;
@@ -504,7 +526,10 @@ bool VALUE(function_t *f, variable_t *v){
 		return true;
 	}
 	else if(token->type == ASSIGNMENT_EQ){
+		/// processing expression
 		expression(f,v);
+
+		/// store variable in local symtable of function 'f'
 		store_var_in_symtable(f,v,current_variable_name->string);
 		variable_t * l_value = create_var(current_variable_name->string, false);
 		list_insert("POPS ", l_value, NULL, NULL);
