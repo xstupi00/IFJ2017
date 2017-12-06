@@ -5,7 +5,7 @@
 // Module:      Semantic control                                                 //
 // Authors:     Kristián Liščinský  (xlisci01)                                   //
 //              Matúš Liščinský     (xlisci02)                                   //
-//      <        Šimon Stupinský     (xstupi00)                                   //
+//              Šimon Stupinský     (xstupi00)                                   //
 //              Vladimír Marcin     (xmarci10)                                   //
 ///////////////////////////////////////////////////////////////////////////////////
 

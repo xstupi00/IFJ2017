@@ -8,6 +8,7 @@
 ##              Šimon Stupinský     (xstupi00)                                   ##
 ##              Vladimír Marcin     (xmarci10)                                   ##
 ###################################################################################
+
 CC= gcc
 CCFLAGS= -std=c99 -Wall -Wextra -pedantic
 LDLIBS= -lm
