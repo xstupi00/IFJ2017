@@ -145,11 +145,12 @@ bool DEFINE_FUNCTION(){
 			/// save name of current function
 			store_current_function_name(token);
 			
+			/// create LABEL with the same name as function
 			variable_t * tmp = create_var(current_function_name->string, true);
 			list_insert("LABEL ", tmp, NULL, NULL); 
-			list_insert("CREATEFRAME ", NULL, NULL, NULL);
-			list_insert("PUSHFRAME ", NULL, NULL, NULL);
-			tmp = create_var("PRINT", false);
+			list_insert("CREATEFRAME ", NULL, NULL, NULL); /// create temporary frame
+			list_insert("PUSHFRAME ", NULL, NULL, NULL); /// push frame on frame stack
+			tmp = create_var("PRINT", false); /// create & define own variable
     		list_insert("DEFVAR ", tmp, NULL, NULL);
 
 			token = getToken();
@@ -169,8 +170,9 @@ bool DEFINE_FUNCTION(){
 										
 										/// default return value according to function type
 										variable_t * type ;
+										/// create instructions for default return 
 										switch(current_function->return_type){
-											case INTEGER: type = create_var("int@0", true); break;
+											case INTEGER: type = create_var("int@0", true); break; 
 											case DOUBLE: type = create_var("float@0.0", true); break;
 											case STRING: type = create_var("string@", true); break;
 										}
@@ -195,6 +197,7 @@ bool DEFINE_FUNCTION(){
 bool MAIN_FUNCTION(){
 	debug_p("enter MAIN_FUNCTION");
 
+	/// create LABEL for scope, push created temporary frame on frame stack & define own auxiliary variable called PRINT
 	variable_t * tmp = create_var("SCOPE", true);
 	list_insert("LABEL ", tmp, NULL, NULL); 
 	list_insert("CREATEFRAME ", NULL, NULL, NULL);
@@ -241,6 +244,7 @@ bool FUNCTION_ELEMENT(function_t *f){
 			/// save the name of current variable 
 			store_current_variable_name(token);
 
+			/// instruction for defining variable with the same name as local variable 
 			variable_t * tmp = create_var(current_variable_name->string, false);
 			list_insert("DEFVAR ", tmp, NULL, NULL);
 
@@ -296,6 +300,9 @@ bool STATEMENT(function_t *f){
 			
 			/// processing expression
 			expression(f,var);
+			
+			/// pops result to variable from data stack 
+			/// (expression leaves result on data stack) 
 			variable_t * tmp = create_var(current_variable_name->string, false);
 			list_insert("POPS ", tmp, NULL, NULL);
 		
@@ -317,6 +324,7 @@ bool STATEMENT(function_t *f){
 		variable_t *print_var = init_variable();
 		expression(f,print_var);
 		
+		/// pops result to own variable from data stack & print it on output 
 		variable_t * tmp = create_var("PRINT", false);
 		list_insert("POPS ", tmp, NULL, NULL);
 		list_insert("WRITE ", tmp, NULL, NULL);
@@ -338,6 +346,9 @@ bool STATEMENT(function_t *f){
 			if(!var)
 				print_err(3);
 			
+			/// finding out which data type is variable in which we store input
+			/// printing string "? " as starting input
+			/// read input from user & store it to variable with defined data type  
 			variable_t * type;
 			switch(var->data_type){
 				case INTEGER: type = create_var(I, true); break;
@@ -365,7 +376,7 @@ bool STATEMENT(function_t *f){
 		
 		/// procesing expression
 		expression(f,f->return_var); 
-		
+		/// pops frame from frame stack and return 
 		list_insert("POPFRAME ", NULL, NULL, NULL);
 		list_insert("RETURN ", NULL, NULL, NULL); 
 		token = getToken();
@@ -378,7 +389,7 @@ bool STATEMENT(function_t *f){
 		token = getToken();
 		if(token->type == WHILE){ 
 			static int while_counter;
-			
+			/// creating uniq LABEL names using counter and char 'W' as while
 			while_counter++;
 			char * lab_name = gen_label_name(while_counter, 'W');
 			variable_t * L1 = create_var(lab_name, true);
@@ -387,7 +398,7 @@ bool STATEMENT(function_t *f){
 			while_counter++;
 			lab_name = gen_label_name(while_counter, 'W');
 			variable_t * L2 = create_var(lab_name, true);
-			
+			/// push LABEL names on label stack in correct order
 			S_Push(label_stack, L2);
 			S_Push(label_stack, L1);
 			
@@ -396,6 +407,8 @@ bool STATEMENT(function_t *f){
 			bool_var->data_type = BOOLEAN;
 			expression(f,bool_var);
 
+			/// creating auxiliary variables, pops result of expr from data stack
+			/// and jump if it's not true (notice operation NOT)  
 			variable_t * result = create_var("PRINT ", false);
 			variable_t * btrue = create_var("bool@true ", true);
 			
@@ -409,9 +422,12 @@ bool STATEMENT(function_t *f){
 				if(STAT_LIST(f)){
 					token = getToken();
 					if(token->type == EOL){ 
+						/// at the end of stat. list 
+						/// getting LABEL names from top of label stack & add instruction for JUMP to that LABEL
 						variable_t * L = S_Top(label_stack);
 						S_Pop(label_stack);
 						list_insert ("JUMP ", L, NULL, NULL);
+						/// getting another LABEL from stack which starts right here
 						L = S_Top(label_stack);
 						S_Pop(label_stack);
 						list_insert("LABEL ", L, NULL, NULL);
@@ -429,6 +445,11 @@ bool STATEMENT(function_t *f){
 		bool_var->data_type = BOOLEAN;
 		/// processing expression
 		expression(f,bool_var); 
+		
+		/// creating uniq LABEL names using counter and char 'I' as if
+		/// push created LABEL name on label stack
+		/// creating auxiliary variables, pops result of expr from data stack
+		/// and jump if it's not true 
 
 		variable_t * result = create_var("PRINT ", false);
 		variable_t * btrue = create_var("bool@true", true);
@@ -447,6 +468,9 @@ bool STATEMENT(function_t *f){
 			if(token->type == EOL){
 				token = getToken();
 				if(STAT_LIST(f)){
+					/// getting top LABEL name from stack & generate LABEL for it to the end 
+					/// generate another LABEL, push it on stack 
+					/// jump to that label 
 					if_counter++;
 					if_lab_name = gen_label_name(if_counter,'I');
 					variable_t * L2 = create_var(if_lab_name,true); 
@@ -461,7 +485,7 @@ bool STATEMENT(function_t *f){
 						if(token->type == IF){
 							token = getToken();
 							if(token->type == EOL){
-								 
+								/// getting LABEL name from top of stack & generating label for it
 								variable_t * L2 = S_Top(label_stack);
 								S_Pop(label_stack);
 								list_insert("LABEL ", L2, NULL, NULL); 
@@ -514,6 +538,8 @@ bool VALUE(function_t *f, variable_t *v){
 	if(token->type == EOL){
 		/// store variable in local symtable of function 'f'
 		store_var_in_symtable(f,v,current_variable_name->string);
+		
+		/// default assignment 0 | 0.0 | "" to newly defined variable according to type of variable
 		variable_t * l_value = create_var(current_variable_name->string, false);
 		variable_t * type ;
 		switch(v->data_type){
@@ -531,6 +557,8 @@ bool VALUE(function_t *f, variable_t *v){
 
 		/// store variable in local symtable of function 'f'
 		store_var_in_symtable(f,v,current_variable_name->string);
+		/// initialization of variable at declaration
+		/// pops result to variable from data stack (expression pushed it on data stack)
 		variable_t * l_value = create_var(current_variable_name->string, false);
 		list_insert("POPS ", l_value, NULL, NULL);
 		
@@ -552,7 +580,8 @@ bool EXP_TO_PRINT(function_t *f){
 		ungetToken();
 		variable_t *print_var = init_variable();
 		expression(f,print_var);
-
+		/// creating auxiliary variable 
+		/// pops result to that variable and print variable to output
 		variable_t * tmp = create_var("PRINT", false);
 		list_insert("POPS ", tmp, NULL, NULL);
 		list_insert("WRITE ", tmp, NULL, NULL);
@@ -572,13 +601,14 @@ bool PARAM_LIST(function_t *f){
 	debug_p("enter PARAM_LIST");
 
 	if(token->type == ID){
-		stack_t * param_stack;
+		stack_t * param_stack; /// creating param stack
 		if(f->defined){
 			param_stack = S_Init();
 		}
 		if(PARAM(f, param_stack) && NEXT_PARAM(f, param_stack)){
 			if(f->defined){
 				while(!S_Empty(param_stack)){
+					/// pops all real parameters from stack to created variables 
 			 	    variable_t * tmp = S_Top(param_stack);
 			       	S_Pop(param_stack);
 					list_insert("POPS ", tmp, NULL, NULL);
@@ -617,7 +647,9 @@ bool PARAM(function_t *f, stack_t * param_stack ){
 	variable_t *current_variable = init_variable();
 	if(token->type == ID){
 		store_current_variable_name(token);
-		if(f->defined){						
+		if(f->defined){		
+			/// defining variable with the same name as formal parameter 
+			// and push it to param stack (for assigning in correct order)				
 			variable_t * tmp = create_var(current_variable_name->string, false);
 	    	list_insert("DEFVAR ", tmp, NULL, NULL);
 			

@@ -35,8 +35,8 @@ char * gen_label_name(int i, char c){
 	if(!name)
 		print_err(99);
 	name[0] = '&'; /// first character of string will be '&'
-	name[1] = c;  
-	sprintf(name+2, "%d", i);
+	name[1] = c;  /// add singificant char 
+	sprintf(name+2, "%d", i); /// concat with number represented by param i
 	return name;
 }
 
@@ -63,7 +63,8 @@ variable_t * create_var(char *str1, bool constant){
 
 void concat()
 {
-
+	/// defines uniq variables on newly created and pushed frame, pops strings to that variables
+	/// does operation concat with these strings, pushs it on data stack and pops frame
 	variable_t * tmp1 = create_var("&C1 ", false);
 	variable_t * tmp2 = create_var("&C2 ", false);	
 
@@ -154,6 +155,9 @@ void process_string (char * orig_string){
 
 
 void length_of_str(variable_t * l_value){
+	/// defines own variables on newly created and pushed frame, pops strings to that variables 
+	/// using operation STRLEN computes length of string and pushs it on data stack
+	/// default changes type if it's needed and pops frame
 
 	list_insert("CREATEFRAME ",NULL, NULL, NULL);
 	list_insert("PUSHFRAME ",NULL, NULL, NULL);
@@ -185,6 +189,11 @@ void retype(variable_t * var){
 }
 
 void substr(){
+	/// defines own variables on newly created and pushed frame, pops real params to that variables 
+	/// using operations GETCHAR and CONCAT gets char on current position in string and concat it with already created string in one loop
+	/// also created LABELS for loop and in case of wrong real parameters
+	/// pushs result on data stack and pops frame
+
 	list_insert("CREATEFRAME ",NULL, NULL, NULL);
 	list_insert("PUSHFRAME ",NULL, NULL, NULL);
 	variable_t * ret = create_var("RETURN ", false);
@@ -280,6 +289,11 @@ void substr(){
 }
 
 void asc (variable_t * l_value){
+	/// defines own variables on newly created and pushed frame, pops real params to that variables 
+	/// using operation STR2INT gets ASCII value of char on defined position in string
+	/// also uses condition labels in case of wrong real params
+	/// default changes type if it's needed and pops frame
+
 	list_insert("CREATEFRAME ",NULL, NULL, NULL);
 	list_insert("PUSHFRAME ",NULL, NULL, NULL);
 	variable_t * tmp = create_var("RETURN ", false);
@@ -329,7 +343,8 @@ void asc (variable_t * l_value){
 }
 
 void chr(){
-
+	/// real param is already on stack, so the only thing this function does is calling operation INT2CHARS
+	/// which converts int number to char and pushs it on stack perfectly as we need 
 	list_insert("CREATEFRAME ",NULL, NULL, NULL);
 	list_insert("PUSHFRAME ",NULL, NULL, NULL);
 	list_insert("INT2CHARS", NULL, NULL, NULL);
@@ -338,9 +353,9 @@ void chr(){
 }
 
 void print_list(){
-	printf(".IFJcode17\nJUMP SCOPE\n");
+	printf(".IFJcode17\nJUMP SCOPE\n"); /// printing header and jump to scope
 
-	for(instruction_t * tmp = list->First; tmp!=NULL; tmp=tmp->next){
+	for(instruction_t * tmp = list->First; tmp!=NULL; tmp=tmp->next){ /// going through the instr. tape and printing instructions 
         if (tmp->instr_name) printf("%s",tmp->instr_name);  /// print instruction name
         if(tmp->op1){
             if(tmp->op1->constant){ /// print var as constant 
