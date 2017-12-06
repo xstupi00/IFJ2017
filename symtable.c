@@ -39,9 +39,9 @@ htab_t* htab_init(unsigned size){
     t->arr_size = size;
     t->n = 0;
     /// init hash table
-    for(unsigned i = 0; i < t->arr_size; i++){
+    for(unsigned i = 0; i < t->arr_size; i++)
         t->ptr[i] = NULL;
-    }
+
     return t;
 }
 
@@ -52,11 +52,11 @@ htab_item_t* htab_find(htab_t *table, const char *key){
     unsigned index = hash_function(key) % table->arr_size;
     
     htab_item_t *tmp = NULL;
-    for(tmp = table->ptr[index]; tmp != NULL; tmp = tmp->next){
+    for(tmp = table->ptr[index]; tmp != NULL; tmp = tmp->next)
         /// return found item
         if(!(strcmp(tmp->key,key)))
             return tmp;
-    }
+
     return NULL;
 }
 
@@ -126,9 +126,8 @@ void htab_print(char *key, bool f, void *data){
         printf("is defined:\t%d\n",((function_t*)data)->defined);
         printf("params count:\t%lu\n",((function_t*)data)->params->length);
         printf("params:\t\t%s\n",((function_t*)data)->params->string);
-        if(((function_t*)data)->local_symtable->n){
+        if(((function_t*)data)->local_symtable->n)
             htab_foreach(((function_t*)data)->local_symtable,htab_print);
-        }
     }
 #endif
 }

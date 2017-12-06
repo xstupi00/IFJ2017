@@ -5,7 +5,7 @@
 // Module:      Semantic control                                                 //
 // Authors:     Kristián Liščinský  (xlisci01)                                   //
 //              Matúš Liščinský     (xlisci02)                                   //
-//              Šimon Stupinský     (xstupi00)                                   //
+//      <        Šimon Stupinský     (xstupi00)                                   //
 //              Vladimír Marcin     (xmarci10)                                   //
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -86,10 +86,9 @@ void store_fun_in_symtable(function_t *fun, const char *fun_name){
         /// of user function -> semantic error is reportedS
         if(found_function->defined)
             print_err(3);
-        for(i = 0; i<fun->params->length; i++){
+        for(i = 0; i<fun->params->length; i++)
             if( found_function->params->string[i] != fun->params->string[i])
                 break;
-        }
         /// mismatch of count or types of parameters in definition and declaration
         if(i != found_function->params->length || i != fun->params->length)
             print_err(3);
@@ -156,17 +155,17 @@ variable_t *find_variable(htab_t *symtable, const char *key){
 }
 
 void store_current_variable_name(token_t *token){
-    if(current_variable_name->capacity < token->str->length){
+    if(current_variable_name->capacity < token->str->length)
 		extendStr(current_variable_name ,token->str->length);
-	}
+
 	strcpy(current_variable_name->string,token->str->string);
 	current_variable_name->length = token->str->length;
 }
 
 void store_current_function_name(token_t *token){
-    if(current_function_name->capacity < token->str->length){
+    if(current_function_name->capacity < token->str->length)
 		extendStr(current_function_name,token->str->length);
-	}
+
 	strcpy(current_function_name->string,token->str->string);
 	current_function_name->length = token->str->length;
 }

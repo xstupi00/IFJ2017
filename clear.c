@@ -19,10 +19,9 @@ void * _realloc(void *ptr, size_t new_size, size_t old_size){
 	elem_t * help;
 	/// finding element of stack pointing to same memory block as ptr
 	
-	for(help = ptr_stack->top_ptr; help != NULL; help = help->next_ptr){
+	for(help = ptr_stack->top_ptr; help != NULL; help = help->next_ptr)
 		if(help->data == ptr) 
 			break;
-	}
 
 	void * tmp = malloc(new_size); /// allocating new memory block
 	memcpy(tmp, ptr, old_size); /// copy memory  

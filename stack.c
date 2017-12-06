@@ -19,6 +19,7 @@
 #define malloc(size) _malloc(size)
 
 stack_t* S_Init () {
+
     stack_t* s;
     if( !(s = (stack_t*)malloc(sizeof(stack_t))) )
         print_err(99);
@@ -40,9 +41,8 @@ void S_Push (stack_t *s, void* d) {
 
 void S_Pop (stack_t *s) {
 
-    if ( s->top_ptr != NULL ) {
+    if ( s->top_ptr != NULL )
         s->top_ptr = s->top_ptr->next_ptr;
-    }
 }
 
 void* S_Top (stack_t *s) {

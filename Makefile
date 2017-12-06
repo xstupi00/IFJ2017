@@ -16,7 +16,7 @@ REMOVE= rm -f
 SRC= $(wildcard *.c) 
 OBJ= $(SRC:%.c=%.o)
 
-.PHONY: all debug test clean 
+.PHONY: all debug clean 
 
 all: $(EXECUTABLE)
 
@@ -51,11 +51,6 @@ symtable.o: symtable.c symtable.h error.h scanner.h semantic_control.h clear.h
 	$(CC) $(CCFLAGS) -c $< -o $@
 clear.o: clear.c clear.h stack.h error.h
 	$(CC) $(CCFLAGS) -c $< -o $@
-
-#run automated tests
-test: $(EXECUTABLE)
-test:
-	python tests/tests.py
 
 #clean object files and binary
 clean:

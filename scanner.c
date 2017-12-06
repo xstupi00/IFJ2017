@@ -59,7 +59,6 @@ token_t *getToken(){
     }
     
     int position = 0;           //index of actual char
-    //char c; cppcheck
     char hexa[4];
     hexa[3] = '\0';
     int escapovanie = 0;
@@ -68,7 +67,7 @@ token_t *getToken(){
     bool dot = false;
     states_t state = S_START;   //state of automaton
 
-    while(/*((c = fgetc(stdin)) != EOF)+*/1){
+    while(1){
         char c = fgetc(stdin);
         token->str->length=strlen(token->str->string);
   

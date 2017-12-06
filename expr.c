@@ -410,9 +410,8 @@ void correct_expr (token_t *act_token, int *prev_token, bool *set_logic) {
                 print_err(2);
         }
         /// else have to follow arithmetic operator or right bracket, else error
-        else if ( !is_arithmetic_opr(act_token->type) && act_token->type != RIGHT_R_BRACKET ) {
+        else if ( !is_arithmetic_opr(act_token->type) && act_token->type != RIGHT_R_BRACKET ) 
             print_err(2);
-        }
     }
 
     *prev_token = act_token->type;
